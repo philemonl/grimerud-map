@@ -1,0 +1,15 @@
+{
+ "note": "Affine map from UDisc screenshot pixels (u, v) to wide z17 mosaic pixels; fitted from the published hole positions.",
+ "matrix": [
+  [
+   0.758848925,
+   0.001855925,
+   356.987460166
+  ],
+  [
+   -3.9851e-05,
+   0.761280898,
+   -7.822090837
+  ]
+ ]
+}

@@ -1,6 +1,8 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'pipeline'))
+from paths import B
 import sys
 from PIL import Image, ImageDraw
-im=Image.open('/home/claude/z18.jpg').convert('RGB')
+im=Image.open(B+'z18.jpg').convert('RGB')
 x0,y0,x1,y1,out=int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4]),sys.argv[5]
 k=int(sys.argv[6]) if len(sys.argv)>6 else 3
 c=im.crop((x0,y0,x1,y1)).resize(((x1-x0)*k,(y1-y0)*k),Image.LANCZOS)

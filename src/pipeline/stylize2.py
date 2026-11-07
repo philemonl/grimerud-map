@@ -1,5 +1,5 @@
+from paths import B
 import numpy as np, cv2, json, sys
-sys.path.insert(0,'/home/claude/scripts')
 from scipy import ndimage as ndi
 from stylize import load, PAL, ORDER, classify
 import data
@@ -35,7 +35,7 @@ def draw_poly_path(mask,pts,width_px):
     p=np.array(pts,np.int32).reshape(-1,1,2)
     cv2.polylines(mask,[p],False,1,int(round(width_px)),cv2.LINE_AA)
 
-site=load('/home/claude/z18.jpg')
+site=load(B+'z18.jpg')
 sm,cls,dark,gr,v=classify(site)
 cls=fix_shadows(cls,v,gr)
 # footprints & areas we paint ourselves
@@ -65,7 +65,7 @@ fm=cv2.GaussianBlur(paved.astype(np.float32),(0,0),0.8)[...,None]
 col=np.where((road>0)[...,None],ROADC,GRAVEL)
 out=out*(1-fm)+col*fm
 # trees
-treem=canopy('/home/claude/z18.jpg')
+treem=canopy(B+'z18.jpg')
 treem[cv2.dilate(paved,np.ones((7,7),np.uint8))>0]=0
 treem[pads>0]=0
 dist=ndi.distance_transform_edt(treem)
@@ -86,10 +86,10 @@ out=out*(1-sh[...,None])
 # paper grain
 out*=(1+rng.normal(0,0.02,(H,W)))[...,None]
 out=np.clip(out,0,1)
-cv2.imwrite('/home/claude/style/ground_site.png',cv2.cvtColor((out*255).astype(np.uint8),cv2.COLOR_RGB2BGR))
+cv2.imwrite(B+'style/ground_site.png',cv2.cvtColor((out*255).astype(np.uint8),cv2.COLOR_RGB2BGR))
 T=[[round((x-896)*M,1),round((y-896)*M,1),round(rr,1),c] for x,y,rr,c in trees]
 # context ring
-ctx=load('/home/claude/ref/big17.jpg'); Mc=0.58376; CX=336.24576; CZ=37.36064; CS=1643.86816
+ctx=load(B+'ref/big17.jpg'); Mc=0.58376; CX=336.24576; CZ=37.36064; CS=1643.86816
 sm2,cls2,dark2,gr2,v2=classify(ctx); cls2=fix_shadows(cls2,v2,gr2)
 o2=paint(ctx,cls2,0.5); o2=ink_edges(o2,cls2,2,0.35)
 Hc,Wc=cls2.shape
@@ -100,7 +100,7 @@ for pts,wm,kind in data.ROADS:
     if kind in('road',): draw_poly_path(road2,[s2c(p) for p in pts],wm/Mc)
 om=cv2.GaussianBlur(cv2.dilate(road2,np.ones((3,3),np.uint8)).astype(np.float32),(0,0),.6)[...,None]
 o2=o2*(1-om*.8)+INK*om*.8; fm=cv2.GaussianBlur(road2.astype(np.float32),(0,0),.6)[...,None]; o2=o2*(1-fm)+ROADC*fm
-tm2=canopy('/home/claude/ref/big17.jpg',0.5,120); tm2[road2>0]=0
+tm2=canopy(B+'ref/big17.jpg',0.5,120); tm2[road2>0]=0
 d2=ndi.distance_transform_edt(tm2); T2=[]
 for y in range(0,Hc,11):
     for x in range(0,Wc,11):
@@ -118,7 +118,7 @@ o2=o2*(1-(cv2.GaussianBlur(sh2,(0,0),1.2)*0.28)[...,None])
 yy,xx=np.mgrid[0:Hc,0:Wc]; d=np.minimum.reduce([xx,yy,Wc-1-xx,Hc-1-yy]).astype(np.float32)
 a=np.ones_like(d)[...,None]; paper=np.array([0.965,0.953,0.925])  # no fade: the distant landscape continues beyond
 o2=np.clip(o2*a+paper*(1-a),0,1)
-cv2.imwrite('/home/claude/style/ground_ctx.png',cv2.cvtColor((o2*255).astype(np.uint8),cv2.COLOR_RGB2BGR))
+cv2.imwrite(B+'style/ground_ctx.png',cv2.cvtColor((o2*255).astype(np.uint8),cv2.COLOR_RGB2BGR))
 # blend edge of site square into ctx is handled by drawing ctx under it
-json.dump(dict(site=T,ctx=T2),open('/home/claude/style/trees.json','w'),separators=(',',':'))
+json.dump(dict(site=T,ctx=T2),open(B+'style/trees.json','w'),separators=(',',':'))
 print(len(T),len(T2))

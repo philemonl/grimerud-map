@@ -1,0 +1,55 @@
+<!-- Grimerud Gård map markup. Element ids are prefixed gm- so they cannot clash with the host page. -->
+<div id="grimerud-map">
+  <div class="app">
+    <aside class="panel">
+      <div class="head">
+        <p class="welcome">Velkommen til Ungdom i Oppdrag</p>
+        <h1>Grimerud Gård</h1>
+        <p class="since">Siden 1975</p>
+        <p class="lede"><span class="lede-d">Tap a place in the list or on the map. Drag to turn the map, pinch or scroll to zoom.</span><span class="lede-m">Tap a place in the list or on the map. Tap <b>Utforsk</b> to open the map full screen, then drag to turn and pinch to zoom.</span></p>
+      </div>
+      <nav class="list" id="gm-list" aria-label="Places"></nav>
+      <div class="foot">
+        <strong>Grimerudvegen 77, 2312 Ottestad</strong>
+        <div class="coord">60°44′23″N · 11°07′52″E</div>
+        <div>Site map by Jan Willem Middag · Disc golf after UDisc · Imagery © Esri, Maxar, Earthstar Geographics. Positions and heights approximate.</div>
+      </div>
+    </aside>
+    <main class="stage" id="gm-stage">
+      <div class="gm-load" id="gm-load">Laster kart · Loading map…</div>
+      <canvas id="gm-c" aria-label="Illustrated 3D map of Grimerud Gård"></canvas>
+      <div id="gm-pins"></div>
+      <button class="dg-go" id="gm-dggo" hidden aria-label="Show the disc golf course"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M5 7h10l-1.5 4h-7z" fill="none" stroke="#26221d" stroke-width="1.6" stroke-linejoin="round"/><path d="M5.5 5h9" stroke="#26221d" stroke-width="2.2" stroke-linecap="round"/><path d="M7 17h6" stroke="#26221d" stroke-width="1.6" stroke-linecap="round"/></svg>Diskgolf</button>
+      <div class="topbar">
+      <div class="seg maptabs" role="group" aria-label="Map">
+        <button id="gm-mfarm" aria-pressed="true">Grimerud</button>
+        <button id="gm-mdisc" aria-pressed="false">Diskgolf</button>
+      </div>
+      <button class="gm-expand" id="gm-expand" aria-pressed="false" aria-label="Utforsk kartet i fullskjerm · Explore the map full screen"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tx">Utforsk</span></button>
+      <div class="hud">
+        <div class="seg" role="group" aria-label="View">
+          <button id="gm-v3d" aria-pressed="true">3D</button>
+          <button id="gm-vtop" aria-pressed="false">Kart<span class="en"> · Map</span></button>
+        </div>
+        <div class="seg"><button id="gm-vnames" aria-pressed="false">Navn<span class="en"> · Names</span></button></div>
+        <div class="seg"><button id="gm-vnight" aria-pressed="false" aria-label="Night mode"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" style="vertical-align:-3px;margin-right:5px"><path d="M14.5 13.2A6.5 6.5 0 0 1 7 3.6a6.5 6.5 0 1 0 7.5 9.6z" fill="currentColor"/></svg><span class="tx">Natt · Night</span></button></div>
+        <button class="compass" id="gm-compass" title="Reset view" aria-label="Reset view">
+          <svg viewBox="0 0 40 40" id="gm-needle">
+            <path d="M20 3 L23 17 L37 20 L23 23 L20 37 L17 23 L3 20 L17 17 Z" fill="#fffdf8" stroke="#26221d" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M20 3 L23 17 L20 20 Z M37 20 L23 23 L20 20 Z M20 37 L17 23 L20 20 Z M3 20 L17 17 L20 20 Z" fill="#26221d"/>
+            <path d="M20 3 L23 17 L20 20 L17 17 Z" fill="#b23a2b" stroke="#26221d" stroke-width="1"/>
+          </svg>
+        </button>
+      </div>
+      </div>
+      <button class="dg-go farm" id="gm-farmgo" hidden aria-label="Back to the Grimerud map"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10l7-6 7 6M5 9v8h10V9" fill="none" stroke="#26221d" stroke-width="1.6" stroke-linejoin="round"/></svg>Grimerud</button>
+      <div class="card" id="gm-card" hidden>
+        <span class="num" id="gm-cnum"></span>
+        <div><h2 id="gm-cname"></h2><p id="gm-cdesc"></p></div>
+        <button class="close" id="gm-cclose" aria-label="Close">×</button>
+      </div>
+      <div class="gm-wheel" id="gm-wheel" aria-hidden="true">Hold Ctrl / ⌘ og scroll for å zoome · to zoom</div>
+      <div class="hint" id="gm-hint">Drag to turn · right-drag or two fingers to move</div>
+    </main>
+  </div>
+</div>

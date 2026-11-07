@@ -1,11 +1,12 @@
+from paths import B
 import math, json, base64, numpy as np, tifffile, cv2
 from pyproj import Transformer
 from scipy.ndimage import map_coordinates
 LAT0,LON0=60.73975,11.13256; R=6378137.0; cosl=math.cos(math.radians(LAT0))
 mx0=math.radians(LON0)*R; my0=math.log(math.tan(math.pi/4+math.radians(LAT0)/2))*R
 tr=Transformer.from_crs(4326,25833,always_xy=True)
-dem=tifffile.imread('/home/claude/dtm/dtm.tif').astype(np.float64)
-a,b,c,d=[float(v) for v in open('/home/claude/dtm/bbox.txt').read().split()]
+dem=tifffile.imread(B+'dtm/dtm.tif').astype(np.float64)
+a,b,c,d=[float(v) for v in open(B+'dtm/bbox.txt').read().split()]
 H,W=dem.shape; sx=(c-a)/W; sy=(d-b)/H
 def heights(X,Z):
     mx=mx0+X/cosl; my=my0-Z/cosl
@@ -18,7 +19,7 @@ h0=float(heights(np.array([0.0]),np.array([0.0]))[0])
 # heightmap for the page: covers the context square
 N=600; xs=np.linspace(CX-CTX_S/2,CX+CTX_S/2,N); zs=np.linspace(CZ-CTX_S/2,CZ+CTX_S/2,N); X,Z=np.meshgrid(xs,zs)
 Hm=heights(X.ravel(),Z.ravel()).reshape(N,N)
-import sys; sys.path.insert(0,'/home/claude/scripts'); import data
+import sys; import data
 M=0.29188; step=CTX_S/(N-1)
 def wpx(p): return [((p[0]-896)*M-xs[0])/step,((p[1]-896)*M-zs[0])/step]
 parts=[q for it in data.ITEMS for q in it.get('parts',[])]+data.CONTEXT
@@ -33,7 +34,7 @@ for q in parts:
     Hm=Hm*(1-w)+level*w
 hmin=float(Hm.min())
 q=np.round((Hm-hmin)*100).astype('<u2')
-json.dump(dict(n=N,x0=float(xs[0]),z0=float(zs[0]),size=CTX_S,hmin=hmin,h0=h0,data=base64.b64encode(q.tobytes()).decode()),open('/home/claude/style/terrain.json','w'))
+json.dump(dict(n=N,x0=float(xs[0]),z0=float(zs[0]),size=CTX_S,hmin=hmin,h0=h0,data=base64.b64encode(q.tobytes()).decode()),open(B+'style/terrain.json','w'))
 print('h0',h0,'range',hmin,Hm.max())
 def hillshade(img_path,out_path,size,cx,cz):
     im=cv2.imread(img_path).astype(np.float32)/255; n=im.shape[0]
@@ -54,5 +55,5 @@ def hillshade(img_path,out_path,size,cx,cz):
 import scipy.interpolate as si
 _gi=si.RegularGridInterpolator((zs,xs),Hm,bounds_error=False,fill_value=None)
 heights=lambda X,Z: _gi(np.c_[Z,X]) + 0*X
-hillshade('/home/claude/style/ground_site.png','/home/claude/style/ground_site_hs.png',S,0,0)
-hillshade('/home/claude/style/ground_ctx.png','/home/claude/style/ground_ctx_hs.png',CTX_S,CX,CZ)
+hillshade(B+'style/ground_site.png',B+'style/ground_site_hs.png',S,0,0)
+hillshade(B+'style/ground_ctx.png',B+'style/ground_ctx_hs.png',CTX_S,CX,CZ)

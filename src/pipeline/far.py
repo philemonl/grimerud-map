@@ -1,5 +1,5 @@
+from paths import B
 import sys, math, json, base64, subprocess, numpy as np, cv2
-sys.path.insert(0,'/home/claude/scripts')
 from geo import g18_to_world
 from stylize import classify, PAL, ORDER
 from pyproj import Transformer
@@ -8,7 +8,7 @@ k=2**(18-Z)
 wx0,wz0=g18_to_world(X0*256*k,Y0*256*k); wx1,wz1=g18_to_world((X0+N)*256*k,(Y0+N)*256*k)
 SIZE=wx1-wx0; CX=(wx0+wx1)/2; CZ=(wz0+wz1)/2
 print('far size',SIZE,'centre',CX,CZ)
-img=cv2.cvtColor(cv2.imread('/home/claude/ref/far14.jpg'),cv2.COLOR_BGR2RGB).astype(np.float32)/255
+img=cv2.cvtColor(cv2.imread(B+'ref/far14.jpg'),cv2.COLOR_BGR2RGB).astype(np.float32)/255
 img=cv2.resize(img,(1536,1536),interpolation=cv2.INTER_AREA)
 lum=img.mean(-1)
 # water: very dark, smooth, in big connected bodies
@@ -54,10 +54,10 @@ a,b,c,dd=min(es)-50,min(ns)-50,max(es)+50,max(ns)+50
 W=H=300
 url=("https://wcs.geonorge.no/skwms1/wcs.hoyde-dtm-nhm-25833?service=WCS&version=1.0.0&request=GetCoverage&coverage=nhm_dtm_topo_25833"
      f"&crs=EPSG:25833&bbox={a:.0f},{b:.0f},{c:.0f},{dd:.0f}&width={W}&height={H}&format=GeoTIFF")
-subprocess.run(['curl','-sS','-m','200','-o','/home/claude/dtm/far.tif',url],check=True)
+subprocess.run(['curl','-sS','-m','200','-o',B+'dtm/far.tif',url],check=True)
 import tifffile
 from scipy.ndimage import map_coordinates
-dem=tifffile.imread('/home/claude/dtm/far.tif').astype(np.float64)
+dem=tifffile.imread(B+'dtm/far.tif').astype(np.float64)
 dem[dem<0]=123.0  # nodata over the lake -> Mjøsa surface
 sx=(c-a)/W; sy=(dd-b)/H
 G=129; gx=np.linspace(wx0,wx1,G); gz=np.linspace(wz0,wz1,G); GX,GZ=np.meshgrid(gx,gz)
@@ -77,8 +77,8 @@ out=np.clip(out*np.where(keep[...,None]>0,1.0,f),0,1)
 # fade to paper at the outer edge
 D=np.minimum.reduce([xx,yy,1535-xx,1535-yy]).astype(np.float32); al=np.clip((D-20)/240,0,1)[...,None]
 out=out*al+np.array([0.47,0.58,0.50])*(1-al)  # fade into the hazy green of the horizon hills
-cv2.imwrite('/home/claude/style/far.jpg',cv2.cvtColor((out*255).astype(np.uint8),cv2.COLOR_RGB2BGR)[::1,::1],[cv2.IMWRITE_JPEG_QUALITY,78,cv2.IMWRITE_JPEG_PROGRESSIVE,1])
-small=cv2.resize(cv2.imread('/home/claude/style/far.jpg'),(1024,1024),interpolation=cv2.INTER_AREA)
-cv2.imwrite('/home/claude/style/far.jpg',small,[cv2.IMWRITE_JPEG_QUALITY,76,cv2.IMWRITE_JPEG_PROGRESSIVE,1])
-json.dump(dict(n=G,x0=wx0,z0=wz0,size=SIZE,hmin=hmin,lake=123.0,data=base64.b64encode(q.tobytes()).decode()),open('/home/claude/style/far.json','w'))
+cv2.imwrite(B+'style/far.jpg',cv2.cvtColor((out*255).astype(np.uint8),cv2.COLOR_RGB2BGR)[::1,::1],[cv2.IMWRITE_JPEG_QUALITY,78,cv2.IMWRITE_JPEG_PROGRESSIVE,1])
+small=cv2.resize(cv2.imread(B+'style/far.jpg'),(1024,1024),interpolation=cv2.INTER_AREA)
+cv2.imwrite(B+'style/far.jpg',small,[cv2.IMWRITE_JPEG_QUALITY,76,cv2.IMWRITE_JPEG_PROGRESSIVE,1])
+json.dump(dict(n=G,x0=wx0,z0=wz0,size=SIZE,hmin=hmin,lake=123.0,data=base64.b64encode(q.tobytes()).decode()),open(B+'style/far.json','w'))
 print('lake px',keep.mean(),'hmin',hmin,'hmax',Hm.max())
