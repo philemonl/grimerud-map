@@ -63,6 +63,14 @@
 #grimerud-map .tool { width: 40px; height: 40px; display: grid; place-items: center; padding: 0; background: #fffdf8; color: #26221d; border: 1.6px solid #26221d; border-radius: 50%; box-shadow: 0 2px 0 rgba(38,34,29,.3); font: 700 13px/1 var(--f); cursor: pointer; }
 #grimerud-map .tool svg { width: 19px; height: 19px; }
 #grimerud-map .tool[aria-pressed="true"] { background: #26221d; color: #fffdf8; }
+/* state buttons show the current state (sun/moon, leaf/snowflake) instead of turning dark */
+#grimerud-map .tool.state[aria-pressed="true"] { background: #fffdf8; color: #26221d; }
+#grimerud-map .tool.state .st-on, #grimerud-map .tool.state[aria-pressed="true"] .st-off { display: none; }
+#grimerud-map .tool.state[aria-pressed="true"] .st-on { display: block; }
+#grimerud-map #gm-vnight .st-off { color: #c98a12; }
+#grimerud-map #gm-vnight .st-on { color: #2c3a66; }
+#grimerud-map #gm-vwinter .st-off { color: #4c8a2f; }
+#grimerud-map #gm-vwinter .st-on { color: #3f7fb5; }
 #grimerud-map .tool:hover:not([aria-pressed="true"]) { background: #ffffff; }
 #grimerud-map .tool-pair { display: flex; flex-direction: column; background: #26221d; padding: 1.6px; gap: 1.6px; border-radius: 21px; box-shadow: 0 2px 0 rgba(38,34,29,.3); }
 #grimerud-map .tool-pair .tool { width: 36.8px; height: 34px; border: 0; box-shadow: none; border-radius: 0; }

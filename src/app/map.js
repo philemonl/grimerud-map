@@ -893,6 +893,7 @@ requestAnimationFrame(frame);
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   function go(toNight) {
     on = toNight; btn.setAttribute("aria-pressed", on);
+    btn.title = on ? "Natt · Night (trykk for dag · tap for day)" : "Dag · Day (trykk for natt · tap for night)";
     if (reduceMotion) { s = on ? 1 : 0; render(s); return; }
     anim = { t0: performance.now(), ms: 1100, from: s, to: on ? 1 : 0, startClock: on ? 16.5 * 60 : 23 * 60, span: on ? 6.5 * 60 : 8.5 * 60 };
     requestAnimationFrame(step);
@@ -1012,6 +1013,7 @@ requestAnimationFrame(frame);
   }
   btn.addEventListener("click", () => {
     on = !on; btn.setAttribute("aria-pressed", on);
+    btn.title = on ? "Vinter · Winter (trykk for sommer · tap for summer)" : "Sommer · Summer (trykk for vinter · tap for winter)";
     if (reduce) { apply(on ? 1 : 0); return; }
     anim = { t0: performance.now(), from: snow.value, to: on ? 1 : 0 }; requestAnimationFrame(step);
   });
