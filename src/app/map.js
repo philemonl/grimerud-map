@@ -1049,15 +1049,16 @@ requestAnimationFrame(frame);
   });
 })();
 
-// Display menu: names, winter and night live behind one button
+// "More to show": names, winter and night slide out beside one button and stay out until it's pressed again
 (() => {
-  const btn = document.getElementById("gm-layers"), menu = document.getElementById("gm-menu");
-  const open = on => { menu.hidden = !on; btn.setAttribute("aria-expanded", on); };
-  btn.addEventListener("click", e => { e.stopPropagation(); open(menu.hidden); });
-  menu.addEventListener("click", e => e.stopPropagation());
-  document.addEventListener("click", () => open(false));
-  root.addEventListener("keydown", e => { if (e.key === "Escape" && !menu.hidden) { open(false); btn.focus(); } });
-  canvas.addEventListener("pointerdown", () => open(false));
+  const btn = document.getElementById("gm-layers"), drawer = document.getElementById("gm-menu"), grp = btn.parentElement;
+  const opts = [...drawer.querySelectorAll(".tool")];
+  const open = on => { drawer.classList.toggle("open", on); btn.setAttribute("aria-expanded", on); opts.forEach(b => b.tabIndex = on ? 0 : -1); };
+  btn.addEventListener("click", e => { e.stopPropagation(); open(!drawer.classList.contains("open")); });
+  root.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.classList.contains("open")) { open(false); btn.focus(); } });
+  const lit = () => grp.classList.toggle("lit", opts.some(b => b.getAttribute("aria-pressed") === "true"));
+  new MutationObserver(lit).observe(drawer, { subtree: true, attributes: true, attributeFilter: ["aria-pressed"] });
+  open(false); lit();
 })();
 
 // Hide or show the list beside the map (wide screens)
