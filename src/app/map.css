@@ -43,6 +43,9 @@
 @media (hover: hover) { #grimerud-map .listtoggle:hover::after { opacity: 1; } }
 /* "more to show" drawer */
 #grimerud-map .tgrp.look { position: relative; }
+#grimerud-map .tool.vmode { display: none; }
+#grimerud-map .sheet-handle { display: none; }
+#grimerud-map .pin.lv-off:not(.on) { display: none; }
 /* opens downward; .side (not enough room below, e.g. the short map on a phone) opens to the left instead */
 #grimerud-map .drawer { position: absolute; left: 0; top: calc(100% + 8px); display: flex; flex-direction: column; gap: 8px; }
 #grimerud-map .drawer.side { left: auto; top: 0; right: calc(100% + 8px); flex-direction: row-reverse; }
@@ -142,7 +145,7 @@
 #grimerud-map .seg button[aria-pressed="true"] { background: #26221d; color: #fffdf8; }
 #grimerud-map .tool.compass { width: 46px; height: 46px; }
 #grimerud-map .tool.compass svg { width: 38px; height: 38px; }
-#grimerud-map .card { position: absolute; left: calc(14px + env(safe-area-inset-left, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); max-width: min(380px, calc(100% - 28px)); background: #fffdf8; color: #26221d; border: 2px solid #26221d; border-radius: 12px; box-shadow: 0 3px 0 rgba(38,34,29,.3); padding: 12px 14px; display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 12px; align-items: start; }
+#grimerud-map .card { z-index: 7; position: absolute; left: calc(14px + env(safe-area-inset-left, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); max-width: min(380px, calc(100% - 28px)); background: #fffdf8; color: #26221d; border: 2px solid #26221d; border-radius: 12px; box-shadow: 0 3px 0 rgba(38,34,29,.3); padding: 12px 14px; display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 12px; align-items: start; }
 #grimerud-map .card .num { background: #b23a2b; color: #fff; border: 2px solid #26221d; width: 30px; height: 30px; font-weight: 700; }
 #grimerud-map .card h2 { font: 500 18px/1.2 var(--f); margin: 3px 0 2px; }
 #grimerud-map .card h2 i { font-weight: 400; color: #5a5248; }
@@ -212,23 +215,28 @@
   #grimerud-map .list { overflow: visible; padding: 0 6px 12px; }
   #grimerud-map .foot { padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); }
   #grimerud-map .hint { display: none; }
-  #grimerud-map .stage { height: 46svh; min-height: 300px; }
-  #grimerud-map .ltabs { margin: 2px 16px 0; }
+  #grimerud-map .stage { height: 64svh; min-height: 340px; }
+  /* one map switch on phones: the one on the map; the list follows it */
+  #grimerud-map .ltabs { display: none; }
+  #grimerud-map .lede-d { display: none; }
+  #grimerud-map .lede-m { display: inline; }
   #grimerud-map .search { margin: 0 16px 8px; }
   #grimerud-map .listtoggle { display: none; }
   #grimerud-map .ltabs button { padding: 8px 6px 7px; font-size: 13.5px; }
   #grimerud-map .maptabs { top: 10px; left: 10px; }
   /* phones: view and zoom stay in the right-hand column; names, season and time sit in a row under the map switch */
-  #grimerud-map .tools { top: 10px; right: 10px; left: 10px; align-items: flex-end; gap: 12px; }
-  #grimerud-map .tgrp { gap: 6px; }
-  #grimerud-map .tool { width: 44px; height: 44px; }
-  #grimerud-map .tool-pair .tool { width: 40.8px; height: 38px; }
+  /* phones: compass, home and the drawer button only; 2D lives in the drawer, zoom is pinch */
+  #grimerud-map .tools { top: 10px; right: 10px; align-items: flex-end; gap: 8px; }
+  #grimerud-map .tgrp { gap: 8px; }
+  #grimerud-map .tool { width: 40px; height: 40px; }
+  #grimerud-map .tgrp[data-g="view"] .tool-pair, #grimerud-map .tgrp[data-g="zoom"] { display: none; }
+  #grimerud-map .tool.vmode { display: grid; }
   #grimerud-map .tool.corner { right: 10px; bottom: 10px; }
   #grimerud-map .brand img { height: 28px; }
   #grimerud-map .brand { margin-bottom: 8px; }
   #grimerud-map .seg button, #grimerud-map .maptabs button { padding: 9px 11px; font-size: 13px; }
-  #grimerud-map .tool.compass { width: 46px; height: 46px; }
-  #grimerud-map .tool.compass svg { width: 38px; height: 38px; }
+  #grimerud-map .tool.compass { width: 42px; height: 42px; }
+  #grimerud-map .tool.compass svg { width: 35px; height: 35px; }
   #grimerud-map .card { left: 10px; right: 64px; bottom: 10px; max-width: none; padding: 10px 12px; }
   #grimerud-map .card h2 { font-size: 16.5px; }
   #grimerud-map .item { padding: 7px 10px; }
@@ -238,11 +246,22 @@
 html.gm-lock, html.gm-lock body { overflow: hidden !important; overscroll-behavior: none; }
 #grimerud-map.gm-full { position: fixed; inset: 0; z-index: 2147483000; width: auto; background: var(--bg); }
 #grimerud-map.gm-full .app { height: 100%; min-height: 0; }
+/* height of the list sheet's visible strip on phones (set here: a container query can't style the container itself) */
+#grimerud-map.gm-full { --peek: calc(76px + env(safe-area-inset-bottom, 0px)); }
 #grimerud-map.gm-full .stage { height: 100%; min-height: 0; touch-action: none; position: relative; top: 0; }
 /* wide: the list stays beside the map; narrow: the map takes the whole screen */
 @container gm (max-width: 760px) {
-  #grimerud-map.gm-full .app { display: block; }
-  #grimerud-map.gm-full .panel { display: none; }
+  /* the list becomes a sheet along the bottom: search showing, drag or tap the handle to pull it up */
+  #grimerud-map.gm-full .app { display: block; position: relative; }
+  #grimerud-map.gm-full .panel { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; height: 72%; border: 0; border-top: 2px solid var(--ink); border-radius: 16px 16px 0 0; box-shadow: 0 -4px 18px rgba(38,34,29,.18); transform: translateY(calc(100% - var(--peek))); transition: transform .28s cubic-bezier(.2,.8,.2,1); }
+  #grimerud-map.gm-full .panel.open { transform: none; }
+  #grimerud-map.gm-full .panel .head, #grimerud-map.gm-full .panel .foot { display: none; }
+  #grimerud-map.gm-full .sheet-handle { display: grid; place-items: center; width: 100%; height: 22px; flex: none; cursor: grab; touch-action: none; }
+  #grimerud-map.gm-full .sheet-handle span { width: 40px; height: 5px; border-radius: 3px; background: #c9c2b4; }
+  #grimerud-map.gm-full .search { margin: 0 14px 10px; }
+  #grimerud-map.gm-full .list { overflow-y: auto; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+  #grimerud-map.gm-full .stage .tool.corner, #grimerud-map.gm-full .stage .card { bottom: calc(var(--peek) + 10px); }
+  @media (prefers-reduced-motion: reduce) { #grimerud-map.gm-full .panel { transition: none; } }
 }
 #grimerud-map.gm-full .maptabs, #grimerud-map.gm-full .tools { top: calc(10px + env(safe-area-inset-top, 0px)); }
 #grimerud-map.gm-full .tool.corner { bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }

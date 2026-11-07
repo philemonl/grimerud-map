@@ -778,6 +778,7 @@ function select(it, fly) {
   current = it || null;
   if (!it) { card.hidden = true; return; }
   hideHint();
+  root.querySelector(".panel").classList.remove("open");
   styleItem(it, true);
   const cn = document.getElementById("gm-cnum"); cn.textContent = it.n; cn.className = "num" + (it.g === "d" ? " dg" : /\d/.test(it.n) ? "" : " sq");
   setDisc(it.g === "d");   // a building chosen from search while on the disc golf map switches back
@@ -804,7 +805,15 @@ const TOP_DISC = { t: new THREE.Vector3(330, 0, -170), d: 1250, polar: 0.001, az
 let anim = null;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const posFrom = (t, d, polar, az) => new THREE.Vector3(t.x + d * Math.sin(polar) * Math.sin(az), t.y + d * Math.cos(polar), t.z + d * Math.sin(polar) * Math.cos(az));
+// Opening and 2D views fitted to the map's shape. Tuned for a landscape map; on a tall phone screen the
+// camera stands back a little to keep the farm's width in view and looks down more steeply, so the farm
+// fills the height instead of sitting in a thin strip under a lot of sky.
+const tall = () => Math.min(1, Math.max(0, (1.15 - (camera.aspect || 1.4)) / 0.65));   // 0 wide … 1 very tall
+const homeView = () => { const k = tall(); return { t: HOME.t, d: HOME.d * (1 + 0.35 * k), polar: HOME.polar - 0.34 * k, az: HOME.az }; };
+const topView = (v) => ({ ...v, d: v.d * (1 + 0.6 * tall()) });
+let viewTouched = false;   // until someone moves the map, the opening view refits when the map changes shape
 function flyTo(t, d, polar, az, ms = 900) {
+  viewTouched = true;
   const endPos = posFrom(t, d, polar, az);
   if (reduce) { controls.target.copy(t); camera.position.copy(endPos); controls.update(); return; }
   anim = { t0: performance.now(), ms, fromT: controls.target.clone(), toT: t.clone(), fromP: camera.position.clone(), toP: endPos };
@@ -817,16 +826,20 @@ function focusOn(it) {
   flyTo(t, d, polar, controls.getAzimuthalAngle());
   setMode("3d", false);
 }
-camera.position.copy(posFrom(HOME.t, HOME.d, HOME.polar, HOME.az));
-controls.target.copy(HOME.t); controls.update();
+function jumpHome() { const v = homeView(); camera.position.copy(posFrom(v.t, v.d, v.polar, v.az)); controls.target.copy(v.t); controls.update(); }
+jumpHome();
 
 const b3d = document.getElementById("gm-v3d"), btop = document.getElementById("gm-vtop");
 function setMode(m, move = true) {
   b3d.setAttribute("aria-pressed", m === "3d"); btop.setAttribute("aria-pressed", m === "top");
   if (!move) return;
-  const v = m === "top" ? (discOn ? TOP_DISC : TOP) : HOME; flyTo(v.t, v.d, v.polar, v.az);
+  vmode.setAttribute("aria-pressed", m === "top");
+  const v = m === "top" ? topView(discOn ? TOP_DISC : TOP) : homeView(); flyTo(v.t, v.d, v.polar, v.az);
 }
 b3d.addEventListener("click", () => setMode("3d"));
+// phones: one 2D switch in the drawer instead of the 3D/2D pair
+const vmode = document.getElementById("gm-vmode");
+vmode.addEventListener("click", () => setMode(vmode.getAttribute("aria-pressed") === "true" ? "3d" : "top"));
 btop.addEventListener("click", () => setMode("top"));
 // compass: turn the map north-up, keeping the tilt and distance; home: back to the opening view
 document.getElementById("gm-compass").addEventListener("click", () => flyTo(controls.target.clone(), camera.position.distanceTo(controls.target), controls.getPolarAngle(), 0, 600));
@@ -844,8 +857,8 @@ bn.addEventListener("click", () => { const on = bn.getAttribute("aria-pressed") 
 // Tap to pick
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 let down = null;
-canvas.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; anim = null; hideHint(); });
-canvas.addEventListener("wheel", () => hideHint(), { passive: true });
+canvas.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; anim = null; viewTouched = true; hideHint(); });
+canvas.addEventListener("wheel", () => { viewTouched = true; hideHint(); }, { passive: true });
 canvas.addEventListener("pointerup", e => {
   if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return;
   const r = canvas.getBoundingClientRect();
@@ -864,6 +877,7 @@ function clampTarget() {
 function resize() {
   const w = stage.clientWidth, h = stage.clientHeight;
   renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  if (!viewTouched) jumpHome();
 }
 new ResizeObserver(resize).observe(stage); resize();
 
@@ -905,7 +919,7 @@ function placeLabels(w, h) {
 // spot); the selected pin stays put and the others move round it.
 const PIN = 30, PUSH = 20;
 // on screen and not switched off with the other map's pins (the class list is read, not the layout)
-function pinShown(it) { const c = it.pinEl.classList; return !it.pinEl.hidden && !c.contains("dg-off") && (!c.contains("farm-off") || it === current); }
+function pinShown(it) { const c = it.pinEl.classList; return !it.pinEl.hidden && !c.contains("dg-off") && ((!c.contains("farm-off") && !c.contains("lv-off")) || it === current); }
 function declutter() {
   const ps = ITEMS.filter(pinShown);
   ps.forEach(it => { it.ox = it.sx; it.oy = it.sy; });
@@ -920,6 +934,22 @@ function declutter() {
     ps.forEach(it => { const dx = it.sx - it.ox, dy = it.sy - it.oy, d = Math.hypot(dx, dy);
       if (d > PUSH) { it.sx = it.ox + dx / d * PUSH; it.sy = it.oy + dy / d * PUSH; } });
   }
+}
+// From far away the farm's pins would pile up: when the farm's buildings span less than PX_ALL px only the
+// numbered buildings show, below PX_ONE px one "Grimerud" pin stands in for all of them and flies back in when tapped.
+const FARM_ITEMS = ITEMS.filter(it => it.g !== "d"), BLDG = ITEMS.filter(it => it.g === "b");
+const FARM_C = centroid(BLDG.map(it => it.c)), FARM_R = Math.max(...BLDG.map(it => Math.hypot(it.c[0] - FARM_C[0], it.c[1] - FARM_C[1])));
+const PX_ALL = 330, PX_ONE = 150, farmPin = document.getElementById("gm-farmpin"), fv = new THREE.Vector3();
+farmPin.addEventListener("click", e => { e.stopPropagation(); setMode("3d"); });
+function pinLevels(h) {
+  fv.set(FARM_C[0], hAt(FARM_C[0], FARM_C[1]), FARM_C[1]);
+  const across = 2 * FARM_R * h / (2 * camera.position.distanceTo(fv) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+  const lv = discOn || across >= PX_ALL ? 0 : across >= PX_ONE ? 1 : 2;
+  for (const it of FARM_ITEMS) it.pinEl.classList.toggle("lv-off", lv === 2 || (lv === 1 && !/\d/.test(it.n)));
+  fv.project(camera);
+  const show = lv === 2 && fv.z < 1 && Math.abs(fv.x) < 0.95 && Math.abs(fv.y) < 0.95;
+  farmPin.hidden = !show;
+  if (show) farmPin.style.transform = `translate(${((fv.x + 1) / 2 * stage.clientWidth - 46).toFixed(1)}px, ${((1 - fv.y) / 2 * h - 16).toFixed(1)}px)`;
 }
 // The "drag to turn" hint goes after the first drag, scroll or selection, or after 8 s on screen
 const hintEl = document.getElementById("gm-hint"); let hintTimer = 0;
@@ -945,6 +975,7 @@ function frame(now) {
     it.pinEl.hidden = !vis;
     if (vis) { it.sx = (v.x + 1) / 2 * w; it.sy = (1 - v.y) / 2 * h; it.sz = v.z; }
   }
+  pinLevels(h);
   declutter();
   for (const it of ITEMS) if (!it.pinEl.hidden) { const s = it.pinEl.style; s.left = (it.sx - 14).toFixed(1) + "px"; s.top = (it.sy - 14).toFixed(1) + "px"; }
   if (!hintTimer && onScreen()) hintTimer = setTimeout(hideHint, 8000);
@@ -954,7 +985,11 @@ function frame(now) {
     // only shown when its spot on the road is in view
     const ok = show && v.z < 1 && Math.abs(v.x) < 0.92 && Math.abs(v.y) < 0.9;
     el.hidden = !ok;
-    if (ok) el.style.transform = `translate(${((v.x + 1) / 2 * w - 20).toFixed(1)}px, ${((1 - v.y) / 2 * h - 16).toFixed(1)}px)`;
+    if (ok) {
+      if (!el._w) el._w = el.offsetWidth;
+      const x = Math.max(8, Math.min((v.x + 1) / 2 * w - 20, w - el._w - 62)), y = Math.max(8, Math.min((1 - v.y) / 2 * h - 16, h - 44));
+      el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+    }
   }
   requestAnimationFrame(frame);
 }
@@ -1168,7 +1203,7 @@ requestAnimationFrame(frame);
   const opts = [...drawer.querySelectorAll(".tool")];
   const open = on => {
     if (on) {   // room below the button for the column, clear of the full-screen corner button?
-      const b = btn.getBoundingClientRect(), st = stage.getBoundingClientRect(), need = opts.length * (b.height + 8);
+      const b = btn.getBoundingClientRect(), st = stage.getBoundingClientRect(), need = opts.filter(o => o.offsetParent).length * (b.height + 8);
       drawer.classList.toggle("side", b.bottom + need > st.bottom - b.height - 22);
     }
     drawer.classList.toggle("open", on); btn.setAttribute("aria-expanded", on); opts.forEach(b => b.tabIndex = on ? 0 : -1); };
@@ -1178,6 +1213,20 @@ requestAnimationFrame(frame);
   new MutationObserver(lit).observe(drawer, { subtree: true, attributes: true, attributeFilter: ["aria-pressed"] });
   addEventListener("resize", () => { if (drawer.classList.contains("open")) open(true); });
   open(false); lit();
+})();
+
+// Full screen on a phone: the list is a sheet along the bottom with the search showing. Tap or drag the
+// handle, or tap into the search, to pull it up; choosing a place drops it again to show the map.
+(() => {
+  const panel = root.querySelector(".panel"), handle = document.getElementById("gm-sheet"), input = document.getElementById("gm-search");
+  const sheet = () => root.classList.contains("gm-full") && handle.offsetParent !== null;
+  const open = on => { panel.classList.toggle("open", on); handle.setAttribute("aria-expanded", on); handle.setAttribute("aria-label", on ? "Skjul liste · Hide list" : "Vis liste · Show list"); };
+  let y0 = null, swiped = false;
+  handle.addEventListener("pointerdown", e => { y0 = e.clientY; swiped = false; });
+  addEventListener("pointerup", e => { if (y0 === null) return; const dy = e.clientY - y0; y0 = null; if (Math.abs(dy) > 24) { swiped = true; open(dy < 0); } });
+  handle.addEventListener("click", () => { if (swiped) { swiped = false; return; } open(!panel.classList.contains("open")); });
+  input.addEventListener("focus", () => { if (sheet()) open(true); });
+  new MutationObserver(() => { if (!root.classList.contains("gm-full")) open(false); }).observe(root, { attributes: true, attributeFilter: ["class"] });
 })();
 
 // Hide or show the list beside the map (wide screens)
