@@ -902,7 +902,7 @@ requestAnimationFrame(frame);
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   function go(toNight) {
     on = toNight; btn.setAttribute("aria-pressed", on);
-    btn.dataset.tip = on ? "Vis dag · Show day" : "Vis natt · Show night";
+    btn.dataset.tip = on ? "Vis dag\nShow day" : "Vis natt\nShow night";
     if (reduceMotion) { s = on ? 1 : 0; render(s); return; }
     anim = { t0: performance.now(), ms: 1100, from: s, to: on ? 1 : 0, startClock: on ? 16.5 * 60 : 23 * 60, span: on ? 6.5 * 60 : 8.5 * 60 };
     requestAnimationFrame(step);
@@ -952,7 +952,7 @@ requestAnimationFrame(frame);
     }
     btn.setAttribute("aria-pressed", on);
     lbl.textContent = on ? "Lukk" : openLabel();
-    btn.dataset.tip = on ? "Lukk fullskjerm · Close full screen" : "Fullskjerm · Full screen";
+    btn.dataset.tip = on ? "Lukk fullskjerm\nClose full screen" : "Fullskjerm\nFull screen";
     icon.setAttribute("d", on ? "M5 5l10 10M15 5L5 15" : "M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12");
     btn.setAttribute("aria-label", on ? "Lukk fullskjerm · Close full screen" : "Utforsk kartet i fullskjerm · Explore the map full screen");
     resize();
@@ -1022,7 +1022,7 @@ requestAnimationFrame(frame);
   }
   btn.addEventListener("click", () => {
     on = !on; btn.setAttribute("aria-pressed", on);
-    btn.dataset.tip = on ? "Vis sommer · Show summer" : "Vis vinter · Show winter";
+    btn.dataset.tip = on ? "Vis sommer\nShow summer" : "Vis vinter\nShow winter";
     if (reduce) { apply(on ? 1 : 0); return; }
     anim = { t0: performance.now(), from: snow.value, to: on ? 1 : 0 }; requestAnimationFrame(step);
   });

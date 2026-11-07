@@ -78,7 +78,7 @@
 #grimerud-map .tool:hover:not([aria-pressed="true"]) { background: #ffffff; }
 /* hover labels to the left of the tool column */
 #grimerud-map .tool { position: relative; }
-#grimerud-map .tool[data-tip]::after { content: attr(data-tip); position: absolute; right: calc(100% + 10px); top: 50%; transform: translate(4px, -50%); opacity: 0; pointer-events: none; white-space: nowrap; background: #26221d; color: #fffdf8; font: 500 12.5px/1 var(--f); padding: 7px 9px; border-radius: 7px; box-shadow: 0 2px 0 rgba(38,34,29,.25); transition: opacity .12s, transform .12s; z-index: 6; }
+#grimerud-map .tool[data-tip]::after { content: attr(data-tip); position: absolute; right: calc(100% + 10px); top: 50%; transform: translate(4px, -50%); opacity: 0; pointer-events: none; white-space: pre; text-align: right; background: #26221d; color: #fffdf8; font: 500 12.5px/1.3 var(--f); padding: 6px 9px; border-radius: 7px; box-shadow: 0 2px 0 rgba(38,34,29,.25); transition: opacity .12s, transform .12s; z-index: 6; }
 #grimerud-map .tool-pair .tool[data-tip]::after { right: calc(100% + 11.6px); }
 @media (hover: hover) {
   #grimerud-map .tool[data-tip]:hover::after, #grimerud-map .tool[data-tip]:focus-visible::after { opacity: 1; transform: translate(0, -50%); }
