@@ -553,6 +553,30 @@ ITEMS.forEach(it => { if (!it.inside) return;
   });
 })();
 
+// Parked cars: simple low-poly bodies with a glasshouse on top, a few everyday colours
+(() => {
+  const list = DATA.cars || []; if (!list.length) return;
+  const cols = ["#e9e8e3", "#2b2f36", "#8e959c", "#1f3b63", "#9b2a22", "#c9ccce"].map(c => new THREE.Color(c));
+  const body = new THREE.BoxGeometry(4.3, 0.85, 1.8); body.translate(0, 0.62, 0);
+  const cab = new THREE.BoxGeometry(2.3, 0.62, 1.62); cab.translate(-0.25, 1.35, 0);
+  const glass = new THREE.MeshToonMaterial({ color: "#3a4650", gradientMap: grad });
+  const paint = new THREE.MeshToonMaterial({ gradientMap: grad });
+  const mb = new THREE.InstancedMesh(body, paint, list.length), mc = new THREE.InstancedMesh(cab, glass, list.length);
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(1, 1, 1), pz = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
+  list.forEach(([x, z, deg, c], i) => {
+    const w = P([x, z]); pz.set(w[0], hAt(w[0], w[1]) + 0.05, w[1]); q.setFromAxisAngle(up, -deg * Math.PI / 180);
+    m.compose(pz, q, s); mb.setMatrixAt(i, m); mc.setMatrixAt(i, m); mb.setColorAt(i, cols[c % cols.length]);
+  });
+  mb.instanceColor.needsUpdate = true;
+  scene.add(mb, mc);
+  const ink = new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: 0.55 });
+  const eb = new THREE.EdgesGeometry(body), ec = new THREE.EdgesGeometry(cab);
+  list.forEach(([x, z, deg]) => {
+    const w = P([x, z]), g = new THREE.Group(); g.position.set(w[0], hAt(w[0], w[1]) + 0.05, w[1]); g.rotation.y = -deg * Math.PI / 180;
+    g.add(new THREE.LineSegments(eb, ink), new THREE.LineSegments(ec, ink)); scene.add(g);
+  });
+})();
+
 // Flag pole by the circular drive
 (() => {
   const [x, z] = P(DATA.flag);
