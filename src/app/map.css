@@ -21,6 +21,41 @@
 #grimerud-map .since { font: italic 400 12px/1 var(--f); margin: 6px 0 0; color: var(--muted); }
 #grimerud-map .lede { margin: 12px 0 0; color: var(--muted); font-size: 13.5px; max-width: 36ch; }
 #grimerud-map .list { flex: 1; overflow-y: auto; padding: 0 12px 16px; min-height: 0; }
+/* search */
+#grimerud-map .search { position: relative; margin: 2px 22px 10px; display: flex; align-items: center; }
+#grimerud-map .search svg { position: absolute; left: 10px; width: 16px; height: 16px; color: var(--muted); pointer-events: none; }
+#grimerud-map .search input { width: 100%; font: 400 14px/1.2 var(--f); color: var(--ink); background: #fffdf8; border: 1.6px solid var(--line); border-radius: 9px; padding: 9px 32px 9px 33px; -webkit-appearance: none; appearance: none; }
+#grimerud-map .search input:focus { outline: none; border-color: var(--ink); }
+#grimerud-map .search input::-webkit-search-cancel-button { display: none; }
+#grimerud-map .search button { position: absolute; right: 6px; width: 24px; height: 24px; border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
+#grimerud-map .noresult { margin: 4px 22px 0; color: var(--muted); font-size: 13px; }
+#grimerud-map.searching .ltabs { display: none; }
+#grimerud-map.searching .grp-items { display: block !important; }
+#grimerud-map.searching .group svg { visibility: hidden; }
+#grimerud-map .item[hidden], #grimerud-map .grp[hidden] { display: none !important; }
+/* list collapse (wide screens) */
+#grimerud-map .listtoggle { position: absolute; z-index: 6; left: 0; top: 50%; transform: translateY(-50%); width: 22px; height: 54px; display: grid; place-items: center; padding: 0; background: #fffdf8; color: #26221d; border: 1.6px solid #26221d; border-left: 0; border-radius: 0 9px 9px 0; box-shadow: 0 2px 0 rgba(38,34,29,.25); cursor: pointer; }
+#grimerud-map .listtoggle svg { width: 12px; height: 20px; transition: transform .2s; }
+#grimerud-map.nolist .listtoggle svg { transform: rotate(180deg); }
+#grimerud-map.nolist .app { grid-template-columns: 0 minmax(0, 1fr); }
+#grimerud-map.nolist .panel { visibility: hidden; border: 0; }
+#grimerud-map .listtoggle[data-tip]::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); white-space: pre; background: #26221d; color: #fffdf8; font: 500 12.5px/1.3 var(--f); padding: 6px 9px; border-radius: 7px; opacity: 0; pointer-events: none; transition: opacity .12s; }
+@media (hover: hover) { #grimerud-map .listtoggle:hover::after { opacity: 1; } }
+/* display menu */
+#grimerud-map .tgrp.look { position: relative; }
+#grimerud-map .menu { position: absolute; right: calc(100% + 10px); top: 0; z-index: 7; display: flex; flex-direction: column; gap: 2px; padding: 6px; background: #fffdf8; border: 1.6px solid #26221d; border-radius: 12px; box-shadow: 0 3px 0 rgba(38,34,29,.3); min-width: 186px; }
+#grimerud-map .menu .tool.mrow { width: 100%; height: auto; border: 0; box-shadow: none; border-radius: 8px; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 10px; padding: 7px 8px; background: none; text-align: left; font: inherit; }
+#grimerud-map .menu .tool.mrow:hover { background: var(--chip); }
+#grimerud-map .menu .tool.mrow[aria-pressed="true"] { background: none; color: #26221d; }
+#grimerud-map .menu .tool.mrow > svg, #grimerud-map .menu .tool.mrow > .aa { justify-self: center; }
+#grimerud-map .menu .ml b { display: block; font: 500 14px/1.15 var(--f); }
+#grimerud-map .menu .ml i { display: block; font: italic 400 12px/1.2 var(--f); color: #5a5248; }
+#grimerud-map .menu .sw { width: 32px; height: 18px; border-radius: 10px; background: #d9d3c6; position: relative; transition: background .15s; }
+#grimerud-map .menu .sw::before { content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fffdf8; box-shadow: 0 1px 1px rgba(0,0,0,.25); transition: transform .15s; }
+#grimerud-map .menu .mrow[aria-pressed="true"] .sw { background: #26221d; }
+#grimerud-map .menu .mrow[aria-pressed="true"] .sw::before { transform: translateX(14px); }
+#grimerud-map #gm-layers[aria-expanded="true"] { background: #26221d; color: #fffdf8; }
+@media (prefers-reduced-motion: reduce) { #grimerud-map .menu .sw, #grimerud-map .menu .sw::before, #grimerud-map .listtoggle svg { transition: none; } }
 #grimerud-map .ltabs { display: flex; gap: 0; margin: 4px 22px 0; border-bottom: 1.6px solid var(--ink); }
 #grimerud-map .ltabs button { flex: 1; padding: 9px 8px 8px; font: 500 14px/1 var(--f); color: var(--muted); background: none; border: 1.6px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; margin-bottom: -1.6px; cursor: pointer; }
 #grimerud-map .ltabs button[aria-selected="true"] { color: var(--ink); background: var(--panel); border-color: var(--ink); }
@@ -57,6 +92,10 @@
 #grimerud-map .pin .lbl i { display: block; font: italic 400 11.5px/1.2 var(--f); color: #5a5248; }
 #grimerud-map .pin:hover .lbl, #grimerud-map .pin.on .lbl, #grimerud-map #gm-pins.names .lbl { display: block; }
 #grimerud-map .pin.on .num { z-index: 4; }
+#grimerud-map #gm-pins.names .pin[data-side="l"] .lbl { left: auto; right: calc(100% + 6px); }
+#grimerud-map #gm-pins.names .pin[data-side="t"] .lbl { left: 50%; top: auto; bottom: calc(100% + 6px); transform: translateX(-50%); }
+#grimerud-map #gm-pins.names .pin[data-side="b"] .lbl { left: 50%; top: calc(100% + 6px); transform: translateX(-50%); }
+#grimerud-map #gm-pins.names .pin[data-side="x"]:not(:hover):not(.on) .lbl { display: none; }
 #grimerud-map .pin.on .lbl, #grimerud-map .pin:hover .lbl { z-index: 5; }
 #grimerud-map .pin.on .num { background: #b23a2b; color: #fff; border-color: #26221d; }
 /* Map switch top left; one column of round tools down the right edge */
@@ -169,12 +208,13 @@
   #grimerud-map .hint { display: none; }
   #grimerud-map .stage { height: 46svh; min-height: 300px; }
   #grimerud-map .ltabs { margin: 2px 16px 0; }
+  #grimerud-map .search { margin: 0 16px 8px; }
+  #grimerud-map .listtoggle { display: none; }
   #grimerud-map .ltabs button { padding: 8px 6px 7px; font-size: 13.5px; }
   #grimerud-map .maptabs { top: 10px; left: 10px; }
   /* phones: view and zoom stay in the right-hand column; names, season and time sit in a row under the map switch */
   #grimerud-map .tools { top: 10px; right: 10px; left: 10px; align-items: flex-end; gap: 12px; }
   #grimerud-map .tgrp { gap: 6px; }
-  #grimerud-map .tgrp.look { position: absolute; left: 0; top: 46px; flex-direction: row; }
   #grimerud-map .tool { width: 44px; height: 44px; }
   #grimerud-map .tool-pair .tool { width: 40.8px; height: 38px; }
   #grimerud-map .tool.corner { right: 10px; bottom: 10px; }

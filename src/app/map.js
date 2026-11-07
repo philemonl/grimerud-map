@@ -794,6 +794,26 @@ function occlusion() {
     it.pinEl.classList.toggle("behind", !!hit && by !== it && by !== it.host && it !== current);
   }
 }
+// With all names shown, each label goes to whichever side of its pin is free: right, left, above or
+// below. Nearer pins and the selected one choose first; a label with no room anywhere is hidden
+// until you hover or select its pin.
+const SIDES = ["r", "l", "t", "b"];
+function placeLabels(w, h) {
+  const shown = ITEMS.filter(it => !it.pinEl.hidden && !it.pinEl.classList.contains("behind") && !it.pinEl.classList.contains("dg-off"));
+  const busy = shown.map(it => [it.sx - 15, it.sy - 15, it.sx + 15, it.sy + 15]);   // every number is taken
+  const free = (r) => r[0] >= 2 && r[1] >= 2 && r[2] <= w - 2 && r[3] <= h - 2 && !busy.some(b => r[0] < b[2] && r[2] > b[0] && r[1] < b[3] && r[3] > b[1]);
+  shown.sort((a, b) => (b === current) - (a === current) || a.sz - b.sz);
+  for (const it of shown) {
+    const lbl = it.pinEl.querySelector(".lbl");
+    if (!it.lw) { it.lw = lbl.offsetWidth; it.lh = lbl.offsetHeight; }
+    const lw = it.lw + 2, lh = it.lh + 2, x = it.sx, y = it.sy;
+    const rect = { r: [x + 20, y - lh / 2, x + 20 + lw, y + lh / 2], l: [x - 20 - lw, y - lh / 2, x - 20, y + lh / 2],
+                   t: [x - lw / 2, y - 20 - lh, x + lw / 2, y - 20], b: [x - lw / 2, y + 20, x + lw / 2, y + 20 + lh] };
+    const side = SIDES.find(s => free(rect[s]));
+    it.pinEl.dataset.side = side || "x";
+    if (side) busy.push(rect[side]);
+  }
+}
 const v = new THREE.Vector3();
 function frame(now) {
   if (!onScreen()) { requestAnimationFrame(frame); return; } // paused while scrolled out of view
@@ -813,8 +833,9 @@ function frame(now) {
     v.set(it.c[0], it.y0 + it.h + 1.5, it.c[1]).project(camera);
     const vis = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1;
     it.pinEl.hidden = !vis;
-    if (vis) { const s = it.pinEl.style; s.left = ((v.x + 1) / 2 * w - 14).toFixed(1) + "px"; s.top = ((1 - v.y) / 2 * h - 14).toFixed(1) + "px"; }
+    if (vis) { const s = it.pinEl.style; it.sx = (v.x + 1) / 2 * w; it.sy = (1 - v.y) / 2 * h; it.sz = v.z; s.left = (it.sx - 14).toFixed(1) + "px"; s.top = (it.sy - 14).toFixed(1) + "px"; }
   }
+  if (pinsEl.classList.contains("names")) placeLabels(w, h);
   for (const [el, at, show] of [[dgGo, DG_AT, !discOn], [farmGo, FARM_AT, discOn]]) {
     v.set(at[0], hAt(at[0], at[1]) + 3, at[1]).project(camera);
     // only shown when its spot on the road is in view
@@ -1026,4 +1047,63 @@ requestAnimationFrame(frame);
     if (reduce) { apply(on ? 1 : 0); return; }
     anim = { t0: performance.now(), from: snow.value, to: on ? 1 : 0 }; requestAnimationFrame(step);
   });
+})();
+
+// Display menu: names, winter and night live behind one button
+(() => {
+  const btn = document.getElementById("gm-layers"), menu = document.getElementById("gm-menu");
+  const open = on => { menu.hidden = !on; btn.setAttribute("aria-expanded", on); };
+  btn.addEventListener("click", e => { e.stopPropagation(); open(menu.hidden); });
+  menu.addEventListener("click", e => e.stopPropagation());
+  document.addEventListener("click", () => open(false));
+  root.addEventListener("keydown", e => { if (e.key === "Escape" && !menu.hidden) { open(false); btn.focus(); } });
+  canvas.addEventListener("pointerdown", () => open(false));
+})();
+
+// Hide or show the list beside the map (wide screens)
+(() => {
+  const btn = document.getElementById("gm-listtoggle");
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const hide = !root.classList.contains("nolist");
+    root.classList.toggle("nolist", hide);
+    btn.setAttribute("aria-expanded", !hide);
+    btn.setAttribute("aria-label", hide ? "Vis liste · Show list" : "Skjul liste · Hide list");
+    btn.dataset.tip = hide ? "Vis liste\nShow list" : "Skjul liste\nHide list";
+    resize();
+  });
+})();
+
+// Search: filter both lists as you type; Enter opens the first match
+(() => {
+  const input = document.getElementById("gm-search"), clear = document.getElementById("gm-sclear"), none = document.getElementById("gm-noresult");
+  const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ø/g, "o").replace(/æ/g, "ae");
+  ITEMS.forEach(it => { it.find = norm([it.n, it.no, it.en, it.sub_no, it.sub_en].join(" ")); });
+  let first = null;
+  function run() {
+    const q = norm(input.value.trim());
+    clear.hidden = !q;
+    root.classList.toggle("searching", !!q);
+    first = null;
+    if (!q) {
+      ITEMS.forEach(it => { if (it.btn) it.btn.hidden = false; });
+      listEl.querySelectorAll(".grp").forEach(s => s.hidden = false);
+      showList(discOn); none.hidden = true; return;
+    }
+    const words = q.split(/\s+/);
+    ITEMS.forEach(it => {
+      if (!it.btn) return;
+      const ok = words.every(w => it.find.includes(w));
+      it.btn.hidden = !ok; if (ok && !first) first = it;
+    });
+    listEl.querySelectorAll(".grp").forEach(s => s.hidden = !s.querySelector(".item:not([hidden])"));
+    panes.farm.hidden = false; panes.disc.hidden = false;
+    none.hidden = !!first;
+  }
+  input.addEventListener("input", run);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && first) { select(first, true); input.blur(); }
+    if (e.key === "Escape") { input.value = ""; run(); }
+  });
+  clear.addEventListener("click", () => { input.value = ""; run(); input.focus(); });
 })();
