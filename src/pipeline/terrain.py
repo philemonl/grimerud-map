@@ -27,7 +27,8 @@ for q in parts:
     poly=np.array([wpx(p) for p in q['p']],np.float32)
     inner=np.zeros((N,N),np.uint8); cv2.fillPoly(inner,[np.round(poly*4).astype(np.int32)],1,shift=2)
     pad=cv2.dilate(inner,np.ones((3,3),np.uint8))  # ~2 m apron
-    level=float(np.median(Hm[pad>0]))
+    # tents sit at the bottom of the slope; buildings sit at the middle height of their plot
+    level=float(np.percentile(Hm[pad>0],3)) if q.get('tent') else float(np.median(Hm[pad>0]))
     # blend out over ~6 m around the apron
     dd=cv2.distanceTransform((1-pad).astype(np.uint8),cv2.DIST_L2,3)
     w=np.clip(1-dd/3.0,0,1); w=w*w*(3-2*w)

@@ -273,7 +273,9 @@ function gable(pts, h, maxRise = 6.5, cross = false) {
   tri(V(q0, hy), V(q1, hy), V(m1, top)); tri(V(q0, hy), V(m1, top), V(m2, top));
   tri(V(q2, hy), V(q3, hy), V(m2, top)); tri(V(q2, hy), V(m2, top), V(m1, top));
   const ends = [...V(p1, h), ...V(p2, h), ...V(m1, top - 0.2), ...V(p3, h), ...V(p0, h), ...V(m2, top - 0.2)];
-  return { roof: geomFrom(pos, uv), ends: geomFrom(ends), top, rise, h, slopes: [[p0, p1, m2, m1], [p2, p3, m1, m2]], ridgeMid: [(m1[0] + m2[0]) / 2, (m1[1] + m2[1]) / 2] };
+  const halves = [0, 1].map(k => geomFrom(pos.slice(k * 18, k * 18 + 18), uv.slice(k * 12, k * 12 + 12)));
+  const outA = [mid(p0, p1)[0] - c[0], mid(p0, p1)[1] - c[1]], outB = [mid(p2, p3)[0] - c[0], mid(p2, p3)[1] - c[1]];
+  return { roof: geomFrom(pos, uv), halves, outs: [outA, outB], ends: geomFrom(ends), top, rise, h, slopes: [[p0, p1, m2, m1], [p2, p3, m1, m2]], ridgeMid: [(m1[0] + m2[0]) / 2, (m1[1] + m2[1]) / 2] };
 }
 
 const pickables = [];
@@ -332,10 +334,15 @@ function building(part, item) {
   let top = part.h, ridge = null;
   if (pts.length === 4 && !part.flat) {
     const g = gable(pts, part.h, part.rise || 6.5, !!part.cross);
-    const roof = new THREE.Mesh(g.roof, toon({ map: part.tent ? tentTex() : part.solar ? solarTex(part.roof) : roofTex(part.roof) }));
+    // solar: true = both slopes; "s"/"n"/"e"/"w" = only the slope facing that way (+z is south, +x is east)
+    const faces = { s: [0, 1], n: [0, -1], e: [1, 0], w: [-1, 0] }[part.solar];
+    g.halves.forEach((hg, k) => {
+      const o = g.outs[k], panels = part.solar === true || (faces && o[0] * faces[0] + o[1] * faces[1] > 0);
+      group.add(new THREE.Mesh(hg, toon({ map: part.tent ? tentTex() : panels ? solarTex(part.roof) : roofTex(part.roof) })));
+    });
     const endMat = toon({ color: part.gable || part.wall });
     const ends = new THREE.Mesh(g.ends, endMat);
-    group.add(roof, ends); addInk(g.roof, group, 25, ink); addInk(g.ends, group, 25, ink);
+    group.add(ends); addInk(g.roof, group, 25, ink); addInk(g.ends, group, 25, ink);
     mats.push(endMat); top = g.top; ridge = g.ridgeMid;
     if (part.dormers) addDormers(group, g, part, ink);
     if (part.chimneys) part.chimneys.forEach(cp => {
@@ -385,8 +392,8 @@ function building(part, item) {
     const apron = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, (w || 3.6) + 0.6), toon({ color: "#d4cec2" }));
     apron.position.set(0.6, 0.05, 0); ent.add(apron);
   });
-  if (part.balconies) {
-    const { edge, n, color } = part.balconies, bm = toon({ color: color || part.wall });
+  [].concat(part.balconies || []).forEach(bc => {
+    const { edge, n, color, upper, y = 2.75 } = bc, bm = toon({ color: color || part.wall });
     const a = pts[edge], b = pts[(edge + 1) % pts.length], c0 = centroid(pts);
     const ex = b[0] - a[0], ez = b[1] - a[1], L = Math.hypot(ex, ez), ux = ex / L, uz = ez / L;
     const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], side = ((-uz) * (mid[0] - c0[0]) + ux * (mid[1] - c0[1])) > 0 ? 1 : -1;
@@ -395,17 +402,17 @@ function building(part, item) {
       bg.position.set(a[0] + ex * k, 0, a[1] + ez * k); bg.rotation.y = -Math.atan2(ez, ex);
       const W = Math.min(3, L / n - 0.6), D = 1.4;
       // upper balcony: slab plus solid board railing
-      const slab = new THREE.Mesh(new THREE.BoxGeometry(W, 0.2, D), bm); slab.position.set(0, 2.75, side * D / 2);
-      const front = new THREE.Mesh(new THREE.BoxGeometry(W, 1.0, 0.1), bm); front.position.set(0, 3.35, side * D);
-      const s1 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.0, D), bm); s1.position.set(-W / 2, 3.35, side * D / 2);
+      const slab = new THREE.Mesh(new THREE.BoxGeometry(W, 0.2, D), bm); slab.position.set(0, y, side * D / 2);
+      const front = new THREE.Mesh(new THREE.BoxGeometry(W, 1.0, 0.1), bm); front.position.set(0, y + 0.6, side * D);
+      const s1 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.0, D), bm); s1.position.set(-W / 2, y + 0.6, side * D / 2);
       const s2 = s1.clone(); s2.position.x = W / 2;
       // ground-floor terrace with a low railing
       const deck = new THREE.Mesh(new THREE.BoxGeometry(W, 0.35, D + 0.3), bm); deck.position.set(0, 0.17, side * (D + 0.3) / 2);
       const rail = new THREE.Mesh(new THREE.BoxGeometry(W, 0.8, 0.1), bm); rail.position.set(0, 0.75, side * (D + 0.3));
-      [slab, front, s1, s2, deck, rail].forEach(m => { bg.add(m); addInk(m.geometry, m, 25, ink); });
+      (upper ? [slab, front, s1, s2] : [slab, front, s1, s2, deck, rail]).forEach(m => { bg.add(m); addInk(m.geometry, m, 25, ink); });
       group.add(bg);
     }
-  }
+  });
   if (part.railing) {
     const yR = part.h + 1.0, segs = [];
     pts.forEach((a, i) => { const b = pts[(i + 1) % pts.length];
