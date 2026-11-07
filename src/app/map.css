@@ -188,6 +188,8 @@
   #grimerud-map .lede-d { display: none; }
   #grimerud-map .lede-m { display: inline; }
   #grimerud-map .hint { display: none; }
+  /* touch screens pinch to zoom */
+  #grimerud-map .tgrp[data-g="zoom"] { display: none; }
 }
 
 /* Narrow: legend below the map, compact controls */
