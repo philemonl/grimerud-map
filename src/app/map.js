@@ -2,7 +2,8 @@
 // Runs inside init() in loader.js, which provides: root (the #grimerud-map element), onScreen(),
 // DATA (places, roads, disc golf from src/content) and the heavy assets
 // GROUND_SITE, GROUND_CTX, TREES, TERRAIN (heights already decoded to TERRAIN.v), FAR, FAR_IMG.
-let waveFlag = null, hillsMat = null;
+let waveFlag = null, hillsMat = null, nightS = 0, rerenderSky = () => {};
+const snow = { value: 0 };   // 0 = summer, 1 = winter; shared by every patched material
 const M = 0.29188, S = 1792 * M, CTX_S = 1643.86816, CTX_CX = 336.24576, CTX_CZ = 37.36064;
 const P = ([x, y]) => [(x - 896) * M, (y - 896) * M];
 const INK = 0x26221d;
@@ -869,8 +870,11 @@ requestAnimationFrame(frame);
   // each window-wall colour switches on at its own moment, so lights come on one house at a time
   const lightAt = glows.map((m, i) => 0.55 + ((i * 0.6180339) % 1) * 0.3);
   let s = 0;
+  const WSKY = [C("#c9d3dc"), C("#dfe5ea"), C("#eef1f3")];
   function render(s) {
-    const top = key(K.skyTop, s, new THREE.Color()).getStyle(), mid = key(K.skyMid, s, new THREE.Color()).getStyle(), low = key(K.skyLow, s, new THREE.Color()).getStyle();
+    nightS = s;
+    const wk = snow.value * (1 - s) * 0.85;
+    const top = key(K.skyTop, s, new THREE.Color()).lerp(WSKY[0], wk).getStyle(), mid = key(K.skyMid, s, new THREE.Color()).lerp(WSKY[1], wk).getStyle(), low = key(K.skyLow, s, new THREE.Color()).lerp(WSKY[2], wk).getStyle();
     stage.style.background = `linear-gradient(180deg, ${top} 0%, ${mid} 26%, ${low} 52%)`;
     key(K.amb, s, amb.color); amb.intensity = num(ambI, s);
     key(K.sun, s, sun.color); sun.intensity = num(sunI, s);
@@ -906,6 +910,7 @@ requestAnimationFrame(frame);
     else anim = null;
   }
   render(0);
+  rerenderSky = () => render(nightS);
   btn.addEventListener("click", () => go(!on));
 })();
 
@@ -945,4 +950,69 @@ requestAnimationFrame(frame);
   btn.addEventListener("click", e => { e.stopPropagation(); setFull(!full); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && full) setFull(false); });
   document.addEventListener("fullscreenchange", () => { if (full && document.fullscreenElement !== root) setFull(false); });
+})();
+
+// Winter: snow on the ground, roofs and tree tops. Every material gets the same "snow" uniform, so the
+// switch is one number animated from 0 to 1. Ground textures are whitened before the night tint applies.
+(() => {
+  const btn = document.getElementById("gm-vwinter");
+  const snowRGB = "vec3(0.93, 0.95, 0.97)";
+  function patch(m, mode, strength) {
+    if (m.userData.snow) return; m.userData.snow = true;
+    m.onBeforeCompile = sh => {
+      sh.uniforms.uSnow = snow;
+      sh.fragmentShader = "uniform float uSnow;\n" + (mode === "up" ? "varying float vSnowUp;\n" : "") + sh.fragmentShader;
+      if (mode === "ground") {
+        // keep the hill shading (luminance), keep water blue, whiten everything else
+        sh.fragmentShader = sh.fragmentShader.replace("#include <map_fragment>", `
+          #ifdef USE_MAP
+            vec4 texelColor = texture2D( map, vUv );
+            texelColor = mapTexelToLinear( texelColor );
+            float sl = dot(texelColor.rgb, vec3(.3, .59, .11));
+            float water = smoothstep(0.03, 0.12, texelColor.b - max(texelColor.r, texelColor.g * 0.9));
+            texelColor.rgb = mix(texelColor.rgb, ${snowRGB} * (0.78 + 0.3 * sl), uSnow * ${strength.toFixed(2)} * (1.0 - water));
+            diffuseColor *= texelColor;
+          #endif`);
+      } else {
+        sh.vertexShader = "varying float vSnowUp;\n" + sh.vertexShader.replace("#include <beginnormal_vertex>", `#include <beginnormal_vertex>
+          #ifdef USE_INSTANCING
+            vSnowUp = normalize(mat3(modelMatrix) * mat3(instanceMatrix) * objectNormal).y;
+          #else
+            vSnowUp = abs(normalize(mat3(modelMatrix) * objectNormal).y);  // building faces are double-sided, so either way up counts
+          #endif`);
+        // after color_fragment, so instance colours (tree greens) don't tint the snow
+        sh.fragmentShader = sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
+          diffuseColor.rgb = mix(diffuseColor.rgb, ${snowRGB}, uSnow * ${strength.toFixed(2)} * smoothstep(0.25, 0.65, vSnowUp));`);
+      }
+    };
+    m.needsUpdate = true;
+  }
+  scene.traverse(o => {
+    if (!o.isMesh) return;
+    [].concat(o.material).forEach(m => {
+      if (!m) return;
+      if (m.isMeshToonMaterial) patch(m, "up", 0.92);
+      else if (m.isMeshBasicMaterial && m.map && !m.transparent) patch(m, "ground", 0.88);
+      else if (m.isMeshBasicMaterial && m.map && m.transparent && m.depthWrite === false) patch(m, "ground", 0.45); // roads and yards: trodden snow
+    });
+  });
+  const hillsBase = hillsMat ? hillsMat.color.clone() : null;
+  let on = false, anim = null;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function apply(v) {
+    snow.value = v;
+    scene.fog.color.lerp(new THREE.Color("#eef1f3"), 0); // fog follows the sky via the night code
+    rerenderSky();
+  }
+  function step(now) {
+    if (!anim) return;
+    const k = Math.min(1, (now - anim.t0) / 900), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    apply(anim.from + (anim.to - anim.from) * e);
+    if (k < 1) requestAnimationFrame(step); else anim = null;
+  }
+  btn.addEventListener("click", () => {
+    on = !on; btn.setAttribute("aria-pressed", on);
+    if (reduce) { apply(on ? 1 : 0); return; }
+    anim = { t0: performance.now(), from: snow.value, to: on ? 1 : 0 }; requestAnimationFrame(step);
+  });
 })();
