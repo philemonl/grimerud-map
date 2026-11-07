@@ -149,12 +149,13 @@
 #grimerud-map .card p { margin: 0; font-size: 13px; color: #5a5248; }
 #grimerud-map .card p i { display: block; }
 #grimerud-map .close { border: 0; background: none; cursor: pointer; padding: 2px 4px; color: #5a5248; font-size: 22px; line-height: 1; }
-#grimerud-map .hint { position: absolute; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font: italic 12px/1 var(--f); color: #26221d; background: rgba(255,253,248,.85); border: 1px solid rgba(38,34,29,.3); padding: 6px 10px; border-radius: 20px; pointer-events: none; white-space: nowrap; }
+#grimerud-map .hint { position: absolute; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font: italic 12px/1 var(--f); color: #26221d; background: rgba(255,253,248,.85); border: 1px solid rgba(38,34,29,.3); padding: 6px 10px; border-radius: 20px; pointer-events: none; white-space: nowrap; z-index: 6; transition: opacity .5s; }
+#grimerud-map .hint.gone { opacity: 0; visibility: hidden; transition: opacity .5s, visibility 0s .5s; }
 #grimerud-map [hidden] { display: none !important; }
 #grimerud-map .pin.behind { visibility: hidden; }
 #grimerud-map .num.dg { background: #f3c33b; border-color: #26221d; color: #26221d; border-radius: 6px; font-weight: 700; }
 #grimerud-map .pin .num.dg { background: #f3c33b; width: 26px; height: 26px; font-size: 12px; }
-#grimerud-map .pin.dg-off { display: none; }
+#grimerud-map .pin.dg-off, #grimerud-map .pin.farm-off:not(.on) { display: none; }
 #grimerud-map .dg-go { position: absolute; left: 0; top: 0; z-index: 4; display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 6px; background: #f3c33b; color: #26221d; border: 2px solid #26221d; border-radius: 999px; box-shadow: 0 2px 0 rgba(38,34,29,.35); font: 700 12.5px/1 var(--f); cursor: pointer; white-space: nowrap; }
 #grimerud-map .dg-go.farm { background: #fffdf8; }
 #grimerud-map .dg-go .dir { display: none; margin-left: 2px; font-size: 14px; line-height: 1; transform: rotate(var(--a, 0rad)); }

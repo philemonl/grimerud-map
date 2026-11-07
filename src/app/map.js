@@ -518,6 +518,7 @@ function building(part, item) {
     });
     group.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segs), ink));
   }
+  const roofTop = top;
   if (part.steeple && ridge) {
     // ridge turret: louvred box astride the ridge, open belfry on four posts, tall shingled spire with a flared foot
     const sp = Array.isArray(part.steeple) ? P(part.steeple) : ridge, ax = gAx;
@@ -531,14 +532,14 @@ function building(part, item) {
     const skirt = add(new THREE.ConeGeometry(1.75, 0.7, 4, 1, true), wood, 0, 2.55, 0); skirt.rotation.y = Math.PI / 4;
     const spire = add(new THREE.ConeGeometry(0.95, 6.2, 4), wood, 0, 5.4, 0); spire.rotation.y = Math.PI / 4;
     add(new THREE.CylinderGeometry(0.04, 0.04, 0.9, 5), post, 0, 8.9, 0);
-    top += 9.3;
+    top += 9.3;   // steeple; the pin still sits on the roof (roofTop)
   }
   if (item) group.traverse(o => { if (o.isMesh) { o.userData.item = item; pickables.push(o); } });
   // ground halo shown when the building is selected
   const c0 = centroid(pts);
   const halo = pts.map(([x, z]) => { const dx = x - c0[0], dz = z - c0[1], l = Math.hypot(dx, dz) || 1; return [x + dx / l * 2.2, z + dz / l * 2.2]; });
   const hl = drape(halo, { fill: "rgba(201,69,47,.45)", stroke: "#c9452f", strokeW: 0.5, dy: 0.45, order: 2 }); hl.visible = false;
-  return { pts, top, ink, hl, baseY };
+  return { pts, top, roofTop, ink, hl, baseY };
 }
 DATA.context.forEach(p => building(p, null));
 
@@ -553,7 +554,7 @@ ITEMS.forEach(it => {
     const all = it.objs.flatMap(o => o.pts);
     it.c = it.pin ? P(it.pin) : centroid(all);
     it.y0 = Math.min(...it.objs.map(o => o.baseY));
-    it.h = Math.max(...it.objs.map(o => o.top));
+    it.h = Math.max(...it.objs.map(o => o.roofTop));
     it.size = Math.max(...all.map(p => Math.hypot(p[0] - it.c[0], p[1] - it.c[1])));
   } else if (it.area) {
     const pts = it.area.map(P);
@@ -746,7 +747,7 @@ function setDisc(on, fly) {
   if (on !== discOn) {
     discOn = on; discLayer.visible = on;
     mDisc.setAttribute("aria-pressed", on); mFarm.setAttribute("aria-pressed", !on); showList(on);
-    ITEMS.forEach(it => { if (it.g === "d") it.pinEl.classList.toggle("dg-off", !on); });
+    ITEMS.forEach(it => it.pinEl.classList.toggle(it.g === "d" ? "dg-off" : "farm-off", it.g === "d" ? !on : on));
   }
   if (!fly) return;
   if (on) select(ITEMS.find(i => i.disc === "all"), true);
@@ -776,9 +777,10 @@ function select(it, fly) {
   if (current) styleItem(current, false);
   current = it || null;
   if (!it) { card.hidden = true; return; }
+  hideHint();
   styleItem(it, true);
   const cn = document.getElementById("gm-cnum"); cn.textContent = it.n; cn.className = "num" + (it.g === "d" ? " dg" : /\d/.test(it.n) ? "" : " sq");
-  if (it.g === "d") setDisc(true);
+  setDisc(it.g === "d");   // a building chosen from search while on the disc golf map switches back
   document.getElementById("gm-cname").innerHTML = nameHTML(it);
   document.getElementById("gm-cdesc").innerHTML = subHTML(it);
   card.hidden = false;
@@ -842,7 +844,8 @@ bn.addEventListener("click", () => { const on = bn.getAttribute("aria-pressed") 
 // Tap to pick
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 let down = null;
-canvas.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; anim = null; document.getElementById("gm-hint").hidden = true; });
+canvas.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; anim = null; hideHint(); });
+canvas.addEventListener("wheel", () => hideHint(), { passive: true });
 canvas.addEventListener("pointerup", e => {
   if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return;
   const r = canvas.getBoundingClientRect();
@@ -883,7 +886,7 @@ function occlusion() {
 // until you hover or select its pin.
 const SIDES = ["r", "l", "t", "b"];
 function placeLabels(w, h) {
-  const shown = ITEMS.filter(it => !it.pinEl.hidden && !it.pinEl.classList.contains("behind") && !it.pinEl.classList.contains("dg-off"));
+  const shown = ITEMS.filter(it => pinShown(it) && !it.pinEl.classList.contains("behind"));
   const busy = shown.map(it => [it.sx - 15, it.sy - 15, it.sx + 15, it.sy + 15]);   // every number is taken
   const free = (r) => r[0] >= 2 && r[1] >= 2 && r[2] <= w - 2 && r[3] <= h - 2 && !busy.some(b => r[0] < b[2] && r[2] > b[0] && r[1] < b[3] && r[3] > b[1]);
   shown.sort((a, b) => (b === current) - (a === current) || a.sz - b.sz);
@@ -898,6 +901,29 @@ function placeLabels(w, h) {
     if (side) busy.push(rect[side]);
   }
 }
+// Pins that land on top of each other are pushed apart a little (never more than PUSH px from their
+// spot); the selected pin stays put and the others move round it.
+const PIN = 30, PUSH = 20;
+// on screen and not switched off with the other map's pins (the class list is read, not the layout)
+function pinShown(it) { const c = it.pinEl.classList; return !it.pinEl.hidden && !c.contains("dg-off") && (!c.contains("farm-off") || it === current); }
+function declutter() {
+  const ps = ITEMS.filter(pinShown);
+  ps.forEach(it => { it.ox = it.sx; it.oy = it.sy; });
+  for (let k = 0; k < 4; k++) {
+    for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) {
+      const a = ps[i], b = ps[j]; let dx = b.sx - a.sx, dy = b.sy - a.sy; const d = Math.hypot(dx, dy);
+      if (d >= PIN) continue;
+      if (d < 0.01) { dx = 1; dy = 0; } else { dx /= d; dy /= d; }
+      const push = PIN - d, wa = a === current ? 0 : b === current ? 1 : 0.5, wb = 1 - wa;
+      a.sx -= dx * push * wa; a.sy -= dy * push * wa; b.sx += dx * push * wb; b.sy += dy * push * wb;
+    }
+    ps.forEach(it => { const dx = it.sx - it.ox, dy = it.sy - it.oy, d = Math.hypot(dx, dy);
+      if (d > PUSH) { it.sx = it.ox + dx / d * PUSH; it.sy = it.oy + dy / d * PUSH; } });
+  }
+}
+// The "drag to turn" hint goes after the first drag, scroll or selection, or after 8 s on screen
+const hintEl = document.getElementById("gm-hint"); let hintTimer = 0;
+function hideHint() { hintEl.classList.add("gone"); }
 const v = new THREE.Vector3();
 function frame(now) {
   if (!onScreen()) { requestAnimationFrame(frame); return; } // paused while scrolled out of view
@@ -917,8 +943,11 @@ function frame(now) {
     v.set(it.c[0], it.y0 + it.h + 1.5, it.c[1]).project(camera);
     const vis = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1;
     it.pinEl.hidden = !vis;
-    if (vis) { const s = it.pinEl.style; it.sx = (v.x + 1) / 2 * w; it.sy = (1 - v.y) / 2 * h; it.sz = v.z; s.left = (it.sx - 14).toFixed(1) + "px"; s.top = (it.sy - 14).toFixed(1) + "px"; }
+    if (vis) { it.sx = (v.x + 1) / 2 * w; it.sy = (1 - v.y) / 2 * h; it.sz = v.z; }
   }
+  declutter();
+  for (const it of ITEMS) if (!it.pinEl.hidden) { const s = it.pinEl.style; s.left = (it.sx - 14).toFixed(1) + "px"; s.top = (it.sy - 14).toFixed(1) + "px"; }
+  if (!hintTimer && onScreen()) hintTimer = setTimeout(hideHint, 8000);
   if (pinsEl.classList.contains("names")) placeLabels(w, h);
   for (const [el, at, show] of [[dgGo, DG_AT, !discOn], [farmGo, FARM_AT, discOn]]) {
     v.set(at[0], hAt(at[0], at[1]) + 3, at[1]).project(camera);
