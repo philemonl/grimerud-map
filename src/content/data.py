@@ -17,7 +17,12 @@ ITEMS=[
  dict(n='5',g='b',no='Internatet',en='Dormitories',sub_no='',sub_en='',
       parts=[dict(p=R(1138,1108,1178,1212),h=6.5,wall=RED,roof='#6e3a2e',balconies=[dict(edge=1,n=2,color='#f4f2ec'),dict(edge=3,n=3,color='#f4f2ec')]),dict(p=R(1158,1143,1188,1175),h=6.5,wall=RED,roof='#5a2d26',cross=True,rise=4.4,trim=False,porch=[1188,1159,'e'])]),
  dict(n='6',g='b',no='«Bispen»',en='«Bispen»',sub_no='',sub_en='',
-      parts=[dict(p=R(654,1090,690,1148),h=5,wall='#e8c77e',roof='#4a4d52',solar=True,bay=3.6),dict(p=R(690,1098,704,1146),h=0.7,wall='#8a5a44',roof='#9c6b52',flat=True,plain=True,trim=False)]),
+      # yellow house, ridge east-west with the gable to the west; steep red-brown roof; low wing on the north side,
+      # dark deck with a white fence on the south side, small shed at the south-west corner
+      parts=[dict(p=R(650,1086,694,1124),h=5.6,wall='#e8c77e',roof='#7a3328',bay=3.4,skylights=dict(s=1)),
+             dict(p=R(652,1076,676,1086),h=3.0,wall='#e8c77e',roof='#7a3328',bay=3.4),
+             dict(p=R(668,1124,696,1140),h=0.6,wall='#4a4440',roof='#5b5148',flat=True,plain=True,trim=False,railing=True),
+             dict(p=R(648,1124,662,1134),h=2.3,wall='#9a9a92',roof='#43474c',bay=3.4)]),
  dict(n='7',g='b',no='Hybelhuset',en="Men's Manor",sub_no='',sub_en='',
       parts=[dict(p=[[1100,1300],[1118,1276],[1158,1306],[1140,1332]],h=3.4,wall='#e6bf4f',roof='#c0532f',rise=4.8,dormers=1,dormerSize=3,chimneys=[[1124,1298]],bay=3.6),dict(p=[[1128, 1302], [1149, 1318], [1175, 1284], [1154, 1268]],h=3.0,wall='#e6bf4f',roof='#c0532f',rise=2.8,trim=False,bay=3.6)]),
  dict(n='8',g='b',no='Rekkehusene',en='Row houses',sub_no='',sub_en='',
