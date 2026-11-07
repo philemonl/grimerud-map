@@ -742,7 +742,16 @@ function setMode(m, move = true) {
 }
 b3d.addEventListener("click", () => setMode("3d"));
 btop.addEventListener("click", () => setMode("top"));
-document.getElementById("gm-compass").addEventListener("click", () => setMode("3d"));
+// compass: turn the map north-up, keeping the tilt and distance; home: back to the opening view
+document.getElementById("gm-compass").addEventListener("click", () => flyTo(controls.target.clone(), camera.position.distanceTo(controls.target), controls.getPolarAngle(), 0, 600));
+document.getElementById("gm-home").addEventListener("click", () => { if (current) select(null); discOn ? setDisc(true, true) : setMode("3d"); });
+// zoom buttons: move the camera towards or away from what it looks at
+function zoomBy(f) {
+  const d = Math.max(controls.minDistance, Math.min(controls.maxDistance, camera.position.distanceTo(controls.target) * f));
+  flyTo(controls.target.clone(), d, controls.getPolarAngle(), controls.getAzimuthalAngle(), 350);
+}
+document.getElementById("gm-zin").addEventListener("click", () => zoomBy(0.65));
+document.getElementById("gm-zout").addEventListener("click", () => zoomBy(1.55));
 const bn = document.getElementById("gm-vnames");
 bn.addEventListener("click", () => { const on = bn.getAttribute("aria-pressed") !== "true"; bn.setAttribute("aria-pressed", on); pinsEl.classList.toggle("names", on); });
 
