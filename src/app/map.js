@@ -1053,11 +1053,17 @@ requestAnimationFrame(frame);
 (() => {
   const btn = document.getElementById("gm-layers"), drawer = document.getElementById("gm-menu"), grp = btn.parentElement;
   const opts = [...drawer.querySelectorAll(".tool")];
-  const open = on => { drawer.classList.toggle("open", on); btn.setAttribute("aria-expanded", on); opts.forEach(b => b.tabIndex = on ? 0 : -1); };
+  const open = on => {
+    if (on) {   // room below the button for the column, clear of the full-screen corner button?
+      const b = btn.getBoundingClientRect(), st = stage.getBoundingClientRect(), need = opts.length * (b.height + 8);
+      drawer.classList.toggle("side", b.bottom + need > st.bottom - b.height - 22);
+    }
+    drawer.classList.toggle("open", on); btn.setAttribute("aria-expanded", on); opts.forEach(b => b.tabIndex = on ? 0 : -1); };
   btn.addEventListener("click", e => { e.stopPropagation(); open(!drawer.classList.contains("open")); });
   root.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.classList.contains("open")) { open(false); btn.focus(); } });
   const lit = () => grp.classList.toggle("lit", opts.some(b => b.getAttribute("aria-pressed") === "true"));
   new MutationObserver(lit).observe(drawer, { subtree: true, attributes: true, attributeFilter: ["aria-pressed"] });
+  addEventListener("resize", () => { if (drawer.classList.contains("open")) open(true); });
   open(false); lit();
 })();
 
