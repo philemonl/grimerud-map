@@ -162,6 +162,22 @@ const stuccoTex = color => canvasTex("ws" + color, 64, 64, (g, w, h) => {
   g.fillStyle = "#fffdf8"; g.fillRect(31, 21, 2, 20); g.fillRect(25, 30, 14, 2);
   g.strokeStyle = "#26221d"; g.lineWidth = 1.5; g.strokeRect(22, 18, 20, 26);
 });
+const stuccoPlain = color => canvasTex("sp" + color, 32, 32, (g, w, h) => {
+  g.fillStyle = color; g.fillRect(0, 0, w, h);
+  let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  g.fillStyle = "rgba(0,0,0,.06)"; for (let i = 0; i < 60; i++) g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5);
+});
+// Wooden shingles, for the steeple spire
+const shingleTex = color => canvasTex("sh" + color, 32, 32, (g, w, h) => {
+  g.fillStyle = color; g.fillRect(0, 0, w, h);
+  g.fillStyle = "rgba(0,0,0,.25)"; for (let y = 0; y < h; y += 4) g.fillRect(0, y, w, 1);
+  g.fillStyle = "rgba(0,0,0,.18)"; for (let y = 0; y < h; y += 4) for (let x = (y / 4) % 2 * 3; x < w; x += 6) g.fillRect(x, y, 1, 4);
+});
+const louvreTex = color => canvasTex("lv" + color, 32, 32, (g, w, h) => {
+  g.fillStyle = color; g.fillRect(0, 0, w, h);
+  g.fillStyle = "rgba(0,0,0,.35)"; for (let y = 6; y < h - 4; y += 3) g.fillRect(5, y, w - 10, 1.4);
+  g.strokeStyle = "rgba(0,0,0,.35)"; g.lineWidth = 1; g.strokeRect(5, 5, w - 10, h - 9);
+});
 const solarTex = color => canvasTex("solar" + color, 64, 64, (g, w, h) => {
   g.fillStyle = "#262d39"; g.fillRect(0, 0, w, h);                 // panel field
   g.fillStyle = "#3e4757"; for (let x = 0; x < w; x += 16) g.fillRect(x, 0, 1, h); for (let y = 0; y < h; y += 32) g.fillRect(0, y, w, 1);
@@ -296,7 +312,7 @@ function gable(pts, h, maxRise = 6.5, cross = false) {
   const ends = [...V(p1, h), ...V(p2, h), ...V(m1, top - 0.02), ...V(p3, h), ...V(p0, h), ...V(m2, top - 0.02)];
   const halves = [0, 1].map(k => geomFrom(pos.slice(k * 18, k * 18 + 18), uv.slice(k * 12, k * 12 + 12)));
   const outA = [mid(p0, p1)[0] - c[0], mid(p0, p1)[1] - c[1]], outB = [mid(p2, p3)[0] - c[0], mid(p2, p3)[1] - c[1]];
-  return { roof: geomFrom(pos, uv), halves, outs: [outA, outB], ends: geomFrom(ends), top, rise, h, slopes: [[p0, p1, m2, m1], [p2, p3, m1, m2]], ridgeMid: [(m1[0] + m2[0]) / 2, (m1[1] + m2[1]) / 2] };
+  return { roof: geomFrom(pos, uv), halves, outs: [outA, outB], ends: geomFrom(ends), top, rise, h, slopes: [[p0, p1, m2, m1], [p2, p3, m1, m2]], ridgeMid: [(m1[0] + m2[0]) / 2, (m1[1] + m2[1]) / 2], ax, ends2: [m1, m2] };
 }
 
 const pickables = [];
@@ -339,7 +355,14 @@ function building(part, item) {
   const ink = item ? new THREE.LineBasicMaterial({ color: INK }) : inkMat;
   const wallMat = part.tent ? toon({ color: part.wall }) : toon({ map: part.plain ? boardTex(part.wall) : part.stucco ? stuccoTex(part.wall) : wallTex(part.wall) });
   const y0 = part.base ? part.base[0] : 0;
+  const mats = [wallMat];
   const walls = new THREE.Mesh(wallGeom(pts, part.h, y0, part.bay || 4.4), wallMat); group.add(walls); addInk(walls.geometry, group, 25, ink);
+  // skin: a stretch of the building with walls of its own colour, laid just outside the main walls
+  (part.skin || []).forEach(sk => {
+    const sp = sk.p.map(P), c = centroid(sp), out = sp.map(([x, z]) => { const dx = x - c[0], dz = z - c[1]; return [x + Math.sign(dx) * 0.04, z + Math.sign(dz) * 0.04]; });
+    const m = new THREE.Mesh(wallGeom(out, part.h, y0, part.bay || 4.4), toon({ map: sk.plain ? boardTex(sk.wall) : sk.stucco ? stuccoTex(sk.wall) : wallTex(sk.wall) }));
+    group.add(m); addInk(m.geometry, group, 25, ink); mats.push(m.material);
+  });
   if (part.base) {
     const bw = new THREE.Mesh(wallGeom(pts, y0), toon({ map: part.base[2] === "plain" ? boardTex(part.base[1]) : wallTex(part.base[1]) }));
     group.add(bw); addInk(bw.geometry, group, 25, ink);
@@ -351,8 +374,7 @@ function building(part, item) {
     const b = new THREE.Mesh(new THREE.BoxGeometry(0.3, hb, 0.3), trimMat);
     b.position.set(x, y0 + hb / 2, z); group.add(b);
   });
-  const mats = [wallMat];
-  let top = part.h, ridge = null;
+  let top = part.h, ridge = null, gAx = [1, 0];
   if (pts.length === 4 && !part.flat) {
     const g = gable(pts, part.h, part.rise || 6.5, !!part.cross);
     // solar: true = both slopes; "s"/"n"/"e"/"w" = only the slope facing that way (+z is south, +x is east)
@@ -364,11 +386,44 @@ function building(part, item) {
     const endMat = toon({ color: part.gable || part.wall });
     const ends = new THREE.Mesh(g.ends, endMat);
     group.add(ends); addInk(g.roof, group, 25, ink); addInk(g.ends, group, 25, ink);
-    mats.push(endMat); top = g.top; ridge = g.ridgeMid;
+    mats.push(endMat);
+    // gables: {s: colour}: the gable facing that way gets its own colour (stucco, like a skin below it)
+    if (part.gables) Object.entries(part.gables).forEach(([f, col]) => {
+      const dir = { s: [0, 1], n: [0, -1], e: [1, 0], w: [-1, 0] }[f], c = centroid(pts);
+      g.ends2.forEach((m, k) => {
+        if ((m[0] - c[0]) * dir[0] + (m[1] - c[1]) * dir[1] <= 0) return;
+        const a = k ? pts.find(() => 0) : null;
+        const pos = g.ends.attributes.position.array.slice(k * 9, k * 9 + 9);
+        // nudge it outward so it sits on top of the shared gable
+        for (let i = 0; i < 9; i += 3) { pos[i] += dir[0] * 0.05; pos[i + 2] += dir[1] * 0.05; }
+        const gm = new THREE.Mesh(geomFrom(Array.from(pos)), toon({ color: col })); group.add(gm); mats.push(gm.material);
+      });
+    });
+    // skylights: {n: count}: glazed roof windows lying on the slope facing that way
+    if (part.skylights) Object.entries(part.skylights).forEach(([f, n]) => {
+      const dir = { s: [0, 1], n: [0, -1], e: [1, 0], w: [-1, 0] }[f];
+      g.slopes.forEach(([e0, e1, r0, r1], k) => {
+        const o = g.outs[k]; if (o[0] * dir[0] + o[1] * dir[1] <= 0) return;
+        const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+        const glass = toon({ color: "#2f3e4c" }), frame = toon({ color: "#e9e6de" });
+        for (let i = 0; i < n; i++) {
+          const t = 0.15 + 0.7 * (n > 1 ? i / (n - 1) : 0.5);
+          const e = lerp(e0, e1, t), r = lerp(r0, r1, t), c = lerp(e, r, 0.55);
+          const yy = g.h + g.rise * 0.55 + 0.08;
+          const out = [e[0] - r[0], e[1] - r[1]], run = Math.hypot(...out);
+          const sw = new THREE.Group(); sw.position.set(c[0], yy, c[1]); sw.rotation.y = Math.atan2(out[0], out[1]);
+          const tilt = new THREE.Group(); tilt.rotation.x = Math.atan2(g.rise, run); sw.add(tilt);
+          const fr = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.1, 1.3), frame); tilt.add(fr);
+          const gl = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.12, 1.1), glass); tilt.add(gl);
+          group.add(sw);
+        }
+      });
+    });
+    top = g.top; ridge = g.ridgeMid; gAx = g.ax;
     if (part.dormers) addDormers(group, g, part, ink);
     if (part.chimneys) part.chimneys.forEach(cp => {
       const [x, z] = P(cp), hgt = g.top - part.h + 1.6;
-      const ch = new THREE.Mesh(new THREE.BoxGeometry(0.9, hgt, 0.9), toon({ color: "#a5452e" }));
+      const ch = new THREE.Mesh(new THREE.BoxGeometry(0.9, hgt, 0.9), toon(part.chimneyColor ? { map: stuccoPlain(part.chimneyColor) } : { color: "#a5452e" }));
       ch.position.set(x, part.h + hgt / 2 + 0.3, z); group.add(ch); addInk(ch.geometry, ch, 25, ink);
       const cap = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.2, 1.1), toon({ color: "#5a5652" }));
       cap.position.set(x, part.h + hgt + 0.4, z); group.add(cap);
@@ -389,14 +444,25 @@ function building(part, item) {
       g.strokeStyle = "#26221d"; g.lineWidth = 2; g.strokeRect(1, 1, w - 2, h - 2);
     }) }));
     door.position.set(dir * 0.07, 1.25, 0); ent.add(door);
+    if (part.porch[3] === "gable") {
+      // porch box (built facing +x): white walls, door in the front, tiled gable roof running out from the wall
+      const PW = 2.6, PD = 2.2, PH = 2.6, white = toon({ map: stuccoPlain("#f6f4ee") });
+      const box = new THREE.Mesh(new THREE.BoxGeometry(PD, PH, PW), white); box.position.set(PD / 2, PH / 2, 0); ent.add(box); addInk(box.geometry, box, 25, ink);
+      door.position.set(PD + 0.07, 1.2, 0); door.scale.set(1, 0.95, 0.7);
+      const pr = new THREE.Shape([new THREE.Vector2(-PW / 2 - 0.3, 0), new THREE.Vector2(PW / 2 + 0.3, 0), new THREE.Vector2(0, 1.3)]);
+      const roofG = new THREE.ExtrudeGeometry(pr, { depth: PD + 0.4, bevelEnabled: false });
+      const rf = new THREE.Mesh(roofG, toon({ map: roofTex(part.roof) })); rf.rotation.y = Math.PI / 2; rf.position.set(0, PH, 0); ent.add(rf); addInk(roofG, rf, 25, ink);
+      const gt = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(-PW / 2, 0), new THREE.Vector2(PW / 2, 0), new THREE.Vector2(0, 1.15)])), toon({ color: "#f6f4ee" }));
+      gt.rotation.y = Math.PI / 2; gt.position.set(PD + 0.01, PH, 0); ent.add(gt);
+    }
     const plainDoor = part.porch[3] === "plain";
     if (plainDoor) door.material = toon({ color: "#24211f" });
     const canopy = new THREE.Mesh(new THREE.ConeGeometry(1.75, 0.8, 4, 1), toon({ color: "#23304a" }));
-    canopy.visible = !plainDoor;
+    canopy.visible = !plainDoor && part.porch[3] !== "gable";
     canopy.rotation.y = Math.PI / 4; canopy.scale.set(0.75, 1, 1.1);
     canopy.position.set(dir * 0.75, 2.95, 0); ent.add(canopy); addInk(canopy.geometry, canopy, 25, ink);
     const step = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.3, 3.2), toon({ color: "#d4cec2" }));
-    step.position.set(dir * 0.7, 0.15, 0); ent.add(step); addInk(step.geometry, step, 25, ink);
+    step.position.set(dir * 0.7 + (part.porch[3] === "gable" ? 2.2 : 0), 0.15, 0); ent.add(step); addInk(step.geometry, step, 25, ink);
   }
   if (part.garage) part.garage.forEach(([px, pz, side, w, hgt]) => {
     // roller door: grey ribbed panel in a white frame, set just proud of the wall
@@ -430,6 +496,15 @@ function building(part, item) {
       // ground-floor terrace with a low railing
       const deck = new THREE.Mesh(new THREE.BoxGeometry(W, 0.35, D + 0.3), bm); deck.position.set(0, 0.17, side * (D + 0.3) / 2);
       const rail = new THREE.Mesh(new THREE.BoxGeometry(W, 0.8, 0.1), bm); rail.position.set(0, 0.75, side * (D + 0.3));
+      if (bc.rail) {
+        // open railing: thin top rail and posts, the wall showing through
+        [front, s1, s2].forEach(m => { m.scale.y = 0.08; m.position.y = y + 1.05; });
+        const bars = [];
+        const bar = (x0, z0) => bars.push(new THREE.Vector3(x0, y + 0.1, z0), new THREE.Vector3(x0, y + 1.05, z0));
+        for (let x = -W / 2; x <= W / 2 + 1e-6; x += 0.25) bar(x, side * D);
+        for (let zz = 0.25; zz < D; zz += 0.25) { bar(-W / 2, side * zz); bar(W / 2, side * zz); }
+        bg.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(bars), new THREE.LineBasicMaterial({ color: color || "#26221d" })));
+      }
       (upper ? [slab, front, s1, s2] : [slab, front, s1, s2, deck, rail]).forEach(m => { bg.add(m); addInk(m.geometry, m, 25, ink); });
       group.add(bg);
     }
@@ -444,11 +519,19 @@ function building(part, item) {
     group.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segs), ink));
   }
   if (part.steeple && ridge) {
-    const tw = new THREE.Mesh(new THREE.BoxGeometry(1.6, 3.2, 1.6), toon({ color: "#fffdf8" }));
-    tw.position.set(ridge[0], top + 0.6, ridge[1]);
-    const cap = new THREE.Mesh(new THREE.ConeGeometry(1.35, 3.2, 4), toon({ color: part.roof }));
-    cap.position.set(ridge[0], top + 3.8, ridge[1]); cap.rotation.y = Math.PI / 4;
-    group.add(tw, cap); addInk(tw.geometry, tw, 25, ink); addInk(cap.geometry, cap, 25, ink); top += 5.4;
+    // ridge turret: louvred box astride the ridge, open belfry on four posts, tall shingled spire with a flared foot
+    const sp = Array.isArray(part.steeple) ? P(part.steeple) : ridge, ax = gAx;
+    const st = new THREE.Group(); st.position.set(sp[0], top, sp[1]); st.rotation.y = -Math.atan2(ax[1], ax[0]); group.add(st);
+    const wood = toon({ map: shingleTex("#6b4e36") }), post = toon({ color: "#4a3626" });
+    const add = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); st.add(m); addInk(geo, m, 25, ink); return m; };
+    add(new THREE.BoxGeometry(1.9, 2.0, 1.9), toon({ map: louvreTex("#8f9a83") }), 0, -0.1, 0);       // louvred base, half sunk in the roof
+    add(new THREE.BoxGeometry(2.1, 0.15, 2.1), post, 0, 0.95, 0);
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => add(new THREE.BoxGeometry(0.18, 1.3, 0.18), post, a * 0.8, 1.65, b * 0.8));
+    add(new THREE.CylinderGeometry(0.22, 0.42, 0.6, 8), toon({ color: "#7a5a2a" }), 0, 1.6, 0);          // bell
+    const skirt = add(new THREE.ConeGeometry(1.75, 0.7, 4, 1, true), wood, 0, 2.55, 0); skirt.rotation.y = Math.PI / 4;
+    const spire = add(new THREE.ConeGeometry(0.95, 6.2, 4), wood, 0, 5.4, 0); spire.rotation.y = Math.PI / 4;
+    add(new THREE.CylinderGeometry(0.04, 0.04, 0.9, 5), post, 0, 8.9, 0);
+    top += 9.3;
   }
   if (item) group.traverse(o => { if (o.isMesh) { o.userData.item = item; pickables.push(o); } });
   // ground halo shown when the building is selected

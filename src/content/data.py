@@ -1,15 +1,15 @@
 # Single source for places and outlines. Coordinates are native pixels of the 1792px z18 mosaic.
 def R(x1,y1,x2,y2): return [[x1,y1],[x2,y1],[x2,y2],[x1,y2]]
 WHITE='#f4f1ea'; YELLOW='#e6bd4e'; RED='#a8292a'; DARKRED='#8c2626'; CREAM='#f2ece0'; CONCRETE='#d9d5cc'
-ROOF_RED='#c4432d'; ROOF_DARK='#3d3a38'; ROOF_BROWN='#6e3a2a'; ROOF_GREY='#8b8f8c'
+ROOF_RED='#c4432d'; ROOF_TILE='#b84a30'; ROOF_DARK='#3d3a38'; ROOF_BROWN='#6e3a2a'; ROOF_GREY='#8b8f8c'
 ITEMS=[
  # numbered as on the drawn site map
  dict(n='1',g='b',no='Hovedbygning',en='Main building',sub_no='Matsal · Stuene · Café Alv · TV-rom',sub_en='Dining hall · Living rooms · Café Alv · TV room',
       parts=[dict(p=R(762,962,830,1108),h=6.6,wall='#f7f5ef',roof='#7b3a2b',bay=4.7,dormers=6,rise=4.5,dormerSize=1.35,chimneys=[[796,998],[796,1042]],porch=[762,1035,'w']),dict(p=R(756,1086,762,1106),h=3.3,wall='#f7f5ef',roof='#e9e6de',flat=True,railing=True)]),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
-      parts=[dict(p=R(556,914,656,958),h=8.8,wall='#e2b350',roof='#8e3f2d',stucco=True,solar='s',base=[2.7,'#ecebe6'],bay=3.1,rise=4.6,chimneys=[[572,936]],balconies=dict(edge=3,n=1,upper=True,y=5.7,w=8.5,color='#3b3a38'))]),
+      parts=[dict(p=R(556,914,656,958),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#ecebe6'],bay=3.1,rise=4.6,chimneys=[[649,936]],chimneyColor='#dcae4f',balconies=dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True))]),
  dict(n='3',g='b',no='Gym-bygning',en='Gym building',sub_no='Gymsal · Lille bønnerommet',sub_en='Gym · Little prayer room',
-      parts=[dict(p=R(659,860,698,960),h=6.5,wall='#f4f2ec',roof='#8e3f2d',steeple=True)]),
+      parts=[dict(p=R(659,860,698,960),h=6.5,wall='#f4f2ec',roof=ROOF_TILE,steeple=[678.5,947],gables=dict(s='#dcb35a'),skin=[dict(p=R(659,921,698,960),wall='#dcb35a',stucco=True)],porch=[692,960,'s','gable'])]),
  dict(n='4',g='b',no='Låven',en='The Barn',sub_no='Møtesal · Prokla Media · Bønnerom',sub_en='Meeting hall · Prokla Media · Prayer room',
       parts=[dict(p=R(572,640,800,748),h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#d8d5cc'],roof='#46474b',plain=True,rise=7.5,garage=[[668,748,'s',3.6,3.0]]),dict(p=R(692,736,752,768),h=6.2,wall='#a3282a',base=[3.0,'#d8d5cc'],roof='#46474b',cross=True,rise=4.6,porch=[730,768,'s','plain']),dict(p=R(681,748,691,758),h=2.6,wall='#a3282a',roof='#46474b',plain=True,trim=False,rise=0.9),dict(p=R(562,690,572,712),h=2.4,wall='#a3282a',roof='#cfd6d8',flat=True,plain=True,trim=False),dict(p=R(756,750,797,840),h=2.8,wall='#fbfaf5',roof='#f6f4ee',tent=True,trim=False)]),
  dict(n='4a',g='b',no='Bønnerommet',en='Prayer room',sub_no='Oppe i inngangsfløyen til låven',sub_en='Upstairs in the barn’s entrance wing',pin=[722,752],inside='4',pinH=11),
