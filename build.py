@@ -15,7 +15,7 @@ commit, tag the commit (git tag v3 && git push --tags), bump DATA_TAG, rebuild.
 import json, math, sys
 from pathlib import Path
 
-DATA_TAG = "v2"
+DATA_TAG = "v3"
 REPO = "philemonl/grimerud-map"
 DATA_URL = f"https://cdn.jsdelivr.net/gh/{REPO}@{DATA_TAG}/dist/grimerud-map-data.js"
 
