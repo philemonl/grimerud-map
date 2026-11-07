@@ -7,7 +7,7 @@ ITEMS=[
  dict(n='1',g='b',no='Hovedbygning',en='Main building',sub_no='Matsal · Stuene · Café Alv · TV-rom',sub_en='Dining hall · Living rooms · Café Alv · TV room',
       parts=[dict(p=R(762,962,830,1108),h=6.6,wall='#f7f5ef',roof='#7b3a2b',bay=4.7,dormers=6,rise=4.5,dormerSize=1.35,chimneys=[[796,998],[796,1042]],porch=[762,1035,'w']),dict(p=R(756,1086,762,1106),h=3.3,wall='#f7f5ef',roof='#e9e6de',flat=True,railing=True)]),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
-      parts=[dict(p=R(556,880,656,960),h=7.8,wall='#e2b350',roof='#8e3f2d',stucco=True,solar='s',base=[1.6,'#ecebe6','plain'],bay=3.3,rise=5.2,chimneys=[[606,890]],balconies=dict(edge=3,n=1,upper=True,y=4.4,color='#3b3a38'))]),
+      parts=[dict(p=R(556,914,656,958),h=8.8,wall='#e2b350',roof='#8e3f2d',stucco=True,solar='s',base=[2.7,'#ecebe6'],bay=3.1,rise=4.6,chimneys=[[572,936]],balconies=dict(edge=3,n=1,upper=True,y=5.7,w=8.5,color='#3b3a38'))]),
  dict(n='3',g='b',no='Gym-bygning',en='Gym building',sub_no='Gymsal · Lille bønnerommet',sub_en='Gym · Little prayer room',
       parts=[dict(p=R(659,860,698,960),h=6.5,wall='#f4f2ec',roof='#8e3f2d',steeple=True)]),
  dict(n='4',g='b',no='Låven',en='The Barn',sub_no='Møtesal · Prokla Media · Bønnerom',sub_en='Meeting hall · Prokla Media · Prayer room',
@@ -78,7 +78,7 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  ([[925,1040],[890,1036],[852,1040],[845,1080],[845,1123]],3,'path'),
  ([[752,1122],[800,1123],[845,1123],[855,1160],[868,1210],[935,1250],[990,1280]],3,'path'),
  # dormitories loop to Men's Manor and the row houses
- ([[1066,1000],[1090,1040],[1110,1064],[1165,1076],[1195,1090],[1212,1115],[1220,1165],[1205,1210],[1165,1228],[1120,1248],[1085,1272],[1068,1302]],3,'path'),
+ ([[1058,1040],[1066,1062],[1092,1074],[1130,1076],[1165,1076],[1195,1090],[1212,1115],[1220,1165],[1205,1210],[1165,1228],[1120,1248],[1085,1272],[1068,1302]],3,'path'),
  ([[990,1280],[1031,1276],[1100,1325],[1150,1362],[1160,1395],[1175,1430],[1215,1462],[1255,1478]],3.2,'drive'),
 ]
 ROADS+=ROADS_EXTRA

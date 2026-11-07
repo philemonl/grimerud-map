@@ -420,7 +420,7 @@ function building(part, item) {
     for (let i = 0; i < n; i++) {
       const k = (i + 0.5) / n, bg = new THREE.Group();
       bg.position.set(a[0] + ex * k, 0, a[1] + ez * k); bg.rotation.y = -Math.atan2(ez, ex);
-      const W = Math.min(3, L / n - 0.6), D = 1.4;
+      const W = bc.w || Math.min(3, L / n - 0.6), D = 1.4;
       // upper balcony: slab plus solid board railing
       const slab = new THREE.Mesh(new THREE.BoxGeometry(W, 0.2, D), bm); slab.position.set(0, y, side * D / 2);
       const front = new THREE.Mesh(new THREE.BoxGeometry(W, 1.0, 0.1), bm); front.position.set(0, y + 0.6, side * D);
