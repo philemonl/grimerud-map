@@ -26,7 +26,7 @@ ITEMS=[
       parts=[dict(p=R(862,1064,906,1112),h=5.5,wall=RED,roof='#b23e2c',solar=True),dict(p=R(882,1112,906,1200),h=4.5,wall=RED,roof='#b23e2c'),dict(p=R(894,1128,924,1152),h=4.5,wall=RED,roof='#5a2d26',rise=2.7,trim=False)]),
  # lettered: arrival, outdoors, other buildings
  dict(n='P',g='a',no='Parkering',en='Car park',sub_no='',sub_en='Main parking on the south side of the farm road.',
-      area=[[915,968],[1065,962],[1070,1035],[925,1042]]),
+      area=[[915,936],[1065,926],[1070,1035],[925,1042]]),
  dict(n='E',g='a',no='Innkjøring',en='Entrance',sub_no='',sub_en='Turn west off Grimerudvegen. The car park is about 100 m ahead on the left.',
       pin=[1337,846]),
  dict(n='H',g='a',no='Hagen og ballplassen',en='Garden & football lawn',sub_no='Fotballbane og sandvolleyballbane',sub_en='Football pitch and beach volleyball court',
@@ -50,7 +50,7 @@ CONTEXT=[
  dict(p=[[1178,1398],[1210,1368],[1240,1405],[1205,1435]],h=5,wall=YELLOW,roof='#c97f4a'),
 ]
 FLAG=[752,952]
-ROADS_EXTRA=[([[985,912],[988,940],[990,966]],6,'drive'),([[1045,920],[1048,940],[1050,964]],6,'drive')]
+ROADS_EXTRA=[]
 WALK_FIELD=[[1396,10],[1700,12],[2000,14],[2310,16],[2360,100],[2385,150]]
 YARD=[[590,752],[805,752],[840,790],[840,840],[700,845],[595,840]]
 SPORTS=dict(goals=[[548,1000,0],[548,1096,180]],court=[[562,1120],[637,1120],[637,1190],[562,1190]],net=[[600,1124],[600,1186]])
@@ -62,7 +62,8 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  ([[1446,846],[1600,846],[1792,841]],5.5,'road'),
  ([[1205,1585],[1350,1588],[1500,1588]],4.5,'road'),
  # farm drive from Grimerudvegen to the yard
- ([[1446,836],[1385,834],[1300,856],[1228,882],[1150,904],[1080,916],[1030,918],[960,910],[930,890],[910,860],[907,830],[898,798],[860,788],[828,790]],5,'drive'),
+ ([[1446,836],[1385,834],[1300,856],[1228,882],[1150,904],[1080,916],[1030,921],[960,927],[900,933],[840,935],[790,931],[757,927]],5,'drive'),
+ ([[975,925],[955,912],[930,890],[910,860],[907,830],[898,798],[860,788],[828,790]],5,'drive'),
  ([[1386,823],[1388,852]],3,'path'),
  # farm tracks
  ([[1393,399],[1200,424],[1029,448],[950,462],[925,540],[922,620],[925,700],[930,795]],3.2,'track'),
@@ -72,7 +73,6 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  # yard and main building
  ([[828,795],[860,795],[930,803],[948,808]],3,'path'),
  ([[715,845],[725,880],[735,908]],3,'path'),
- ([[762,935],[830,945],[885,960],[920,990]],3.4,'path'),
  ([[748,945],[745,1000],[745,1060],[745,1100],[752,1122]],3,'path'),
  ([[745,1080],[725,1092],[711,1096]],2.8,'path'),
  ([[925,1040],[890,1036],[852,1040],[845,1080],[845,1123]],3,'path'),
