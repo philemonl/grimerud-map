@@ -7,17 +7,19 @@ Reads the map source (src/app), the places and outlines (src/content) and the he
 (dist/grimerud-map-data.js, written by src/pipeline/build_data.py), and writes:
 
   dist/grimerud-map.html            standalone page with everything inlined
-  dist/squarespace-codeblock.html   paste into the Squarespace code block on ywam.no
+  dist/grimerud-map-embed.js        styles, markup and map code for the ywam.no embed
+  dist/squarespace-codeblock.html   the code block on ywam.no (paste once)
 
-The code block loads the data file from jsDelivr at DATA_TAG. After changing the data file:
-commit, tag the commit (git tag v3 && git push --tags), bump DATA_TAG, rebuild.
+The code block only loads dist/grimerud-map-embed.js from GitHub Pages, so pushing a rebuilt
+dist/ to main updates ywam.no within a few minutes (Pages caches files for about 10 minutes).
+The data file URL carries a hash of its contents, so browsers fetch it again only when it changes.
 """
-import json, math, sys
+import hashlib, json, math, sys
 from pathlib import Path
 
-DATA_TAG = "v3"
 REPO = "philemonl/grimerud-map"
-DATA_URL = f"https://cdn.jsdelivr.net/gh/{REPO}@{DATA_TAG}/dist/grimerud-map-data.js"
+PAGES = "https://philemonl.github.io/grimerud-map/dist/"
+EMBED_URL = PAGES + "grimerud-map-embed.js"
 
 ROOT = Path(__file__).resolve().parent
 APP, DIST = ROOT / "src" / "app", ROOT / "dist"
@@ -74,14 +76,38 @@ def main():
     css = (APP / "map.css").read_text(encoding="utf-8")
     markup = (APP / "map.html").read_text(encoding="utf-8")
     heavy = (DIST / "grimerud-map-data.js").read_text(encoding="utf-8")
+    data_url = PAGES + "grimerud-map-data.js?v=" + hashlib.sha1(heavy.encode("utf-8")).hexdigest()[:10]
 
-    block = f"""<!-- Grimerud Gård 3D map: paste into a Squarespace Code Block (Display Source off).
-     Built from github.com/{REPO}; loads its imagery and terrain from jsDelivr ({DATA_TAG}). Do not edit by hand. -->
-{FONTS}
-<style>
-{css}</style>
-{markup.replace('<div id="grimerud-map">', f'<div id="grimerud-map" data-src="{DATA_URL}">', 1)}<script>
-{script(DATA_URL)}</script>
+    # Embed script: puts the fonts, styles and markup where the code block sits, then runs the map
+    fonts = [l.split('href="')[1].split('"')[0] for l in FONTS.splitlines() if 'rel="stylesheet"' in l]
+    embed = f"""/* Grimerud Gård 3D map, built from github.com/{REPO} by build.py. Do not edit by hand. */
+(function () {{
+  "use strict";
+  if (document.getElementById("grimerud-map")) return;
+  var mount = document.getElementById("grimerud-map-mount");
+  if (!mount) {{ console.error("[Grimerud map] no #grimerud-map-mount on the page"); return; }}
+  {json.dumps(fonts)}.forEach(function (href) {{
+    if (document.querySelector('link[href="' + href + '"]')) return;
+    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = href; document.head.appendChild(l);
+  }});
+  var st = document.createElement("style"); st.textContent = {json.dumps(css)}; document.head.appendChild(st);
+  mount.outerHTML = {json.dumps(markup.replace('<div id="grimerud-map">', f'<div id="grimerud-map" data-src="{data_url}">', 1))};
+}})();
+{script(data_url)}
+"""
+    # ASCII only (non-ASCII as \\u escapes), so Norwegian letters survive however the file is served
+    def esc(c):
+        o = ord(c)
+        if o < 128: return c
+        if o < 0x10000: return f"\\u{o:04x}"
+        o -= 0x10000; return f"\\u{0xd800 + (o >> 10):04x}\\u{0xdc00 + (o & 0x3ff):04x}"
+    embed = "".join(esc(c) for c in embed)
+    (DIST / "grimerud-map-embed.js").write_text(embed, encoding="utf-8")
+
+    block = f"""<!-- Grimerud Gård 3D map: paste once into a Squarespace Code Block (Display Source off).
+     It loads the map from GitHub Pages, so pushing to github.com/{REPO} updates it without re-pasting. -->
+<div id="grimerud-map-mount" style="min-height:560px"></div>
+<script src="{EMBED_URL}" charset="utf-8" defer></script>
 """
     (DIST / "squarespace-codeblock.html").write_text(block, encoding="utf-8")
 
@@ -107,7 +133,7 @@ html, body {{ margin: 0; background: #f1efe8; }}
 </html>
 """
     (DIST / "grimerud-map.html").write_text(page, encoding="utf-8")
-    for f in ("squarespace-codeblock.html", "grimerud-map.html", "grimerud-map-data.js"):
+    for f in ("squarespace-codeblock.html", "grimerud-map-embed.js", "grimerud-map.html", "grimerud-map-data.js"):
         print(f"dist/{f}  {(DIST / f).stat().st_size / 1024:,.0f} KB")
 
 

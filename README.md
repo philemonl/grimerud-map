@@ -20,26 +20,31 @@ src/
   tools/                         debug helpers: check.py, crop.py, ov.py
 dist/                            built files: never edit by hand
   grimerud-map.html              standalone page, everything inlined
-  grimerud-map-data.js           imagery, terrain, trees, distant landscape (served by jsDelivr)
-  squarespace-codeblock.html     paste into the code block on ywam.no
+  grimerud-map-data.js           imagery, terrain, trees, distant landscape
+  grimerud-map-embed.js          styles, markup and map code for the ywam.no embed
+  squarespace-codeblock.html     the code block on ywam.no (pasted once; loads the embed from Pages)
 build/                           gitignored: tiles, terrain model, painted intermediates
 ```
 
 Coordinates in `src/content` are pixels of the 1792 px zoom-18 satellite mosaic (0.29188 m per pixel).
+
+## How the live site updates
+
+GitHub Pages serves this repo from `main`. The code block on ywam.no is pasted once and only loads `dist/grimerud-map-embed.js` from `https://philemonl.github.io/grimerud-map/dist/`. That file loads the data file, whose URL carries a hash of its contents.
+
+**Whatever is in `dist/` on `main` is live.** A push shows up on ywam.no within about 10 minutes, the time Pages caches files. No tags, releases or re-pasting.
 
 ## Everyday changes
 
 Names, descriptions, outlines, colours, roads, or anything in the app:
 
 1. Edit `src/content/*.py` or `src/app/*`.
-2. `python3 build.py`
-3. Commit, then paste `dist/squarespace-codeblock.html` into the Squarespace code block.
-
-The data file does not change, so no new tag is needed.
+2. `python3 build.py`, then open `dist/grimerud-map.html` to check it.
+3. Commit and push to `main`.
 
 ## Rebuilding the imagery and terrain
 
-Only needed when the ground painting, trees, terrain or distant landscape change. Needs Python with numpy, scipy, opencv, pillow, pyproj and tifffile. Downloads and intermediates go to `build/`.
+Only needed when the ground painting, trees, terrain or distant landscape change, such as after moving a road or a building outline. Needs Python with numpy, scipy, opencv, pillow, pyproj and tifffile. Downloads and intermediates go to `build/`.
 
 1. `src/pipeline/mosaic.py`: fetch Esri World Imagery tiles into mosaics.
 2. `src/pipeline/dtm.py`: fetch the Kartverket 1 m terrain model (WCS).
@@ -48,13 +53,11 @@ Only needed when the ground painting, trees, terrain or distant landscape change
 5. `src/pipeline/far.py`: paint the distant landscape and Mjøsa.
 6. `src/pipeline/build_data.py`: write `dist/grimerud-map-data.js`.
 
-Then publish it as a new version:
+Then `python3 build.py`, commit and push to `main`, as for everyday changes.
 
-1. Commit, tag and push: `git tag v3 && git push origin main --tags`.
-2. Set `DATA_TAG = "v3"` in `build.py`, run `python3 build.py`, commit.
-3. Paste the new `dist/squarespace-codeblock.html` into Squarespace.
+## Squarespace
 
-The live site keeps loading the tagged version it points at, so pushing to the repo never changes ywam.no by itself.
+The code block (Display Source off) holds the contents of `dist/squarespace-codeblock.html`. It only needs re-pasting if that file itself changes, which happens only if the Pages address moves.
 
 `src/tools/check.py` lists any road or path that runs under a building.
 
