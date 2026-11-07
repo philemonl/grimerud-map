@@ -41,21 +41,24 @@
 #grimerud-map.nolist .panel { visibility: hidden; border: 0; }
 #grimerud-map .listtoggle[data-tip]::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); white-space: pre; background: #26221d; color: #fffdf8; font: 500 12.5px/1.3 var(--f); padding: 6px 9px; border-radius: 7px; opacity: 0; pointer-events: none; transition: opacity .12s; }
 @media (hover: hover) { #grimerud-map .listtoggle:hover::after { opacity: 1; } }
-/* display menu */
+/* "more to show" drawer */
 #grimerud-map .tgrp.look { position: relative; }
-#grimerud-map .menu { position: absolute; right: calc(100% + 10px); top: 0; z-index: 7; display: flex; flex-direction: column; gap: 2px; padding: 6px; background: #fffdf8; border: 1.6px solid #26221d; border-radius: 12px; box-shadow: 0 3px 0 rgba(38,34,29,.3); min-width: 186px; }
-#grimerud-map .menu .tool.mrow { width: 100%; height: auto; border: 0; box-shadow: none; border-radius: 8px; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 10px; padding: 7px 8px; background: none; text-align: left; font: inherit; }
-#grimerud-map .menu .tool.mrow:hover { background: var(--chip); }
-#grimerud-map .menu .tool.mrow[aria-pressed="true"] { background: none; color: #26221d; }
-#grimerud-map .menu .tool.mrow > svg, #grimerud-map .menu .tool.mrow > .aa { justify-self: center; }
-#grimerud-map .menu .ml b { display: block; font: 500 14px/1.15 var(--f); }
-#grimerud-map .menu .ml i { display: block; font: italic 400 12px/1.2 var(--f); color: #5a5248; }
-#grimerud-map .menu .sw { width: 32px; height: 18px; border-radius: 10px; background: #d9d3c6; position: relative; transition: background .15s; }
-#grimerud-map .menu .sw::before { content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fffdf8; box-shadow: 0 1px 1px rgba(0,0,0,.25); transition: transform .15s; }
-#grimerud-map .menu .mrow[aria-pressed="true"] .sw { background: #26221d; }
-#grimerud-map .menu .mrow[aria-pressed="true"] .sw::before { transform: translateX(14px); }
+/* opens downward; .side (not enough room below, e.g. the short map on a phone) opens to the left instead */
+#grimerud-map .drawer { position: absolute; left: 0; top: calc(100% + 8px); display: flex; flex-direction: column; gap: 8px; }
+#grimerud-map .drawer.side { left: auto; top: 0; right: calc(100% + 8px); flex-direction: row-reverse; }
+#grimerud-map .drawer .tool { transition: transform .18s cubic-bezier(.3,1.4,.5,1), opacity .14s; }
+#grimerud-map .drawer:not(.open) { pointer-events: none; }
+#grimerud-map .drawer:not(.open) .tool { opacity: 0; transform: translateY(calc(-1 * var(--dx, 48px))) scale(.6); visibility: hidden; transition: transform .14s, opacity .1s, visibility 0s .14s; }
+#grimerud-map .drawer.side:not(.open) .tool { transform: translateX(var(--dx, 48px)) scale(.6); }
+#grimerud-map .drawer .tool:nth-child(2) { --dx: 96px; transition-delay: .03s; }
+#grimerud-map .drawer .tool:nth-child(3) { --dx: 144px; transition-delay: .06s; }
+/* in the sideways row, tips sit below the buttons */
+#grimerud-map .drawer.side .tool[data-tip]::after { right: auto; left: 50%; top: calc(100% + 8px); transform: translate(-50%, -4px); text-align: center; }
+@media (hover: hover) { #grimerud-map .drawer.side .tool[data-tip]:hover::after, #grimerud-map .drawer.side .tool[data-tip]:focus-visible::after { transform: translate(-50%, 0); } }
+/* while closed, a dot on the button says something in the drawer is switched on */
+#grimerud-map .tgrp.look.lit #gm-layers[aria-expanded="false"]::before { content: ""; position: absolute; top: -1px; right: -1px; width: 11px; height: 11px; border-radius: 50%; background: #b23a2b; border: 2px solid #fffdf8; }
 #grimerud-map #gm-layers[aria-expanded="true"] { background: #26221d; color: #fffdf8; }
-@media (prefers-reduced-motion: reduce) { #grimerud-map .menu .sw, #grimerud-map .menu .sw::before, #grimerud-map .listtoggle svg { transition: none; } }
+@media (prefers-reduced-motion: reduce) { #grimerud-map .drawer .tool, #grimerud-map .listtoggle svg { transition: none; } }
 #grimerud-map .ltabs { display: flex; gap: 0; margin: 4px 22px 0; border-bottom: 1.6px solid var(--ink); }
 #grimerud-map .ltabs button { flex: 1; padding: 9px 8px 8px; font: 500 14px/1 var(--f); color: var(--muted); background: none; border: 1.6px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; margin-bottom: -1.6px; cursor: pointer; }
 #grimerud-map .ltabs button[aria-selected="true"] { color: var(--ink); background: var(--panel); border-color: var(--ink); }
