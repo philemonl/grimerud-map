@@ -260,19 +260,25 @@ function gable(pts, h, maxRise = 6.5, cross = false) {
   const span = (d(p1, p2) + d(p3, p0)) / 2, rise = Math.min(span * 0.42, maxRise);
   const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
   const m1 = mid(p1, p2), m2 = mid(p3, p0), top = h + rise;
-  // small eave overhang
-  const ov = 0.45, c = mid(m1, m2);
-  const grow = p => { const dx = p[0] - c[0], dz = p[1] - c[1], l = Math.hypot(dx, dz); return [p[0] + dx / l * ov, p[1] + dz / l * ov]; };
-  const q0 = grow(p0), q1 = grow(p1), q2 = grow(p2), q3 = grow(p3);
+  // Overhang: the eaves stick out sideways and the whole roof (ridge included) runs past each gable,
+  // so the roof edge stays parallel to the gable and no gap opens under it. The eave height is set
+  // so the slope passes exactly through the wall top, with no slit between wall and roof.
+  const ovP = 0.45, ovA = 0.4, c = mid(m1, m2);
   const ax = [m2[0] - m1[0], m2[1] - m1[1]], al = Math.hypot(...ax); ax[0] /= al; ax[1] /= al;
+  const side = p => { const s = (p[0] - c[0]) * -ax[1] + (p[1] - c[1]) * ax[0]; return s >= 0 ? 1 : -1; };
+  const end = p => ((p[0] - c[0]) * ax[0] + (p[1] - c[1]) * ax[1]) >= 0 ? 1 : -1;
+  const push = p => [p[0] + (-ax[1]) * side(p) * ovP + ax[0] * end(p) * ovA, p[1] + ax[0] * side(p) * ovP + ax[1] * end(p) * ovA];
+  const q0 = push(p0), q1 = push(p1), q2 = push(p2), q3 = push(p3);
+  const r1 = [m1[0] - ax[0] * ovA, m1[1] - ax[1] * ovA], r2 = [m2[0] + ax[0] * ovA, m2[1] + ax[1] * ovA];
   const V = (p, y) => [p[0], y, p[1]];
   const along = p => (p[0] * ax[0] + p[1] * ax[1]) / 2.2;
   const pos = [], uv = [];
   const tri = (a, b, cc) => { for (const p of [a, b, cc]) { pos.push(...p); uv.push(along([p[0], p[2]]), p[1] / 0.6); } };
-  const hy = h - 0.25;
-  tri(V(q0, hy), V(q1, hy), V(m1, top)); tri(V(q0, hy), V(m1, top), V(m2, top));
-  tri(V(q2, hy), V(q3, hy), V(m2, top)); tri(V(q2, hy), V(m2, top), V(m1, top));
-  const ends = [...V(p1, h), ...V(p2, h), ...V(m1, top - 0.2), ...V(p3, h), ...V(p0, h), ...V(m2, top - 0.2)];
+  const hy = h - rise * ovP / (span / 2);
+  tri(V(q0, hy), V(q1, hy), V(r1, top)); tri(V(q0, hy), V(r1, top), V(r2, top));
+  tri(V(q2, hy), V(q3, hy), V(r2, top)); tri(V(q2, hy), V(r2, top), V(r1, top));
+  // gable triangles reach right up under the ridge
+  const ends = [...V(p1, h), ...V(p2, h), ...V(m1, top - 0.02), ...V(p3, h), ...V(p0, h), ...V(m2, top - 0.02)];
   const halves = [0, 1].map(k => geomFrom(pos.slice(k * 18, k * 18 + 18), uv.slice(k * 12, k * 12 + 12)));
   const outA = [mid(p0, p1)[0] - c[0], mid(p0, p1)[1] - c[1]], outB = [mid(p2, p3)[0] - c[0], mid(p2, p3)[1] - c[1]];
   return { roof: geomFrom(pos, uv), halves, outs: [outA, outB], ends: geomFrom(ends), top, rise, h, slopes: [[p0, p1, m2, m1], [p2, p3, m1, m2]], ridgeMid: [(m1[0] + m2[0]) / 2, (m1[1] + m2[1]) / 2] };
