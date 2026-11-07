@@ -15,7 +15,7 @@ ITEMS=[
  dict(n='4a',g='b',no='Bønnerommet',en='Prayer room',sub_no='Oppe i inngangsfløyen til låven',sub_en='Upstairs in the barn’s entrance wing',pin=[722,752],inside='4',pinH=11),
  dict(n='4b',g='b',no='Overflow-rommet',en='Overflow room',sub_no='Inne i låven, i vestenden',sub_en='Inside the barn, at the west end',pin=[606,688],inside='4'),
  dict(n='5',g='b',no='Internatet',en='Dormitories',sub_no='',sub_en='',
-      parts=[dict(p=R(1138,1108,1178,1212),h=6.5,wall=RED,roof='#6e3a2e',porch=[1158,1212,'s'],balconies=[dict(edge=1,n=2,color='#f4f2ec'),dict(edge=3,n=3,color='#f4f2ec')]),dict(p=R(1158,1143,1188,1175),h=6.5,wall=RED,roof='#5a2d26',cross=True,rise=4.4,trim=False)]),
+      parts=[dict(p=R(1138,1108,1178,1212),h=6.5,wall=RED,roof='#6e3a2e',balconies=[dict(edge=1,n=2,color='#f4f2ec'),dict(edge=3,n=3,color='#f4f2ec')]),dict(p=R(1158,1143,1188,1175),h=6.5,wall=RED,roof='#5a2d26',cross=True,rise=4.4,trim=False,porch=[1188,1159,'e'])]),
  dict(n='6',g='b',no='«Bispen»',en='«Bispen»',sub_no='',sub_en='',
       parts=[dict(p=R(654,1090,690,1148),h=5,wall='#e8c77e',roof='#4a4d52',solar=True,bay=3.6),dict(p=R(690,1098,704,1146),h=0.7,wall='#8a5a44',roof='#9c6b52',flat=True,plain=True,trim=False)]),
  dict(n='7',g='b',no='Hybelhuset',en="Men's Manor",sub_no='',sub_en='',
