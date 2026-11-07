@@ -26,7 +26,7 @@ ITEMS=[
       parts=[dict(p=R(862,1064,906,1112),h=5.5,wall=RED,roof='#b23e2c',solar=True),dict(p=R(882,1112,906,1200),h=4.5,wall=RED,roof='#b23e2c'),dict(p=R(894,1128,924,1152),h=4.5,wall=RED,roof='#5a2d26',rise=2.7,trim=False)]),
  # lettered: arrival, outdoors, other buildings
  dict(n='P',g='a',no='Parkering',en='Car park',sub_no='',sub_en='Main parking on the south side of the farm road.',
-      area=[[862,938],[1065,926],[1072,1056],[918,1058],[880,1042]]),
+      area=[[834,940],[1065,926],[1072,1056],[918,1058],[880,1044],[834,1044]]),
  dict(n='E',g='a',no='Innkjøring',en='Entrance',sub_no='',sub_en='Turn west off Grimerudvegen. The car park is about 100 m ahead on the left.',
       pin=[1337,846]),
  dict(n='H',g='a',no='Hagen og ballplassen',en='Garden & football lawn',sub_no='Fotballbane og sandvolleyballbane',sub_en='Football pitch and beach volleyball court',
@@ -47,7 +47,7 @@ ITEMS=[
       parts=[dict(p=R(1360,790,1404,816),h=4.5,wall=WHITE,roof=ROOF_RED)]),
 ]
 CONTEXT=[
- dict(p=R(846,1004,866,1024),h=2.6,wall='#5f7f4a',roof='#3e3a38',plain=True,trim=False,rise=1.4),
+ dict(p=R(850,996,870,1016),h=2.6,wall='#f4f2ec',roof='#3e3a38',plain=True,trim=False,rise=1.4),
  dict(p=[[1178,1398],[1210,1368],[1240,1405],[1205,1435]],h=5,wall=YELLOW,roof='#c97f4a'),
 ]
 FLAG=[752,952]
@@ -57,8 +57,8 @@ YARD=[[590,752],[805,752],[840,790],[840,840],[700,845],[595,840]]
 SPORTS=dict(goals=[[548,1000,0],[548,1096,180]],court=[[562,1120],[637,1120],[637,1190],[562,1190]],net=[[600,1124],[600,1186]])
 HEDGES=[[[997, 1324], [980, 1348], [1017, 1375], [1034, 1351]], [[1041, 1344], [1024, 1368], [1061, 1395], [1078, 1370]], [[1074, 1379], [1056, 1404], [1093, 1431], [1111, 1406]]]
 # grass islands with trees between the drive and the car park, as on the hand-drawn map; gaps are the entries
-ISLANDS=[[[866,943],[904,942],[905,955],[867,956]],[[918,941],[962,939],[963,952],[919,954]],[[982,938],[1020,936],[1021,949],[983,951]],[[1040,936],[1063,935],[1064,947],[1041,948]]]
-ISLAND_TREES=[[878,949,2.6],[895,948,2.4],[930,947,2.8],[952,946,2.6],[994,944,3.0],[1012,943,2.6],[1052,941,2.6]]
+ISLANDS=[[[918,941],[962,939],[963,952],[919,954]],[[982,938],[1020,936],[1021,949],[983,951]]]
+ISLAND_TREES=[[930,947,2.8],[952,946,2.6],[994,944,3.0],[1012,943,2.6]]
 ISLAND=[[622,782],[688,780],[692,852],[640,860],[620,830]]
 ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  # public roads
