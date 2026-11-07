@@ -222,7 +222,7 @@ function drape(pts, opts) {
     strokeLines(0, GRAVEL_LIGHT, l => l.kind === "path" || l.kind === "track");
     g.lineWidth = 3.2 * k; g.strokeStyle = GRAVEL_LIGHT; g.beginPath(); g.arc(...X(cc), cr * M * k, 0, 6.2832); g.stroke();
     // grass island in the farmyard
-    poly(island); g.fillStyle = "#6fa83c"; g.fill(); g.lineWidth = 0.7 * k; g.strokeStyle = INKC; g.stroke();
+    [island, ...(DATA.islands || []).map(a => a.map(P))].forEach(a => { poly(a); g.fillStyle = "#6fa83c"; g.fill(); g.lineWidth = 0.7 * k; g.strokeStyle = INKC; g.stroke(); });
     // a little gravel grain
     let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
     g.globalCompositeOperation = "source-atop"; g.fillStyle = "rgba(90,70,40,.18)";
@@ -575,7 +575,8 @@ ITEMS.forEach(it => { if (!it.inside) return;
 (() => {
   const leaf = ["#5b9a33", "#4c8a2f", "#6ea83c", "#3f7a2a", "#78b046"].map(c => new THREE.Color(c));
   const pine = ["#2f5d2a", "#386a30", "#2a5426"].map(c => new THREE.Color(c));
-  const all = TREES.site.map(t => [...t, 1]).concat(TREES.ctx.map(t => [...t, 0]));
+  const extra = (DATA.island_trees || []).map(([x, z, r]) => { const w = P([x, z]); return [w[0], w[1], r, 0, 1]; });
+  const all = TREES.site.map(t => [...t, 1]).concat(extra).concat(TREES.ctx.map(t => [...t, 0]));
   const broad = all.filter(t => !t[3]), con = all.filter(t => t[3]);
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
   let seed = 3; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
