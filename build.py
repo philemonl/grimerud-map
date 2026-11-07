@@ -75,6 +75,8 @@ def script(data_url):
 def main():
     css = (APP / "map.css").read_text(encoding="utf-8")
     markup = (APP / "map.html").read_text(encoding="utf-8")
+    import base64, re
+    markup = re.sub(r'src="(logos/[^"]+\.png)"', lambda m: 'src="data:image/png;base64,' + base64.b64encode((APP / m.group(1)).read_bytes()).decode() + '"', markup)
     heavy = (DIST / "grimerud-map-data.js").read_text(encoding="utf-8")
     data_url = PAGES + "grimerud-map-data.js?v=" + hashlib.sha1(heavy.encode("utf-8")).hexdigest()[:10]
 

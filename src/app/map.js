@@ -16,19 +16,33 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;",
 const nameHTML = it => it.no === it.en ? esc(it.no) : `${esc(it.no)} / <i>${esc(it.en)}</i>`;
 const subHTML = it => (it.sub_no ? `${esc(it.sub_no)}<i>${esc(it.sub_en)}</i>` : esc(it.sub_en || ""));
 
-// Legend list
+// Legend list: a Grimerud tab (buildings, arrival, other buildings, each collapsible) and a Diskgolf tab
+const panes = { farm: document.createElement("div"), disc: document.createElement("div") };
+panes.disc.hidden = true;
+listEl.append(panes.farm, panes.disc);
 ["b", "a", "o", "d"].forEach(g => {
-  const h = document.createElement("div"); h.className = "group";
-  h.innerHTML = `${GROUPS[g][0]} · <i>${GROUPS[g][1]}</i>`; listEl.appendChild(h);
+  const pane = g === "d" ? panes.disc : panes.farm;
+  const sec = document.createElement("section"); sec.className = "grp"; pane.appendChild(sec);
+  const items = document.createElement("div"); items.className = "grp-items"; items.id = "gm-grp-" + g;
+  const h = document.createElement("button"); h.className = "group"; h.type = "button";
+  h.setAttribute("aria-expanded", "true"); h.setAttribute("aria-controls", items.id);
+  h.innerHTML = `<span>${GROUPS[g][0]} · <i>${GROUPS[g][1]}</i></span><span class="cnt">${ITEMS.filter(it => it.g === g).length}</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  h.addEventListener("click", () => { const open = h.getAttribute("aria-expanded") !== "true"; h.setAttribute("aria-expanded", open); items.hidden = !open; });
+  sec.append(h, items);
   ITEMS.filter(it => it.g === g).forEach(it => {
     const b = document.createElement("button");
     b.className = "item"; b.setAttribute("aria-pressed", "false");
     const sq = it.g === "d" ? " dg" : /\d/.test(it.n) ? "" : " sq";
     b.innerHTML = `<span class="num${sq}">${esc(it.n)}</span><span><span class="nm">${nameHTML(it)}</span>${subHTML(it) ? `<span class="sub">${subHTML(it)}</span>` : ""}</span>`;
     b.addEventListener("click", () => select(it, true));
-    listEl.appendChild(b); it.btn = b;
+    items.appendChild(b); it.btn = b;
   });
 });
+const tFarm = document.getElementById("gm-tfarm"), tDisc = document.getElementById("gm-tdisc");
+function showList(disc) {
+  panes.farm.hidden = disc; panes.disc.hidden = !disc;
+  tFarm.setAttribute("aria-selected", !disc); tDisc.setAttribute("aria-selected", disc);
+}
 
 
 // Renderer and scene
@@ -645,7 +659,7 @@ const mFarm = document.getElementById("gm-mfarm"), mDisc = document.getElementBy
 function setDisc(on, fly) {
   if (on !== discOn) {
     discOn = on; discLayer.visible = on;
-    mDisc.setAttribute("aria-pressed", on); mFarm.setAttribute("aria-pressed", !on);
+    mDisc.setAttribute("aria-pressed", on); mFarm.setAttribute("aria-pressed", !on); showList(on);
     ITEMS.forEach(it => { if (it.g === "d") it.pinEl.classList.toggle("dg-off", !on); });
   }
   if (!fly) return;
@@ -659,6 +673,8 @@ dgGo.addEventListener("click", e => { e.stopPropagation(); setDisc(true, true); 
 farmGo.addEventListener("click", e => { e.stopPropagation(); setDisc(false, true); });
 mDisc.addEventListener("click", () => setDisc(true, true));
 mFarm.addEventListener("click", () => setDisc(false, true));
+tDisc.addEventListener("click", () => setDisc(true, true));
+tFarm.addEventListener("click", () => setDisc(false, true));
 
 // Selection
 let current = null;
@@ -681,9 +697,8 @@ function select(it, fly) {
   document.getElementById("gm-cdesc").innerHTML = subHTML(it);
   card.hidden = false;
   if (fly) focusOn(it);
-  if (fly && root.clientWidth <= 760 && document.activeElement && document.activeElement.classList.contains("item")) {
-    stage.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  // open the group holding it, if collapsed
+  if (it.btn) { const items = it.btn.parentElement; if (items.hidden) items.previousElementSibling.click(); }
 }
 function styleItem(it, on) {
   it.btn.setAttribute("aria-pressed", on ? "true" : "false");
@@ -897,6 +912,8 @@ requestAnimationFrame(frame);
 (() => {
   const btn = document.getElementById("gm-expand"), lbl = btn.querySelector(".tx"), icon = btn.querySelector("path");
   const coarse = matchMedia("(pointer: coarse)");
+  const openLabel = () => coarse.matches ? "Utforsk" : "Fullskjerm";
+  lbl.textContent = openLabel();
   let full = false, ph = null;
   const passThrough = () => coarse.matches && !full;
   ["touchstart", "touchmove", "touchend"].forEach(t => stage.addEventListener(t, e => {
@@ -909,17 +926,22 @@ requestAnimationFrame(frame);
       ph = document.createElement("div"); ph.style.height = root.offsetHeight + "px";
       root.parentNode.insertBefore(ph, root); document.body.appendChild(root);
       root.classList.add("gm-full"); document.documentElement.classList.add("gm-lock");
+      // also ask for real full screen where the browser allows it; the fixed overlay covers the rest
+      if (!coarse.matches && root.requestFullscreen) root.requestFullscreen().catch(() => {});
     } else {
+      if (document.fullscreenElement === root) document.exitFullscreen().catch(() => {});
       root.classList.remove("gm-full"); document.documentElement.classList.remove("gm-lock");
       ph.parentNode.insertBefore(root, ph); ph.remove(); ph = null;
       stage.scrollIntoView({ block: "center" });
     }
     btn.setAttribute("aria-pressed", on);
-    lbl.textContent = on ? "Lukk" : "Utforsk";
+    lbl.textContent = on ? "Lukk" : openLabel();
+    btn.title = on ? "Lukk fullskjerm · Close full screen" : "Fullskjerm · Full screen";
     icon.setAttribute("d", on ? "M5 5l10 10M15 5L5 15" : "M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12");
     btn.setAttribute("aria-label", on ? "Lukk fullskjerm · Close full screen" : "Utforsk kartet i fullskjerm · Explore the map full screen");
     resize();
   }
   btn.addEventListener("click", e => { e.stopPropagation(); setFull(!full); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && full) setFull(false); });
+  document.addEventListener("fullscreenchange", () => { if (full && document.fullscreenElement !== root) setFull(false); });
 })();
