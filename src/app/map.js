@@ -813,7 +813,7 @@ function frame(now) {
     v.set(it.c[0], it.y0 + it.h + 1.5, it.c[1]).project(camera);
     const vis = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1;
     it.pinEl.hidden = !vis;
-    if (vis) it.pinEl.style.transform = `translate(${((v.x + 1) / 2 * w - 14).toFixed(1)}px, ${((1 - v.y) / 2 * h - 14).toFixed(1)}px)`;
+    if (vis) { const s = it.pinEl.style; s.left = ((v.x + 1) / 2 * w - 14).toFixed(1) + "px"; s.top = ((1 - v.y) / 2 * h - 14).toFixed(1) + "px"; }
   }
   for (const [el, at, show] of [[dgGo, DG_AT, !discOn], [farmGo, FARM_AT, discOn]]) {
     v.set(at[0], hAt(at[0], at[1]) + 3, at[1]).project(camera);
