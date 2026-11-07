@@ -1,206 +1,17 @@
-<title>Grimerud Gård Map</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400;1,500&display=swap">
-<style>
-/* Layout: legend panel styled like the printed site map on the left (below on phones); illustrated 3D map fills the rest */
-:root {
-  --paper: #f7f5ef;       /* map paper, stays light in both themes */
-  --bg: #f1efe8;
-  --panel: #fbfaf6;
-  --ink: #26221d;
-  --muted: #615a50;
-  --line: #d9d3c6;
-  --accent: #b23a2b;      /* barn red */
-  --accent-ink: #ffffff;
-  --leaf: #4c8a2f;
-  --chip: #ece8de;
-  --shadow: 0 4px 18px rgba(38, 34, 29, .18);
-  --f: "Ubuntu", "Segoe UI", system-ui, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #14130f; --panel: #1b1a16; --ink: #ece7dc; --muted: #a59d90; --line: #333028;
-    --accent: #e0705d; --accent-ink: #1d0f0b; --leaf: #8cc464; --chip: #26241f;
-    --shadow: 0 4px 18px rgba(0, 0, 0, .5); color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #14130f; --panel: #1b1a16; --ink: #ece7dc; --muted: #a59d90; --line: #333028;
-  --accent: #e0705d; --accent-ink: #1d0f0b; --leaf: #8cc464; --chip: #26241f;
-  --shadow: 0 4px 18px rgba(0, 0, 0, .5); color-scheme: dark;
-}
-html, body { height: 100%; }
-body { background: var(--bg); color: var(--ink); font: 15px/1.45 var(--f); }
-* { box-sizing: border-box; }
-button { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-.app { display: grid; grid-template-columns: 360px minmax(0, 1fr); height: 100%; }
-.panel { display: flex; flex-direction: column; min-height: 0; background: var(--panel); border-right: 1px solid var(--line); }
-.head { padding: 22px 22px 14px; }
-.welcome { font: italic 500 15px/1.25 var(--f); margin: 0; }
-h1 { font: 700 34px/1.05 var(--f); letter-spacing: -.01em; margin: 2px 0 0; padding-bottom: 6px; border-bottom: 2px solid var(--ink); text-wrap: balance; }
-.since { font: italic 400 12px/1 var(--f); margin: 6px 0 0; color: var(--muted); }
-.lede { margin: 12px 0 0; color: var(--muted); font-size: 13.5px; max-width: 36ch; }
-
-.list { flex: 1; overflow-y: auto; padding: 0 12px 16px; min-height: 0; }
-.group { font: 500 11.5px/1.2 var(--f); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 18px 10px 6px; }
-.group i { text-transform: none; letter-spacing: 0; font-size: 12px; }
-.item { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: start; width: 100%; text-align: left; background: none; border: 0; border-radius: 8px; padding: 7px 10px; cursor: pointer; }
-.item:hover, .item[aria-pressed="true"] { background: var(--chip); }
-.item[aria-pressed="true"] .num { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.num { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1.6px solid var(--ink); font: 500 13px/1 var(--f); background: var(--panel); margin-top: 1px; }
-.num.sq { border-radius: 7px; }
-.nm { display: block; font-weight: 500; font-size: 15.5px; line-height: 1.25; }
-.nm i { font-weight: 500; }
-.sub { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.4; margin-top: 2px; }
-.sub i { display: block; }
-
-.foot { border-top: 1px solid var(--line); padding: 14px 22px 18px; font-size: 12px; color: var(--muted); display: grid; gap: 4px; }
-.foot strong { color: var(--ink); font-weight: 500; font-size: 13px; }
-.coord { font-variant-numeric: tabular-nums; }
-
-.stage { position: relative; min-width: 0; overflow: hidden; touch-action: none;
-  background: linear-gradient(180deg, #cfe0e6 0%, #e9eee9 22%, var(--paper) 44%); }
-canvas { display: block; width: 100%; height: 100%; cursor: grab; }
-canvas:active { cursor: grabbing; }
-
-#pins { position: absolute; inset: 0; pointer-events: none; }
-.pin { position: absolute; left: 0; top: 0; pointer-events: auto; display: flex; align-items: center; gap: 6px; background: none; border: 0; padding: 0; cursor: pointer; white-space: nowrap; }
-.pin .num { width: 28px; height: 28px; background: #fffdf8; color: #26221d; border: 2px solid #26221d; font-weight: 700; box-shadow: 0 2px 0 rgba(38,34,29,.35); }
-.pin .lbl { display: none; background: #fffdf8; color: #26221d; border: 1.6px solid #26221d; border-radius: 6px; padding: 4px 8px; box-shadow: 0 2px 0 rgba(38,34,29,.3); line-height: 1.15; }
-.pin .lbl b { display: block; font: 500 13px/1.15 var(--f); }
-.pin .lbl i { display: block; font: italic 400 11.5px/1.2 var(--f); color: #5a5248; }
-.pin:hover .lbl, .pin.on .lbl, #pins.names .lbl { display: block; }
-.pin.on { z-index: 5; }
-.pin.on .num { background: #b23a2b; color: #fff; border-color: #26221d; }
-
-.topbar { position: absolute; z-index: 5; top: calc(14px + env(safe-area-inset-top, 0px)); left: calc(14px + env(safe-area-inset-left, 0px)); right: calc(14px + env(safe-area-inset-right, 0px)); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; pointer-events: none; }
-.topbar > * { pointer-events: auto; }
-.hud { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-/* the frame is painted by the buttons themselves, so a dark (pressed) button has no light edge showing round its corners */
-.seg { display: flex; background: #26221d; color: #26221d; padding: 1.6px; gap: 1.6px; border-radius: 9px; box-shadow: 0 2px 0 rgba(38,34,29,.3); }
-.seg button { border: 0; background: #fffdf8; color: #26221d; padding: 7px 12px; font: 500 13px/1 var(--f); cursor: pointer; border-radius: 0; }
-.seg button:first-child { border-top-left-radius: 7.4px; border-bottom-left-radius: 7.4px; }
-.seg button:last-child { border-top-right-radius: 7.4px; border-bottom-right-radius: 7.4px; }
-.seg button[aria-pressed="true"] { background: #26221d; color: #fffdf8; }
-.compass { width: 48px; height: 48px; border-radius: 50%; background: #fffdf8; border: 1.6px solid #26221d; box-shadow: 0 2px 0 rgba(38,34,29,.3); display: grid; place-items: center; cursor: pointer; padding: 0; }
-.compass svg { width: 40px; height: 40px; }
-
-.card { position: absolute; left: calc(14px + env(safe-area-inset-left, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); max-width: min(380px, calc(100% - 28px)); background: #fffdf8; color: #26221d; border: 2px solid #26221d; border-radius: 12px; box-shadow: 0 3px 0 rgba(38,34,29,.3); padding: 12px 14px; display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 12px; align-items: start; }
-.card .num { background: #b23a2b; color: #fff; border: 2px solid #26221d; width: 30px; height: 30px; font-weight: 700; }
-.card h2 { font: 500 18px/1.2 var(--f); margin: 3px 0 2px; }
-.card h2 i { font-weight: 400; color: #5a5248; }
-.card p { margin: 0; font-size: 13px; color: #5a5248; }
-.card p i { display: block; }
-.close { border: 0; background: none; cursor: pointer; padding: 2px 4px; color: #5a5248; font-size: 22px; line-height: 1; }
-.hint { position: absolute; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font: italic 12px/1 var(--f); color: #26221d; background: rgba(255,253,248,.85); border: 1px solid rgba(38,34,29,.3); padding: 6px 10px; border-radius: 20px; pointer-events: none; white-space: nowrap; }
-[hidden] { display: none !important; }
-.pin.behind { visibility: hidden; }
-.num.dg { background: #f3c33b; border-color: #26221d; color: #26221d; border-radius: 6px; font-weight: 700; }
-.pin .num.dg { background: #f3c33b; width: 26px; height: 26px; font-size: 12px; }
-.pin.dg-off { display: none; }
-.dg-go { position: absolute; left: 0; top: 0; z-index: 4; display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 6px; background: #f3c33b; color: #26221d; border: 2px solid #26221d; border-radius: 999px; box-shadow: 0 2px 0 rgba(38,34,29,.35); font: 700 12.5px/1 var(--f); cursor: pointer; white-space: nowrap; }
-.dg-go.farm { background: #fffdf8; }
-.dg-go .dir { display: none; margin-left: 2px; font-size: 14px; line-height: 1; transform: rotate(var(--a, 0rad)); }
-.dg-go.edge .dir { display: inline-block; }
-.dg-go.farm:hover { background: #ffffff; }
-.maptabs { flex: none; }
-.maptabs button { padding: 8px 12px; font-size: 13.5px; }
-.maptabs button i { font-weight: 400; }
-.maptabs button[aria-pressed="true"] i { color: #e9e3d6; }
-.dg-go svg { width: 18px; height: 18px; flex: none; }
-.dg-go:hover { background: #ffd65a; }
-.group.dg-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.err { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: #5a5248; }
-
-@media (max-width: 760px) {
-  html, body { height: auto; }
-  .app { display: flex; flex-direction: column; height: auto; }
-  .stage { order: 1; height: 66svh; min-height: 380px; }
-  .panel { order: 2; border-right: 0; }
-  .head { padding: 18px 16px 10px; }
-  h1 { font-size: 28px; }
-  .list { overflow: visible; padding: 0 6px 12px; }
-  .foot { padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); }
-  .hint { display: none; }
-}
-</style>
-
-<div class="app">
-  <aside class="panel">
-    <div class="head">
-      <p class="welcome">Velkommen til Ungdom i Oppdrag</p>
-      <h1>Grimerud Gård</h1>
-      <p class="since">Siden 1975</p>
-      <p class="lede">Tap a place in the list or on the map. Drag to turn the map, pinch or scroll to zoom.</p>
-    </div>
-    <nav class="list" id="list" aria-label="Places"></nav>
-    <div class="foot">
-      <strong>Grimerudvegen 77, 2312 Ottestad</strong>
-      <div class="coord">60°44′23″N · 11°07′52″E</div>
-      <div>Numbers 1–9 match the printed site map by Jan Willem Middag.</div>
-      <div>Disc golf holes traced from the course map on UDisc; tee and basket positions approximate.</div>
-      <div>Ground painted from satellite imagery © Esri, Maxar, Earthstar Geographics. Buildings and trees placed from the same imagery; heights approximate.</div>
-    </div>
-  </aside>
-  <main class="stage" id="stage">
-    <canvas id="c" aria-label="Illustrated 3D map of Grimerud Gård"></canvas>
-    <div id="pins"></div>
-    <button class="dg-go" id="dggo" hidden aria-label="Show the disc golf course"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M5 7h10l-1.5 4h-7z" fill="none" stroke="#26221d" stroke-width="1.6" stroke-linejoin="round"/><path d="M5.5 5h9" stroke="#26221d" stroke-width="2.2" stroke-linecap="round"/><path d="M7 17h6" stroke="#26221d" stroke-width="1.6" stroke-linecap="round"/></svg>Diskgolf</button>
-    <div class="topbar">
-    <div class="seg maptabs" role="group" aria-label="Map">
-      <button id="mfarm" aria-pressed="true">Grimerud</button>
-      <button id="mdisc" aria-pressed="false">Diskgolf</button>
-    </div>
-    <div class="hud">
-      <div class="seg" role="group" aria-label="View">
-        <button id="v3d" aria-pressed="true">3D</button>
-        <button id="vtop" aria-pressed="false">Kart · Map</button>
-      </div>
-      <div class="seg"><button id="vnames" aria-pressed="false">Navn · Names</button></div>
-      <div class="seg"><button id="vnight" aria-pressed="false" aria-label="Night mode"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" style="vertical-align:-3px;margin-right:5px"><path d="M14.5 13.2A6.5 6.5 0 0 1 7 3.6a6.5 6.5 0 1 0 7.5 9.6z" fill="currentColor"/></svg>Natt · Night</button></div>
-      <button class="compass" id="compass" title="Reset view" aria-label="Reset view">
-        <svg viewBox="0 0 40 40" id="needle">
-          <path d="M20 3 L23 17 L37 20 L23 23 L20 37 L17 23 L3 20 L17 17 Z" fill="#fffdf8" stroke="#26221d" stroke-width="1.3" stroke-linejoin="round"/>
-          <path d="M20 3 L23 17 L20 20 Z M37 20 L23 23 L20 20 Z M20 37 L17 23 L20 20 Z M3 20 L17 17 L20 20 Z" fill="#26221d"/>
-          <path d="M20 3 L23 17 L20 20 L17 17 Z" fill="#b23a2b" stroke="#26221d" stroke-width="1"/>
-          <text x="20" y="-0.5" text-anchor="middle" font-size="0" fill="#26221d">N</text>
-        </svg>
-      </button>
-    </div>
-    </div>
-    <button class="dg-go farm" id="farmgo" hidden aria-label="Back to the Grimerud map"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10l7-6 7 6M5 9v8h10V9" fill="none" stroke="#26221d" stroke-width="1.6" stroke-linejoin="round"/></svg>Grimerud</button>
-    <div class="card" id="card" hidden>
-      <span class="num" id="cnum"></span>
-      <div><h2 id="cname"></h2><p id="cdesc"></p></div>
-      <button class="close" id="cclose" aria-label="Close">×</button>
-    </div>
-    <div class="hint" id="hint">Drag to turn · right-drag or two fingers to move</div>
-  </main>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script>
-const GROUND_SITE = "__SITE__";
-const GROUND_CTX = "__CTX__";
-const DATA = __DATA__;
-const TREES = __TREES__;
-const TERRAIN = __TERRAIN__;
-const FAR = __FAR__;
-const FAR_IMG = "__FARIMG__";
-
+// Grimerud Gård map: scene, pins, legend and controls.
+// Runs inside init() in loader.js, which provides: root (the #grimerud-map element), onScreen(),
+// DATA (places, roads, disc golf from src/content) and the heavy assets
+// GROUND_SITE, GROUND_CTX, TREES, TERRAIN (heights already decoded to TERRAIN.v), FAR, FAR_IMG.
+let waveFlag = null, hillsMat = null;
 const M = 0.29188, S = 1792 * M, CTX_S = 1643.86816, CTX_CX = 336.24576, CTX_CZ = 37.36064;
 const P = ([x, y]) => [(x - 896) * M, (y - 896) * M];
 const INK = 0x26221d;
 const GROUPS = { b: ["Bygninger", "Buildings"], a: ["Ankomst og uteområder", "Arrival & outdoors"], o: ["Andre bygg", "Other buildings"], d: ["Diskgolf", "Disc golf"] };
 const ITEMS = DATA.items;
 
-const stage = document.getElementById("stage");
-const listEl = document.getElementById("list");
-const pinsEl = document.getElementById("pins");
+const stage = document.getElementById("gm-stage");
+const listEl = document.getElementById("gm-list");
+const pinsEl = document.getElementById("gm-pins");
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const nameHTML = it => it.no === it.en ? esc(it.no) : `${esc(it.no)} / <i>${esc(it.en)}</i>`;
 const subHTML = it => (it.sub_no ? `${esc(it.sub_no)}<i>${esc(it.sub_en)}</i>` : esc(it.sub_en || ""));
@@ -219,13 +30,9 @@ const subHTML = it => (it.sub_no ? `${esc(it.sub_no)}<i>${esc(it.sub_en)}</i>` :
   });
 });
 
-if (!window.THREE || !THREE.OrbitControls) {
-  stage.insertAdjacentHTML("beforeend", '<div class="err">The 3D map could not load. Check your connection and reload the page.</div>');
-  throw new Error("three.js missing");
-}
 
 // Renderer and scene
-const canvas = document.getElementById("c");
+const canvas = document.getElementById("gm-c");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setClearColor(0x000000, 0);
@@ -251,11 +58,7 @@ const aniso = renderer.capabilities.getMaxAnisotropy();
 function tex(src) { const t = loader.load(src); t.anisotropy = aniso; return t; }
 // Terrain: Kartverket 1 m DTM resampled to a 3 m grid, heights exaggerated for readability
 const EX = 1.4;
-const TER = (() => {
-  const bin = atob(TERRAIN.data), u8 = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-  return { n: TERRAIN.n, x0: TERRAIN.x0, z0: TERRAIN.z0, step: TERRAIN.size / (TERRAIN.n - 1), off: TERRAIN.hmin - TERRAIN.h0, v: new Uint16Array(u8.buffer) };
-})();
+const TER = { n: TERRAIN.n, x0: TERRAIN.x0, z0: TERRAIN.z0, step: TERRAIN.size / (TERRAIN.n - 1), off: TERRAIN.hmin - TERRAIN.h0, v: TERRAIN.v }; // heights decoded by the loader
 function hAt(x, z) {
   const { n, x0, z0, step, v, off } = TER;
   let fx = (x - x0) / step, fz = (z - z0) / step;
@@ -302,8 +105,8 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
   const hg = new THREE.BufferGeometry(); hg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3)); hg.setIndex(idx);
   const cols = []; for (let i = 0; i <= segs; i++) cols.push(0.47, 0.58, 0.50, 0.49, 0.58, 0.64);  // base: hazy green, ridge: blue-grey
   hg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
-  window.__hillsMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, fog: false });
-  scene.add(new THREE.Mesh(hg, window.__hillsMat));
+  hillsMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, fog: false });
+  scene.add(new THREE.Mesh(hg, hillsMat));
 })();
 const siteGround = terrainPlane(S, 260, 0, 0, 0, tex(GROUND_SITE));
 
@@ -738,7 +541,7 @@ ITEMS.forEach(it => { if (!it.inside) return;
   flag.position.set(x + 1.3, fy + 9.9, z); scene.add(flag);
   const fp = flag.geometry.attributes.position;
   const base = Float32Array.from(fp.array);
-  window.__waveFlag = t => { for (let i = 0; i < fp.count; i++) { const px = base[i * 3]; fp.setZ(i, Math.sin(px * 2.2 - t * 0.004) * 0.18 * (px + 1.3)); } fp.needsUpdate = true; };
+  waveFlag = t => { for (let i = 0; i < fp.count; i++) { const px = base[i * 3]; fp.setZ(i, Math.sin(px * 2.2 - t * 0.004) * 0.18 * (px + 1.3)); } fp.needsUpdate = true; };
 })();
 
 // Trees: lollipop broadleaves and spruce cones, with drawn outlines
@@ -825,7 +628,7 @@ const discLayer = new THREE.Group(); discLayer.visible = false; scene.add(discLa
   });
 })();
 let discOn = false;
-const mFarm = document.getElementById("mfarm"), mDisc = document.getElementById("mdisc");
+const mFarm = document.getElementById("gm-mfarm"), mDisc = document.getElementById("gm-mdisc");
 function setDisc(on, fly) {
   if (on !== discOn) {
     discOn = on; discLayer.visible = on;
@@ -837,7 +640,7 @@ function setDisc(on, fly) {
   else { if (current && current.g === "d") select(null); setMode("3d"); }
 }
 // On-map shortcuts: at the turn-off from Grimerudvegen (farm map) and where the route reaches the course (disc golf map)
-const dgGo = document.getElementById("dggo"), farmGo = document.getElementById("farmgo");
+const dgGo = document.getElementById("gm-dggo"), farmGo = document.getElementById("gm-farmgo");
 const DG_AT = P([1396, 14]), FARM_AT = P([2290, 24]);
 dgGo.addEventListener("click", e => { e.stopPropagation(); setDisc(true, true); });
 farmGo.addEventListener("click", e => { e.stopPropagation(); setDisc(false, true); });
@@ -846,7 +649,7 @@ mFarm.addEventListener("click", () => setDisc(false, true));
 
 // Selection
 let current = null;
-const card = document.getElementById("card");
+const card = document.getElementById("gm-card");
 const accent = new THREE.Color("#c9452f");
 function resetView() {
   if (discOn) { const all = ITEMS.find(i => i.disc === "all"); focusOn(all); }
@@ -859,13 +662,13 @@ function select(it, fly) {
   current = it || null;
   if (!it) { card.hidden = true; return; }
   styleItem(it, true);
-  const cn = document.getElementById("cnum"); cn.textContent = it.n; cn.className = "num" + (it.g === "d" ? " dg" : /\d/.test(it.n) ? "" : " sq");
+  const cn = document.getElementById("gm-cnum"); cn.textContent = it.n; cn.className = "num" + (it.g === "d" ? " dg" : /\d/.test(it.n) ? "" : " sq");
   if (it.g === "d") setDisc(true);
-  document.getElementById("cname").innerHTML = nameHTML(it);
-  document.getElementById("cdesc").innerHTML = subHTML(it);
+  document.getElementById("gm-cname").innerHTML = nameHTML(it);
+  document.getElementById("gm-cdesc").innerHTML = subHTML(it);
   card.hidden = false;
   if (fly) focusOn(it);
-  if (fly && matchMedia("(max-width: 760px)").matches && document.activeElement && document.activeElement.classList.contains("item")) {
+  if (fly && root.clientWidth <= 760 && document.activeElement && document.activeElement.classList.contains("item")) {
     stage.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
@@ -875,7 +678,7 @@ function styleItem(it, on) {
   if (it.objs) it.objs.forEach(o => { o.ink.color.set(on ? 0xc9452f : INK); o.hl.visible = on; });
   if (it.hl) it.hl.visible = on;
 }
-document.getElementById("cclose").addEventListener("click", () => select(null));
+document.getElementById("gm-cclose").addEventListener("click", () => select(null));
 
 // Camera.
 // Opening view: from the entrance on Grimerudvegen, looking west over the farm towards Mjøsa
@@ -901,7 +704,7 @@ function focusOn(it) {
 camera.position.copy(posFrom(HOME.t, HOME.d, HOME.polar, HOME.az));
 controls.target.copy(HOME.t); controls.update();
 
-const b3d = document.getElementById("v3d"), btop = document.getElementById("vtop");
+const b3d = document.getElementById("gm-v3d"), btop = document.getElementById("gm-vtop");
 function setMode(m, move = true) {
   b3d.setAttribute("aria-pressed", m === "3d"); btop.setAttribute("aria-pressed", m === "top");
   if (!move) return;
@@ -909,14 +712,14 @@ function setMode(m, move = true) {
 }
 b3d.addEventListener("click", () => setMode("3d"));
 btop.addEventListener("click", () => setMode("top"));
-document.getElementById("compass").addEventListener("click", () => setMode("3d"));
-const bn = document.getElementById("vnames");
+document.getElementById("gm-compass").addEventListener("click", () => setMode("3d"));
+const bn = document.getElementById("gm-vnames");
 bn.addEventListener("click", () => { const on = bn.getAttribute("aria-pressed") !== "true"; bn.setAttribute("aria-pressed", on); pinsEl.classList.toggle("names", on); });
 
 // Tap to pick
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 let down = null;
-canvas.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; anim = null; document.getElementById("hint").hidden = true; });
+canvas.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; anim = null; document.getElementById("gm-hint").hidden = true; });
 canvas.addEventListener("pointerup", e => {
   if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return;
   const r = canvas.getBoundingClientRect();
@@ -938,7 +741,7 @@ function resize() {
 }
 new ResizeObserver(resize).observe(stage); resize();
 
-const needle = document.getElementById("needle");
+const needle = document.getElementById("gm-needle");
 const solid = pickables.filter(o => !o.userData.item || o.userData.item.parts);
 const occ = new THREE.Raycaster(), anchor = new THREE.Vector3(), dir = new THREE.Vector3();
 let lastOcc = 0;
@@ -954,6 +757,7 @@ function occlusion() {
 }
 const v = new THREE.Vector3();
 function frame(now) {
+  if (!onScreen()) { requestAnimationFrame(frame); return; } // paused while scrolled out of view
   if (anim) {
     const k = Math.min(1, (now - anim.t0) / anim.ms), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
     controls.target.lerpVectors(anim.fromT, anim.toT, e);
@@ -961,7 +765,7 @@ function frame(now) {
     if (k >= 1) anim = null;
   }
   controls.update(); clampTarget();
-  if (!reduce && window.__waveFlag) window.__waveFlag(now);
+  if (!reduce && waveFlag) waveFlag(now);
   renderer.render(scene, camera);
   if (now - lastOcc > 160) { lastOcc = now; occlusion(); }
   needle.style.transform = `rotate(${controls.getAzimuthalAngle()}rad)`;
@@ -985,7 +789,7 @@ requestAnimationFrame(frame);
 
 // Night mode: dim the land and lights, and let the windows glow
 (() => {
-  const btn = document.getElementById("vnight"), WARM = new THREE.Color("#ffc46b");
+  const btn = document.getElementById("gm-vnight"), WARM = new THREE.Color("#ffc46b");
   const basics = [], glows = [];
   scene.traverse(o => {
     if (!o.isMesh && !o.isInstancedMesh) return;
@@ -1047,7 +851,7 @@ requestAnimationFrame(frame);
     key(K.fog, s, scene.fog.color);
     key(K.tint, s, tmp);
     basics.forEach(([m, c]) => m.color.copy(c).multiply(tmp));
-    if (window.__hillsMat) window.__hillsMat.color.copy(tmp);
+    if (hillsMat) hillsMat.color.copy(tmp);
     glows.forEach((m, i) => { m.emissiveIntensity = 1.4 * smooth(lightAt[i] - 0.08, lightAt[i] + 0.04, s); });
     poolMat.opacity = smooth(0.6, 0.95, s); pools.visible = s > 0.55;
   }
@@ -1075,4 +879,34 @@ requestAnimationFrame(frame);
   render(0);
   btn.addEventListener("click", () => go(!on));
 })();
-</script>
+
+// Touch devices: inline, one finger scrolls the page (taps still pick places); full screen gets all gestures
+(() => {
+  const btn = document.getElementById("gm-expand"), lbl = btn.querySelector(".tx"), icon = btn.querySelector("path");
+  const coarse = matchMedia("(pointer: coarse)");
+  let full = false, ph = null;
+  const passThrough = () => coarse.matches && !full;
+  ["touchstart", "touchmove", "touchend"].forEach(t => stage.addEventListener(t, e => {
+    if (passThrough() && e.target === canvas) e.stopPropagation(); // keep it from the map controls
+  }, { capture: true, passive: true }));
+  function setFull(on) {
+    if (on === full) return; full = on;
+    if (on) {
+      // move the whole map to <body> so no transformed ancestor in the host page can trap position: fixed
+      ph = document.createElement("div"); ph.style.height = root.offsetHeight + "px";
+      root.parentNode.insertBefore(ph, root); document.body.appendChild(root);
+      root.classList.add("gm-full"); document.documentElement.classList.add("gm-lock");
+    } else {
+      root.classList.remove("gm-full"); document.documentElement.classList.remove("gm-lock");
+      ph.parentNode.insertBefore(root, ph); ph.remove(); ph = null;
+      stage.scrollIntoView({ block: "center" });
+    }
+    btn.setAttribute("aria-pressed", on);
+    lbl.textContent = on ? "Lukk" : "Utforsk";
+    icon.setAttribute("d", on ? "M5 5l10 10M15 5L5 15" : "M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12");
+    btn.setAttribute("aria-label", on ? "Lukk fullskjerm · Close full screen" : "Utforsk kartet i fullskjerm · Explore the map full screen");
+    resize();
+  }
+  btn.addEventListener("click", e => { e.stopPropagation(); setFull(!full); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && full) setFull(false); });
+})();

@@ -1,3 +1,4 @@
+from paths import B
 import math, subprocess, numpy as np
 from pyproj import Transformer
 LAT0,LON0=60.73975,11.13256
@@ -15,5 +16,5 @@ xs=[e[0] for e in E]; ys=[e[1] for e in E]
 bb=(min(xs)-20,min(ys)-20,max(xs)+20,max(ys)+20); print(bb)
 url=("https://wcs.geonorge.no/skwms1/wcs.hoyde-dtm-nhm-25833?service=WCS&version=2.0.1&request=GetCoverage"
      f"&coverageId=nhm_dtm_topo_25833&format=image/tiff&subset=x({bb[0]:.0f},{bb[2]:.0f})&subset=y({bb[1]:.0f},{bb[3]:.0f})")
-print(subprocess.run(['curl','-sS','-m','120','-o','/home/claude/dtm/dtm.tif','-w','%{http_code} %{size_download}',url],capture_output=True,text=True).stdout)
-open('/home/claude/dtm/bbox.txt','w').write(' '.join(f'{v:.0f}' for v in bb))
+print(subprocess.run(['curl','-sS','-m','120','-o',B+'dtm/dtm.tif','-w','%{http_code} %{size_download}',url],capture_output=True,text=True).stdout)
+open(B+'dtm/bbox.txt','w').write(' '.join(f'{v:.0f}' for v in bb))

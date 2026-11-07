@@ -1,6 +1,8 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'pipeline'))
+from paths import B
 import sys, cv2, numpy as np
-sys.path.insert(0,'/home/claude/scripts'); import importlib, data; importlib.reload(data)
-im=cv2.imread('/home/claude/ref/g_warp.png')
+import importlib, data; importlib.reload(data)
+im=cv2.imread(B+'ref/g_warp.png')
 x0,y0,x1,y1,k,out=int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4]),int(sys.argv[5]),sys.argv[6]
 c=cv2.resize(im[y0:y1,x0:x1],None,fx=k,fy=k,interpolation=cv2.INTER_CUBIC)
 for i,(pts,w,kind) in enumerate(data.ROADS):

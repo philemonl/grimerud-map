@@ -1,3 +1,4 @@
+from paths import B
 import numpy as np, cv2, json, sys
 from scipy import ndimage as ndi
 rng=np.random.default_rng(7)
@@ -53,24 +54,24 @@ def trees(cls,dark,greenish,v,step,M,off):
             pts.append([round((jx-W/2)*M+off,1),round((jy-H/2)*M+off,1),round(r,1),int(rng.random()<0.22)])
     return pts,m
 if __name__=='__main__':
-    site=load('/home/claude/z18.jpg'); M=0.29188
+    site=load(B+'z18.jpg'); M=0.29188
     sm,cls,dark,gr,v=classify(site)
     p=paint(site,cls,1)
-    cv2.imwrite('/home/claude/style/ground_site.png',cv2.cvtColor((p*255).astype(np.uint8),cv2.COLOR_RGB2BGR))
+    cv2.imwrite(B+'style/ground_site.png',cv2.cvtColor((p*255).astype(np.uint8),cv2.COLOR_RGB2BGR))
     t,m=trees(cls,dark,gr,v,11,M,0)
-    np.save('/home/claude/style/cls_site.npy',cls)
-    cv2.imwrite('/home/claude/style/treemask.png',m*255)
-    json.dump(t,open('/home/claude/style/trees_site.json','w'))
+    np.save(B+'style/cls_site.npy',cls)
+    cv2.imwrite(B+'style/treemask.png',m*255)
+    json.dump(t,open(B+'style/trees_site.json','w'))
     print('site trees',len(t))
-    ctx=load('/home/claude/z17ctx.jpg'); Mc=0.58376
+    ctx=load(B+'z17ctx.jpg'); Mc=0.58376
     sm2,cls2,dark2,gr2,v2=classify(ctx)
     p2=paint(ctx,cls2,0.5)
     # fade to paper at edges
     H,W=cls2.shape; yy,xx=np.mgrid[0:H,0:W]; d=np.minimum.reduce([xx,yy,W-1-xx,H-1-yy]).astype(np.float32)
     a=np.clip((d-40)/260,0,1)[...,None]; paper=np.array([0.953,0.933,0.886])
     p2=p2*a+paper*(1-a)
-    cv2.imwrite('/home/claude/style/ground_ctx.png',cv2.cvtColor((p2*255).astype(np.uint8),cv2.COLOR_RGB2BGR))
+    cv2.imwrite(B+'style/ground_ctx.png',cv2.cvtColor((p2*255).astype(np.uint8),cv2.COLOR_RGB2BGR))
     t2,_=trees(cls2,dark2,gr2,v2,8,Mc,37.36)
     # drop ctx trees inside site square and near the faded edge
     t2=[q for q in t2 if not(abs(q[0])<261 and abs(q[1])<261) and max(abs(q[0]-37.36),abs(q[1]-37.36))<430]
-    json.dump(t2,open('/home/claude/style/trees_ctx.json','w')); print('ctx trees',len(t2))
+    json.dump(t2,open(B+'style/trees_ctx.json','w')); print('ctx trees',len(t2))

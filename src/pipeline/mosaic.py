@@ -1,3 +1,4 @@
+from paths import B
 import math, sys, io, os, urllib.request
 from PIL import Image
 def t(lat,lon,z):
@@ -7,7 +8,7 @@ cx,cy=t(lat,lon,z); x0,y0=int(cx)-r,int(cy)-r
 W=2*r+1; img=Image.new('RGB',(W*256,W*256))
 for i in range(W):
   for j in range(W):
-    p=f"/home/claude/tiles/{z}_{x0+i}_{y0+j}.jpg"
+    p=f"{B}tiles/{z}_{x0+i}_{y0+j}.jpg"
     if not os.path.exists(p):
       u=f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y0+j}/{x0+i}"
       d=urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'grimerud-map'}),timeout=30).read(); open(p,'wb').write(d)

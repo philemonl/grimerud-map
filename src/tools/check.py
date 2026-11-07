@@ -1,5 +1,7 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'pipeline'))
+from paths import B
 import sys, numpy as np, cv2
-sys.path.insert(0,'/home/claude/scripts'); import data
+import data
 M=0.29188
 bm=np.zeros((1792,1792),np.int32)
 names=[]
