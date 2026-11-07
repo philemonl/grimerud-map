@@ -64,7 +64,7 @@ html, body { margin: 0; background: #f1efe8; }
 #grimerud-map #gm-pins { position: absolute; inset: 0; pointer-events: none; }
 #grimerud-map .pin { position: absolute; left: 0; top: 0; pointer-events: auto; display: flex; align-items: center; gap: 6px; background: none; border: 0; padding: 0; cursor: pointer; white-space: nowrap; }
 #grimerud-map .pin .num { width: 28px; height: 28px; background: #fffdf8; color: #26221d; border: 2px solid #26221d; font-weight: 700; box-shadow: 0 2px 0 rgba(38,34,29,.35); }
-#grimerud-map .pin .lbl { display: none; background: #fffdf8; color: #26221d; border: 1.6px solid #26221d; border-radius: 6px; padding: 4px 8px; box-shadow: 0 2px 0 rgba(38,34,29,.3); line-height: 1.15; }
+#grimerud-map .pin .lbl { position: absolute; left: calc(100% + 6px); top: 50%; transform: translateY(-50%); white-space: nowrap; display: none; background: #fffdf8; color: #26221d; border: 1.6px solid #26221d; border-radius: 6px; padding: 4px 8px; box-shadow: 0 2px 0 rgba(38,34,29,.3); line-height: 1.15; }
 #grimerud-map .pin .lbl b { display: block; font: 500 13px/1.15 var(--f); }
 #grimerud-map .pin .lbl i { display: block; font: italic 400 11.5px/1.2 var(--f); color: #5a5248; }
 #grimerud-map .pin:hover .lbl, #grimerud-map .pin.on .lbl, #grimerud-map #gm-pins.names .lbl { display: block; }
