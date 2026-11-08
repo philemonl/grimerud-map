@@ -276,8 +276,23 @@ function wallGeom(pts, h, y0 = 0, bay = 4.4, endBays = 0) {
     const [x1, z1] = pts[i], [x2, z2] = pts[(i + 1) % pts.length];
     // whole windows only: each wall gets an integer number of bays and floors, so no window is cut at a corner
     const L = lens[i], bays = endBays && L < 0.8 * longest ? endBays : Math.max(1, Math.round(L / bay)), floors = Math.max(1, Math.round((h - y0) / 2.9));
-    pos.push(x1, y0, z1, x2, y0, z2, x2, h, z2, x1, y0, z1, x2, h, z2, x1, h, z1);
-    uv.push(0, 0, bays, 0, bays, floors, 0, 0, bays, floors, 0, floors);
+    const W = L / bays;
+    if (W <= bay * 1.05) {   // close to the texture's own spacing: one quad, scaled to fit
+      pos.push(x1, y0, z1, x2, y0, z2, x2, h, z2, x1, y0, z1, x2, h, z2, x1, h, z1);
+      uv.push(0, 0, bays, 0, bays, floors, 0, 0, bays, floors, 0, floors);
+      continue;
+    }
+    // Wider bays: the window keeps its normal width and only the plain wall either side of it widens,
+    // so windows are never stretched. The window sits between u = WL and WR of each texture tile.
+    const WL = 22 / 64, WR = 42 / 64, win = bay * (WR - WL), side = (W - win) / 2;
+    const at = s => [x1 + (x2 - x1) * s / L, z1 + (z2 - z1) * s / L];
+    const quad = (s1, s2, u1, u2) => { const [ax, az] = at(s1), [bx, bz] = at(s2);
+      pos.push(ax, y0, az, bx, y0, bz, bx, h, bz, ax, y0, az, bx, h, bz, ax, h, az);
+      uv.push(u1, 0, u2, 0, u2, floors, u1, 0, u2, floors, u1, floors); };
+    for (let k = 0; k < bays; k++) {
+      const s = k * W;
+      quad(s, s + side, k, k + WL); quad(s + side, s + side + win, k + WL, k + WR); quad(s + side + win, s + W, k + WR, k + 1);
+    }
   }
   return geomFrom(pos, uv);
 }
