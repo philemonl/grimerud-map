@@ -5,7 +5,7 @@ ROOF_RED='#c4432d'; ROOF_TILE='#b84a30'; ROOF_DARK='#3d3a38'; ROOF_BROWN='#6e3a2
 ITEMS=[
  # numbered as on the drawn site map
  dict(n='1',g='b',no='Hovedbygning',en='Main building',sub_no='Matsal · Stuene · Café Alv · TV-rom',sub_en='Dining hall · Living rooms · Café Alv · TV room',
-      parts=[dict(p=R(762,962,830,1108),h=6.6,wall='#f7f5ef',roof='#7b3a2b',bay=4.7,dormers=6,rise=4.5,dormerSize=1.35,chimneys=[[796,998],[796,1042]],porch=[762,1035,'w']),dict(p=R(756,1086,762,1106),h=3.3,wall='#f7f5ef',roof='#e9e6de',flat=True,railing=True)]),
+      parts=[dict(p=R(762,962,830,1108),h=6.6,wall='#f7f5ef',roof='#7b3a2b',bay=4.7,endBays=3,dormers=6,rise=4.5,dormerSize=1.35,chimneys=[[796,998],[796,1042]],porch=[762,1035,'w']),dict(p=R(756,1086,762,1106),h=3.3,wall='#f7f5ef',roof='#e9e6de',flat=True,railing=True)]),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
       parts=[dict(p=R(556,914,659,958),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#ecebe6'],bay=3.1,rise=4.6,chimneys=[[649,936]],chimneyColor='#dcae4f',balconies=dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True))]),
  dict(n='3',g='b',no='Gym-bygning',en='Gym building',sub_no='Gymsal · Lille bønnerommet',sub_en='Gym · Little prayer room',

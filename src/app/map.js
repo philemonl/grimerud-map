@@ -268,13 +268,14 @@ function geomFrom(pos, uv) {
   if (uv) g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
   g.computeVertexNormals(); return g;
 }
-function wallGeom(pts, h, y0 = 0, bay = 4.4) {
+// endBays: a fixed number of window bays on the short walls (gable ends) of a rectangular building
+function wallGeom(pts, h, y0 = 0, bay = 4.4, endBays = 0) {
   const pos = [], uv = [];
-  let u = 0;
+  const lens = pts.map((p, i) => Math.hypot(pts[(i + 1) % pts.length][0] - p[0], pts[(i + 1) % pts.length][1] - p[1])), longest = Math.max(...lens);
   for (let i = 0; i < pts.length; i++) {
     const [x1, z1] = pts[i], [x2, z2] = pts[(i + 1) % pts.length];
     // whole windows only: each wall gets an integer number of bays and floors, so no window is cut at a corner
-    const L = Math.hypot(x2 - x1, z2 - z1), bays = Math.max(1, Math.round(L / bay)), floors = Math.max(1, Math.round((h - y0) / 2.9));
+    const L = lens[i], bays = endBays && L < 0.8 * longest ? endBays : Math.max(1, Math.round(L / bay)), floors = Math.max(1, Math.round((h - y0) / 2.9));
     pos.push(x1, y0, z1, x2, y0, z2, x2, h, z2, x1, y0, z1, x2, h, z2, x1, h, z1);
     uv.push(0, 0, bays, 0, bays, floors, 0, 0, bays, floors, 0, floors);
   }
@@ -356,7 +357,7 @@ function building(part, item) {
   const wallMat = part.tent ? toon({ color: part.wall }) : toon({ map: part.plain ? boardTex(part.wall) : part.stucco ? stuccoTex(part.wall) : wallTex(part.wall) });
   const y0 = part.base ? part.base[0] : 0;
   const mats = [wallMat];
-  const walls = new THREE.Mesh(wallGeom(pts, part.h, y0, part.bay || 4.4), wallMat); group.add(walls); addInk(walls.geometry, group, 25, ink);
+  const walls = new THREE.Mesh(wallGeom(pts, part.h, y0, part.bay || 4.4, part.endBays), wallMat); group.add(walls); addInk(walls.geometry, group, 25, ink);
   // skin: a stretch of the building with walls of its own colour, laid just outside the main walls
   (part.skin || []).forEach(sk => {
     const sp = sk.p.map(P), c = centroid(sp), out = sp.map(([x, z]) => { const dx = x - c[0], dz = z - c[1]; return [x + Math.sign(dx) * 0.04, z + Math.sign(dz) * 0.04]; });
