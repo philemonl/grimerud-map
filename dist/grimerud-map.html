@@ -166,6 +166,9 @@ html, body { margin: 0; background: #f1efe8; }
 #grimerud-map .card p i { display: block; }
 #grimerud-map .close { border: 0; background: none; cursor: pointer; padding: 2px 4px; color: #5a5248; font-size: 22px; line-height: 1; }
 #grimerud-map .hint { position: absolute; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font: italic 12px/1 var(--f); color: #26221d; background: rgba(255,253,248,.85); border: 1px solid rgba(38,34,29,.3); padding: 6px 10px; border-radius: 20px; pointer-events: none; white-space: nowrap; z-index: 6; transition: opacity .5s; }
+#grimerud-map .toast { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; padding: 10px 16px; border-radius: 12px; background: rgba(38,34,29,.82); color: #fffdf8; font-size: 14px; line-height: 1.35; text-align: center; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .25s, visibility 0s .25s; }
+#grimerud-map .toast i { display: block; font-size: 12.5px; opacity: .8; }
+#grimerud-map .toast.show { opacity: 1; visibility: visible; transition: opacity .15s; }
 #grimerud-map .hint.gone { opacity: 0; visibility: hidden; transition: opacity .5s, visibility 0s .5s; }
 #grimerud-map [hidden] { display: none !important; }
 #grimerud-map .pin.behind { visibility: hidden; }
@@ -293,7 +296,7 @@ html.gm-lock, html.gm-lock body { overflow: hidden !important; overscroll-behavi
         <p class="welcome">Velkommen til Ungdom i Oppdrag</p>
         <h1>Grimerud Gård</h1>
         <p class="since">Siden 1975</p>
-        <p class="lede"><span class="lede-d">Tap a place in the list or on the map. Drag to turn the map, scroll to zoom, or open it full screen with <svg class="ico" viewBox="0 0 20 20" aria-label="full screen button"><path d="M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>.</span><span class="lede-m">Tap a place in the list or on the map. Tap <svg class="ico" viewBox="0 0 20 20" aria-label="full screen button"><path d="M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> to open the map full screen, then drag to turn and pinch to zoom.</span></p>
+        <p class="lede"><span class="lede-d">Tap a place in the list or on the map. Drag to turn the map, scroll to zoom, or open it full screen with <svg class="ico" viewBox="0 0 20 20" aria-label="full screen button"><path d="M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>.</span><span class="lede-m">Tap a place in the list or on the map. Move and zoom the map with two fingers, or tap <svg class="ico" viewBox="0 0 20 20" aria-label="full screen button"><path d="M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> for full screen, where one finger turns it.</span></p>
       </div>
       <div class="search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12.3 12.3l4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="gm-search" type="search" placeholder="Søk · Search" aria-label="Søk etter et sted · Search for a place" autocomplete="off"><button id="gm-sclear" type="button" aria-label="Tøm søk · Clear search" hidden>×</button></div>
       <p class="noresult" id="gm-noresult" hidden>Ingen treff · No matches</p>
@@ -359,6 +362,7 @@ html.gm-lock, html.gm-lock body { overflow: hidden !important; overscroll-behavi
         <button class="close" id="gm-cclose" aria-label="Close">×</button>
       </div>
       <div class="gm-wheel" id="gm-wheel" aria-hidden="true">Hold Ctrl / ⌘ og scroll for å zoome · to zoom</div>
+      <div class="toast" id="gm-two" aria-hidden="true">Bruk to fingre for å flytte kartet<i>Use two fingers to move the map</i></div>
       <div class="hint" id="gm-hint">Drag to turn · right-drag or two fingers to move</div>
     </main>
   </div>
@@ -1544,7 +1548,8 @@ FAR_IMG: "data:image/webp;base64,UklGRqRfAQBXRUJQVlA4IJhfAQBQZgadASoABAAEPnk6mUi
       btn.addEventListener("click", () => go(!on));
     })();
 
-    // Touch devices: inline, one finger scrolls the page (taps still pick places); full screen gets all gestures
+    // Touch devices: inline, one finger scrolls the page (taps still pick places) and two fingers move and
+    // zoom the map; a one-finger sideways drag shows a "use two fingers" note. Full screen gets all gestures.
     (() => {
       const btn = document.getElementById("gm-expand"), lbl = btn.querySelector(".tx"), icon = btn.querySelector("path");
       const coarse = matchMedia("(pointer: coarse)");
@@ -1552,8 +1557,17 @@ FAR_IMG: "data:image/webp;base64,UklGRqRfAQBXRUJQVlA4IJhfAQBQZgadASoABAAEPnk6mUi
       lbl.textContent = openLabel();
       let full = false, ph = null;
       const passThrough = () => coarse.matches && !full;
-      ["touchstart", "touchmove", "touchend"].forEach(t => stage.addEventListener(t, e => {
-        if (passThrough() && e.target === canvas) e.stopPropagation(); // keep it from the map controls
+      const two = document.getElementById("gm-two"); let t0 = null, twoTimer = 0;
+      stage.addEventListener("touchstart", e => { t0 = passThrough() && e.touches.length === 1 ? [e.touches[0].clientX, e.touches[0].clientY] : null; }, { capture: true, passive: true });
+      stage.addEventListener("touchmove", e => {
+        if (!t0 || e.touches.length !== 1) { t0 = null; return; }
+        const dx = e.touches[0].clientX - t0[0], dy = e.touches[0].clientY - t0[1];
+        if (Math.abs(dx) > 24 && Math.abs(dx) > 1.5 * Math.abs(dy)) {
+          t0 = null; two.classList.add("show"); clearTimeout(twoTimer); twoTimer = setTimeout(() => two.classList.remove("show"), 1600);
+        }
+      }, { capture: true, passive: true });
+      ["touchstart", "touchmove"].forEach(t => stage.addEventListener(t, e => {
+        if (passThrough() && e.target === canvas && e.touches.length < 2) e.stopPropagation(); // keep one finger from the map controls
       }, { capture: true, passive: true }));
       function setFull(on) {
         if (on === full) return; full = on;

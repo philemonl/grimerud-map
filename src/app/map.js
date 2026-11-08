@@ -1093,7 +1093,8 @@ requestAnimationFrame(frame);
   btn.addEventListener("click", () => go(!on));
 })();
 
-// Touch devices: inline, one finger scrolls the page (taps still pick places); full screen gets all gestures
+// Touch devices: inline, one finger scrolls the page (taps still pick places) and two fingers move and
+// zoom the map; a one-finger sideways drag shows a "use two fingers" note. Full screen gets all gestures.
 (() => {
   const btn = document.getElementById("gm-expand"), lbl = btn.querySelector(".tx"), icon = btn.querySelector("path");
   const coarse = matchMedia("(pointer: coarse)");
@@ -1101,8 +1102,17 @@ requestAnimationFrame(frame);
   lbl.textContent = openLabel();
   let full = false, ph = null;
   const passThrough = () => coarse.matches && !full;
-  ["touchstart", "touchmove", "touchend"].forEach(t => stage.addEventListener(t, e => {
-    if (passThrough() && e.target === canvas) e.stopPropagation(); // keep it from the map controls
+  const two = document.getElementById("gm-two"); let t0 = null, twoTimer = 0;
+  stage.addEventListener("touchstart", e => { t0 = passThrough() && e.touches.length === 1 ? [e.touches[0].clientX, e.touches[0].clientY] : null; }, { capture: true, passive: true });
+  stage.addEventListener("touchmove", e => {
+    if (!t0 || e.touches.length !== 1) { t0 = null; return; }
+    const dx = e.touches[0].clientX - t0[0], dy = e.touches[0].clientY - t0[1];
+    if (Math.abs(dx) > 24 && Math.abs(dx) > 1.5 * Math.abs(dy)) {
+      t0 = null; two.classList.add("show"); clearTimeout(twoTimer); twoTimer = setTimeout(() => two.classList.remove("show"), 1600);
+    }
+  }, { capture: true, passive: true });
+  ["touchstart", "touchmove"].forEach(t => stage.addEventListener(t, e => {
+    if (passThrough() && e.target === canvas && e.touches.length < 2) e.stopPropagation(); // keep one finger from the map controls
   }, { capture: true, passive: true }));
   function setFull(on) {
     if (on === full) return; full = on;

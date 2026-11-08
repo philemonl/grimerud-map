@@ -153,6 +153,9 @@
 #grimerud-map .card p i { display: block; }
 #grimerud-map .close { border: 0; background: none; cursor: pointer; padding: 2px 4px; color: #5a5248; font-size: 22px; line-height: 1; }
 #grimerud-map .hint { position: absolute; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font: italic 12px/1 var(--f); color: #26221d; background: rgba(255,253,248,.85); border: 1px solid rgba(38,34,29,.3); padding: 6px 10px; border-radius: 20px; pointer-events: none; white-space: nowrap; z-index: 6; transition: opacity .5s; }
+#grimerud-map .toast { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; padding: 10px 16px; border-radius: 12px; background: rgba(38,34,29,.82); color: #fffdf8; font-size: 14px; line-height: 1.35; text-align: center; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .25s, visibility 0s .25s; }
+#grimerud-map .toast i { display: block; font-size: 12.5px; opacity: .8; }
+#grimerud-map .toast.show { opacity: 1; visibility: visible; transition: opacity .15s; }
 #grimerud-map .hint.gone { opacity: 0; visibility: hidden; transition: opacity .5s, visibility 0s .5s; }
 #grimerud-map [hidden] { display: none !important; }
 #grimerud-map .pin.behind { visibility: hidden; }
