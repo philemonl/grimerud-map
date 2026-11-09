@@ -49,7 +49,7 @@ ITEMS=[
              dict(p=RT(667.6,1104.5,18.5,7.1),h=3.0,wall='#e8c77e',roof='#7a3328',bay=3.4),
              dict(p=RT(672.9,1144.5,30.2,12.3),h=0.6,wall='#4a4440',roof='#5b5148',flat=True,plain=True,trim=False,railing=True),
              dict(p=RT(651.8,1144.4,10.8,11.4),h=2.3,wall='#9a9a92',roof='#43474c',bay=3.4)]),
- dict(n='7',g='b',no='Hybelhuset',en="Men's Manor",sub_no='',sub_en='',
+ dict(n='7',g='b',no='Hybelhuset',en='Boys’ House',sub_no='',sub_en='',
       parts=[dict(p=[[1100,1300],[1118,1276],[1158,1306],[1140,1332]],h=3.4,wall='#e6bf4f',roof='#c0532f',rise=4.8,dormers=1,dormerSize=3,chimneys=[[1124,1298]],bay=3.6),dict(p=[[1128, 1302], [1149, 1318], [1175, 1284], [1154, 1268]],h=3.0,wall='#e6bf4f',roof='#c0532f',rise=2.8,trim=False,bay=3.6)]),
  dict(n='8',g='b',no='Rekkehusene',en='Row houses',sub_no='',sub_en='',
       parts=[dict(p=[[1025, 1300.5], [1062, 1326.5], [1040.6, 1355.7], [1003.6, 1328.7]],h=5.6,wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2)),dict(p=[[1069, 1319.5], [1106, 1346.5], [1085.6, 1375.7], [1048.6, 1348.7]],h=5.6,wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2)),dict(p=[[1102, 1355.5], [1139, 1382.5], [1117.6, 1411.7], [1080.6, 1384.7]],h=5.6,wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2))]),
