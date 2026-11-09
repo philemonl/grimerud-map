@@ -48,7 +48,7 @@ ITEMS=[
       parts=[dict(p=R(792,1138,826,1200),h=2.6,wall='#fbfaf5',roof='#f6f4ee',tent=True)]),
  dict(n='N',g='o',no='Nordlåven',en='North barn',sub_no='',sub_en='Older farm barn and work yard north of the garage, reached by the farm track.',
       parts=[dict(p=[[983,253],[1037,256],[1030,404],[978,400]],h=7,wall=RED,gable=RED,roof='#55585c',plain=True,base=[1.6,CONCRETE]),dict(p=R(830,303,866,338),h=3.5,wall=RED,roof='#55585c',plain=True)]),
- dict(n='I',g='o',no='Huset ved innkjøringen',en='House at the entrance',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
+ dict(n='I',g='o',no='Vaktmesterboligen',en='Caretaker’s house',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
       parts=[dict(p=R(1360,790,1404,816),h=4.5,wall=WHITE,roof=ROOF_RED)]),
 ]
 CONTEXT=[
