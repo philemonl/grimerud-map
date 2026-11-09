@@ -103,6 +103,9 @@
 #grimerud-map #gm-pins.names .pin[data-side="t"] .lbl { left: 50%; top: auto; bottom: calc(100% + 6px); transform: translateX(-50%); }
 #grimerud-map #gm-pins.names .pin[data-side="b"] .lbl { left: 50%; top: calc(100% + 6px); transform: translateX(-50%); }
 #grimerud-map #gm-pins.names .pin[data-side="x"]:not(:hover):not(.on) .lbl { display: none; }
+#grimerud-map #gm-pins.names .pin[data-side="f"] .lbl { left: var(--lx); top: var(--ly); transform: none; }
+#grimerud-map .pin .ldr { display: none; position: absolute; left: 14px; top: 13.2px; height: 1.6px; background: #26221d; transform-origin: 0 50%; pointer-events: none; z-index: 0; }
+#grimerud-map #gm-pins.names .pin[data-side="f"] .ldr { display: block; }
 #grimerud-map .pin.on .lbl, #grimerud-map .pin:hover .lbl { z-index: 5; }
 #grimerud-map .pin.on .num { background: #b23a2b; color: #fff; border-color: #26221d; }
 /* Map switch top left; one column of round tools down the right edge */

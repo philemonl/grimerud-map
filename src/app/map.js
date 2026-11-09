@@ -951,9 +951,26 @@ function placeLabels(w, h) {
     const lw = it.lw + 2, lh = it.lh + 2, x = it.sx, y = it.sy;
     const rect = { r: [x + 20, y - lh / 2, x + 20 + lw, y + lh / 2], l: [x - 20 - lw, y - lh / 2, x - 20, y + lh / 2],
                    t: [x - lw / 2, y - 20 - lh, x + lw / 2, y - 20], b: [x - lw / 2, y + 20, x + lw / 2, y + 20 + lh] };
-    const side = SIDES.find(s => free(rect[s]));
+    let side = SIDES.find(s => free(rect[s])), far = null;
+    if (!side) {
+      // no room right beside the pin: look further out, ring by ring, and draw a leader line back to the number,
+      // so with names on every label shows (good for a screenshot to print)
+      search: for (let r = 46; r <= 220; r += 18) for (let k = 0; k < 16; k++) {
+        const a = k * Math.PI / 8 + (r / 18 % 2) * Math.PI / 16, cx = x + Math.cos(a) * (r + lw / 2 * Math.abs(Math.cos(a))), cy = y + Math.sin(a) * (r * 0.8 + lh / 2 * Math.abs(Math.sin(a)));
+        const q = [cx - lw / 2, cy - lh / 2, cx + lw / 2, cy + lh / 2];
+        if (free(q)) { far = q; break search; }
+      }
+      if (far) side = "f";
+    }
     it.pinEl.dataset.side = side || "x";
-    if (side) busy.push(rect[side]);
+    if (side === "f") {
+      const st = it.pinEl.style, ldr = it.pinEl.querySelector(".ldr") || it.pinEl.appendChild(Object.assign(document.createElement("i"), { className: "ldr" }));
+      st.setProperty("--lx", (far[0] - x + 14 + 1).toFixed(1) + "px"); st.setProperty("--ly", (far[1] - y + 14 + 1).toFixed(1) + "px");
+      // line from the number's edge to the nearest point of the label box
+      const nx = Math.min(Math.max(x, far[0] + 1), far[2] - 1), ny = Math.min(Math.max(y, far[1] + 1), far[3] - 1), L = Math.hypot(nx - x, ny - y);
+      ldr.style.width = Math.max(0, L - 13).toFixed(1) + "px"; ldr.style.transform = `rotate(${Math.atan2(ny - y, nx - x).toFixed(3)}rad) translateX(13px)`;
+    }
+    if (side) busy.push(side === "f" ? far : rect[side]);
   }
 }
 // Pins that land on top of each other are pushed apart a little (never more than PUSH px from their
@@ -986,7 +1003,7 @@ function pinLevels(h) {
   fv.set(FARM_C[0], hAt(FARM_C[0], FARM_C[1]), FARM_C[1]);
   const across = 2 * FARM_R * h / (2 * camera.position.distanceTo(fv) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
   const lv = discOn || across >= PX_ALL ? 0 : across >= PX_ONE ? 1 : 2;
-  for (const it of FARM_ITEMS) it.pinEl.classList.toggle("lv-off", lv === 2 || (lv === 1 && it.g !== "b"));
+  for (const it of FARM_ITEMS) it.pinEl.classList.toggle("lv-off", lv === 2 || (lv === 1 && it.g !== "b" && !pinsEl.classList.contains("names")));  // with names on, every pin shows until the farm shrinks to one pin
   fv.project(camera);
   const show = lv === 2 && fv.z < 1 && Math.abs(fv.x) < 0.95 && Math.abs(fv.y) < 0.95;
   farmPin.hidden = !show;
