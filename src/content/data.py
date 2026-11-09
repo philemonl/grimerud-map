@@ -25,7 +25,7 @@ ITEMS=[
              # lower wing along the east side, and a small white flat-roofed porch on it
              dict(p=RT(824.7,1016.0,16.0,48.5),h=3.6,wall='#f7f5ef',roof='#8a4a36',bay=4.7,rise=2.2,trim=False),
              dict(p=RT(836.1,1003.7,8.3,17.1),h=2.6,wall='#f7f5ef',roof='#e9e6de',flat=True,trim=False)]),
- dict(n='1a',g='b',no='The Bird & Baby Cafe',en='The Bird & Baby Cafe',sub_no='Kafé i nordenden av hovedbygningen',sub_en='Café at the north end of the main building',pin=AT(MAIN,.5,.1),inside='1'),
+ dict(n='1a',g='b',no='The Bird & Baby Café',en='The Bird & Baby Café',sub_no='Kafé i nordenden av hovedbygningen',sub_en='Café at the north end of the main building',pin=AT(MAIN,.5,.1),inside='1'),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
       parts=[dict(p=OFFICE,grade=(1.9,0.6,0.5),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#f1f0eb','stone'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5)],chimneyColor='#dcae4f',balconies=[dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True),
                  # south side (edge 2 runs east to west): long balcony over the basement doors, a small one up by the east corner

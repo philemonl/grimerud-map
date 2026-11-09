@@ -953,6 +953,9 @@ function segSeg(a, b) {
   return o(A, B, C) !== o(A, B, D) && o(C, D, A) !== o(C, D, B);
 }
 const SIDES = ["r", "l", "t", "b"];
+// label sizes are cached; the page's web font can arrive after the first measure and change them, so measure again then
+let labelFontsV = 0;
+if (document.fonts) { document.fonts.ready.then(() => labelFontsV++); document.fonts.addEventListener("loadingdone", () => labelFontsV++); }
 function placeLabels(w, h) {
   const shown = ITEMS.filter(it => pinShown(it) && !it.pinEl.classList.contains("behind"));
   const busy = shown.map(it => [it.sx - 15, it.sy - 15, it.sx + 15, it.sy + 15]);   // every number is taken
@@ -969,7 +972,7 @@ function placeLabels(w, h) {
   shown.sort((a, b) => (b === current) - (a === current) || a.sz - b.sz);
   for (const it of shown) {
     const lbl = it.pinEl.querySelector(".lbl");
-    if (!it.lw) { it.lw = lbl.offsetWidth; it.lh = lbl.offsetHeight; }
+    if (!it.lw || it.lfv !== labelFontsV) { it.lw = lbl.offsetWidth; it.lh = lbl.offsetHeight; it.lfv = labelFontsV; }  // re-measured once the web font has loaded
     const lw = it.lw + 2, lh = it.lh + 2, x = it.sx, y = it.sy;
     const rect = { r: [x + 20, y - lh / 2, x + 20 + lw, y + lh / 2], l: [x - 20 - lw, y - lh / 2, x - 20, y + lh / 2],
                    t: [x - lw / 2, y - 20 - lh, x + lw / 2, y - 20], b: [x - lw / 2, y + 20, x + lw / 2, y + 20 + lh] };
