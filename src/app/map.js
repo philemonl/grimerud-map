@@ -380,7 +380,7 @@ function building(part, item) {
     group.add(m); addInk(m.geometry, group, 25, ink); mats.push(m.material);
   });
   if (part.base) {
-    const bw = new THREE.Mesh(wallGeom(pts, y0), toon({ map: part.base[2] === "plain" ? boardTex(part.base[1]) : wallTex(part.base[1]) }));
+    const bw = new THREE.Mesh(wallGeom(pts, y0), toon({ map: part.base[2] === "plain" ? boardTex(part.base[1]) : part.base[2] === "stone" ? stuccoTex(part.base[1]) : wallTex(part.base[1]) }));
     group.add(bw); addInk(bw.geometry, group, 25, ink);
   }
   // white corner boards, as on the painted wooden houses
@@ -480,11 +480,16 @@ function building(part, item) {
     const step = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.3, 3.2), toon({ color: "#d4cec2" }));
     step.position.set(dir * 0.7 + (part.porch[3] === "gable" ? 2.2 : 0), 0.15, 0); ent.add(step); addInk(step.geometry, step, 25, ink);
   }
-  if (part.garage) part.garage.forEach(([px, pz, side, w, hgt]) => {
-    // roller door: grey ribbed panel in a white frame, set just proud of the wall
+  if (part.garage) part.garage.forEach(([px, pz, side, w, hgt, style]) => {
+    // roller door: grey ribbed panel in a white frame, set just proud of the wall; "wood": glazed wooden double doors
     const [x, z] = P([px, pz]), rot = wallRot(pts, side || "s");
     const ent = new THREE.Group(); ent.position.set(x, 0, z); ent.rotation.y = rot; group.add(ent);
-    const tex = canvasTex("garage", 64, 64, (g, W, H) => {
+    const tex = style === "wood" ? canvasTex("wooddoor", 64, 64, (g, W, H) => {
+      g.fillStyle = "#6b3f22"; g.fillRect(0, 0, W, H);
+      g.fillStyle = "#2f3a40"; for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) g.fillRect(7 + i * 30 + (i ? 0 : 0), 6 + j * 26, 20, 20);
+      g.fillStyle = "#4e2c17"; g.fillRect(W / 2 - 1.5, 0, 3, H);
+      g.strokeStyle = "#26221d"; g.lineWidth = 2; g.strokeRect(1, 1, W - 2, H - 2);
+    }) : canvasTex("garage", 64, 64, (g, W, H) => {
       g.fillStyle = "#2c2a29"; g.fillRect(0, 0, W, H);
       g.fillStyle = "rgba(255,255,255,.12)"; for (let y = 6; y < H; y += 6) g.fillRect(0, y, W, 1.4);
       g.strokeStyle = "#fbfaf5"; g.lineWidth = 5; g.strokeRect(0, 0, W, H);
@@ -501,7 +506,7 @@ function building(part, item) {
     const ex = b[0] - a[0], ez = b[1] - a[1], L = Math.hypot(ex, ez), ux = ex / L, uz = ez / L;
     const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], side = ((-uz) * (mid[0] - c0[0]) + ux * (mid[1] - c0[1])) > 0 ? 1 : -1;
     for (let i = 0; i < n; i++) {
-      const k = (i + 0.5) / n, bg = new THREE.Group();
+      const k = bc.at != null ? bc.at : (i + 0.5) / n, bg = new THREE.Group();  // at: fraction along the edge, for a single balcony off-centre
       bg.position.set(a[0] + ex * k, 0, a[1] + ez * k); bg.rotation.y = -Math.atan2(ez, ex);
       const W = bc.w || Math.min(3, L / n - 0.6), D = 1.4;
       // upper balcony: slab plus solid board railing

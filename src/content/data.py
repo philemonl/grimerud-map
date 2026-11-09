@@ -26,7 +26,10 @@ ITEMS=[
              dict(p=RT(824.7,1016.0,16.0,48.5),h=3.6,wall='#f7f5ef',roof='#8a4a36',bay=4.7,rise=2.2,trim=False),
              dict(p=RT(836.1,1003.7,8.3,17.1),h=2.6,wall='#f7f5ef',roof='#e9e6de',flat=True,trim=False)]),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
-      parts=[dict(p=OFFICE,h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#ecebe6'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5)],chimneyColor='#dcae4f',balconies=dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True))]),
+      parts=[dict(p=OFFICE,h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#f1f0eb','stone'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5)],chimneyColor='#dcae4f',balconies=[dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True),
+                 # south side (edge 2 runs east to west): long balcony over the basement doors, a small one up by the east corner
+                 dict(edge=2,n=1,at=.56,upper=True,y=2.75,w=5.6,color='#7f8b74',rail=True),dict(edge=2,n=1,at=.06,upper=True,y=5.75,w=2.2,color='#7f8b74',rail=True)],
+             garage=[AT(OFFICE,.44,1)+['s',2.8,2.3,'wood']],porch=AT(OFFICE,.965,1)+['s'])]),
  dict(n='3',g='b',no='Gym-bygning',en='Gym building',sub_no='Gymsal · Lille bønnerommet',sub_en='Gym · Little prayer room',
       parts=[dict(p=GYM,h=6.5,wall='#f4f2ec',roof=ROOF_TILE,steeple=AT(GYM,.5,.83),gables=dict(s='#dcb35a'),skin=[dict(p=SUB(GYM,0,.6,1,1),wall='#dcb35a',stucco=True)],porch=AT(GYM,.85,1)+['s','gable'])]),
  dict(n='4',g='b',no='Låven',en='The Barn',sub_no='Møtesal · Prokla Media · Bønnerom',sub_en='Meeting hall · Prokla Media · Prayer room',
@@ -115,4 +118,4 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
 ROADS+=ROADS_EXTRA
 CIRCLE=[740,925,19]
 # paved ground we paint as gravel besides the car park: the yard north of the main building, up to its wall
-GRAVEL_AREAS=[[[752,944],[800,948],[845,955],[853,972],[850,998],[835,998],[773,998],[760,1006],[749,1000]]]
+GRAVEL_AREAS=[RT(606,981,106,15),[[752,944],[800,948],[845,955],[853,972],[850,998],[835,998],[773,998],[760,1006],[749,1000]]]
