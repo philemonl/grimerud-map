@@ -939,11 +939,34 @@ function occlusion() {
 // With all names shown, each label goes to whichever side of its pin is free: right, left, above or
 // below. Nearer pins and the selected one choose first; a label with no room anywhere is hidden
 // until you hover or select its pin.
+// does segment s cross box r (Liang-Barsky clip)? does it cross segment t?
+function segRect(s, r) {
+  let t0 = 0, t1 = 1; const dx = s[2] - s[0], dy = s[3] - s[1];
+  for (const [p, q] of [[-dx, s[0] - r[0]], [dx, r[2] - s[0]], [-dy, s[1] - r[1]], [dy, r[3] - s[1]]]) {
+    if (p === 0) { if (q < 0) return false; continue; }
+    const t = q / p; if (p < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; }
+  }
+  return true;
+}
+function segSeg(a, b) {
+  const o = (p, q, r) => Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]));
+  const A = [a[0], a[1]], B = [a[2], a[3]], C = [b[0], b[1]], D = [b[2], b[3]];
+  return o(A, B, C) !== o(A, B, D) && o(C, D, A) !== o(C, D, B);
+}
 const SIDES = ["r", "l", "t", "b"];
 function placeLabels(w, h) {
   const shown = ITEMS.filter(it => pinShown(it) && !it.pinEl.classList.contains("behind"));
   const busy = shown.map(it => [it.sx - 15, it.sy - 15, it.sx + 15, it.sy + 15]);   // every number is taken
-  const free = (r) => r[0] >= 2 && r[1] >= 2 && r[2] <= w - 2 && r[3] <= h - 2 && !busy.some(b => r[0] < b[2] && r[2] > b[0] && r[1] < b[3] && r[3] > b[1]);
+  const lines = [];   // leader lines drawn so far: no label may sit on one, and no new line may cross one
+  const free = (r) => r[0] >= 2 && r[1] >= 2 && r[2] <= w - 2 && r[3] <= h - 2 && !busy.some(b => r[0] < b[2] && r[2] > b[0] && r[1] < b[3] && r[3] > b[1]) && !lines.some(l => segRect(l, r));
+  // a leader from the number's edge to the nearest point of the label box, or null if it would cross a number, a label or another leader
+  const leader = (x, y, q) => {
+    const nx = Math.min(Math.max(x, q[0] + 1), q[2] - 1), ny = Math.min(Math.max(y, q[1] + 1), q[3] - 1), L = Math.hypot(nx - x, ny - y);
+    if (L < 16) return null;
+    const seg = [x + (nx - x) / L * 15, y + (ny - y) / L * 15, nx, ny];
+    if (busy.some(b => segRect(seg, [b[0] + 2, b[1] + 2, b[2] - 2, b[3] - 2])) || lines.some(l => segSeg(seg, l))) return null;
+    return seg;
+  };
   shown.sort((a, b) => (b === current) - (a === current) || a.sz - b.sz);
   for (const it of shown) {
     const lbl = it.pinEl.querySelector(".lbl");
@@ -951,14 +974,14 @@ function placeLabels(w, h) {
     const lw = it.lw + 2, lh = it.lh + 2, x = it.sx, y = it.sy;
     const rect = { r: [x + 20, y - lh / 2, x + 20 + lw, y + lh / 2], l: [x - 20 - lw, y - lh / 2, x - 20, y + lh / 2],
                    t: [x - lw / 2, y - 20 - lh, x + lw / 2, y - 20], b: [x - lw / 2, y + 20, x + lw / 2, y + 20 + lh] };
-    let side = SIDES.find(s => free(rect[s])), far = null;
+    let side = SIDES.find(s => free(rect[s])), far = null, seg = null;
     if (!side) {
       // no room right beside the pin: look further out, ring by ring, and draw a leader line back to the number,
       // so with names on every label shows (good for a screenshot to print)
       search: for (let r = 46; r <= 220; r += 18) for (let k = 0; k < 16; k++) {
         const a = k * Math.PI / 8 + (r / 18 % 2) * Math.PI / 16, cx = x + Math.cos(a) * (r + lw / 2 * Math.abs(Math.cos(a))), cy = y + Math.sin(a) * (r * 0.8 + lh / 2 * Math.abs(Math.sin(a)));
         const q = [cx - lw / 2, cy - lh / 2, cx + lw / 2, cy + lh / 2];
-        if (free(q)) { far = q; break search; }
+        if (free(q) && (seg = leader(x, y, q))) { far = q; break search; }
       }
       if (far) side = "f";
     }
@@ -967,7 +990,8 @@ function placeLabels(w, h) {
       const st = it.pinEl.style, ldr = it.pinEl.querySelector(".ldr") || it.pinEl.appendChild(Object.assign(document.createElement("i"), { className: "ldr" }));
       st.setProperty("--lx", (far[0] - x + 14 + 1).toFixed(1) + "px"); st.setProperty("--ly", (far[1] - y + 14 + 1).toFixed(1) + "px");
       // line from the number's edge to the nearest point of the label box
-      const nx = Math.min(Math.max(x, far[0] + 1), far[2] - 1), ny = Math.min(Math.max(y, far[1] + 1), far[3] - 1), L = Math.hypot(nx - x, ny - y);
+      const nx = seg[2], ny = seg[3], L = Math.hypot(nx - x, ny - y);
+      lines.push(seg);
       ldr.style.width = Math.max(0, L - 13).toFixed(1) + "px"; ldr.style.transform = `rotate(${Math.atan2(ny - y, nx - x).toFixed(3)}rad) translateX(13px)`;
     }
     if (side) busy.push(side === "f" ? far : rect[side]);
@@ -993,8 +1017,8 @@ function declutter() {
       if (d > PUSH) { it.sx = it.ox + dx / d * PUSH; it.sy = it.oy + dy / d * PUSH; } });
   }
 }
-// From far away the farm's pins would pile up: when the farm's buildings span less than PX_ALL px only the
-// numbered buildings show, below PX_ONE px one "Grimerud" pin stands in for all of them and flies back in when tapped.
+// From far away the farm's pins would pile up: when the farm's buildings span less than PX_ONE px one "Grimerud" pin
+// stands in for all of them and flies back in when tapped (PX_ALL is kept for the level maths).
 const FARM_ITEMS = ITEMS.filter(it => it.g !== "d"), BLDG = ITEMS.filter(it => it.g === "b");
 const FARM_C = centroid(BLDG.map(it => it.c)), FARM_R = Math.max(...BLDG.map(it => Math.hypot(it.c[0] - FARM_C[0], it.c[1] - FARM_C[1])));
 const PX_ALL = 330, PX_ONE = 150, farmPin = document.getElementById("gm-farmpin"), fv = new THREE.Vector3();
@@ -1003,7 +1027,7 @@ function pinLevels(h) {
   fv.set(FARM_C[0], hAt(FARM_C[0], FARM_C[1]), FARM_C[1]);
   const across = 2 * FARM_R * h / (2 * camera.position.distanceTo(fv) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
   const lv = discOn || across >= PX_ALL ? 0 : across >= PX_ONE ? 1 : 2;
-  for (const it of FARM_ITEMS) it.pinEl.classList.toggle("lv-off", lv === 2 || (lv === 1 && it.g !== "b" && !pinsEl.classList.contains("names")));  // with names on, every pin shows until the farm shrinks to one pin
+  for (const it of FARM_ITEMS) it.pinEl.classList.toggle("lv-off", lv === 2);  // every pin shows until the farm shrinks to one pin
   fv.project(camera);
   const show = lv === 2 && fv.z < 1 && Math.abs(fv.x) < 0.95 && Math.abs(fv.y) < 0.95;
   farmPin.hidden = !show;
