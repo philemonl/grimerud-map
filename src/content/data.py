@@ -114,3 +114,5 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
 ]
 ROADS+=ROADS_EXTRA
 CIRCLE=[740,925,19]
+# paved ground we paint as gravel besides the car park: the yard north of the main building, up to its wall
+GRAVEL_AREAS=[[[752,944],[800,948],[845,955],[853,972],[850,998],[835,998],[773,998],[760,1006],[749,1000]]]

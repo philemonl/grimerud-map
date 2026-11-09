@@ -53,6 +53,7 @@ out=out*(1-pm)+GRAVEL*pm
 # car park
 park=next(i for i in data.ITEMS if i['n']=='P')['area']
 pk=np.zeros((H,W),np.uint8); cv2.fillPoly(pk,[np.array(park,np.int32)],1)
+for g in getattr(data,'GRAVEL_AREAS',[]): cv2.fillPoly(pk,[np.array(g,np.int32)],1)
 road=np.zeros((H,W),np.uint8)
 for pts,wm,kind in data.ROADS: draw_poly_path(road,pts,wm/M)
 cx,cy,r=data.CIRCLE; cv2.circle(road,(cx,cy),r,1,int(3/M),cv2.LINE_AA)
@@ -68,6 +69,7 @@ out=out*(1-fm)+col*fm
 treem=canopy(B+'z18.jpg')
 treem[cv2.dilate(paved,np.ones((7,7),np.uint8))>0]=0
 treem[pads>0]=0
+cv2.circle(treem,(data.CIRCLE[0],data.CIRCLE[1]),data.CIRCLE[2]+3,0,-1)  # the flag stands alone on the island
 dist=ndi.distance_transform_edt(treem)
 trees=[]
 step=17
