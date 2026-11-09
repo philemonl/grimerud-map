@@ -840,8 +840,8 @@ document.getElementById("gm-cclose").addEventListener("click", () => select(null
 
 // Camera.
 // Opening view: from the entrance on Grimerudvegen, looking west over the farm towards Mjøsa
-const HOME = { t: new THREE.Vector3(-40, 0, 25), d: 400, polar: 1.17, az: Math.atan2(144, -40) };
-const TOP = { t: new THREE.Vector3(10, 0, 40), d: 520, polar: 0.001, az: -Math.PI / 2 };
+const HOME = { t: new THREE.Vector3(-40, 0, 25), d: 400, polar: 1.17, az: Math.PI / 2 };   // looking west: west is up
+const TOP = { t: new THREE.Vector3(10, 0, 40), d: 520, polar: 0.001, az: Math.PI / 2 };      // west up, like the opening view
 const TOP_DISC = { t: new THREE.Vector3(330, 0, -170), d: 1250, polar: 0.001, az: -Math.PI / 2 };
 let anim = null;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -882,9 +882,8 @@ b3d.addEventListener("click", () => setMode("3d"));
 const vmode = document.getElementById("gm-vmode");
 vmode.addEventListener("click", () => setMode(vmode.getAttribute("aria-pressed") === "true" ? "3d" : "top"));
 btop.addEventListener("click", () => setMode("top"));
-// compass: turn the map north-up, keeping the tilt and distance; home: back to the opening view
-document.getElementById("gm-compass").addEventListener("click", () => flyTo(controls.target.clone(), camera.position.distanceTo(controls.target), controls.getPolarAngle(), 0, 600));
-document.getElementById("gm-home").addEventListener("click", () => { if (current) select(null); discOn ? setDisc(true, true) : setMode("3d"); });
+// compass: shows which way north is, and a tap goes back to the opening view (west up)
+document.getElementById("gm-compass").addEventListener("click", () => { if (current) select(null); discOn ? setDisc(true, true) : setMode("3d"); });
 // zoom buttons: move the camera towards or away from what it looks at
 function zoomBy(f) {
   const d = Math.max(controls.minDistance, Math.min(controls.maxDistance, camera.position.distanceTo(controls.target) * f));

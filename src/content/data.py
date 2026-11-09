@@ -42,7 +42,7 @@ ITEMS=[
  dict(n='4b',g='b',no='Overflow-rommet',en='Overflow room',sub_no='Inne i låven, i vestenden',sub_en='Inside the barn, at the west end',pin=[606,688],inside='4'),
  dict(n='5',g='b',no='Internatet',en='Dormitories',sub_no='',sub_en='',
       parts=[dict(p=[[1124.4,1132.0],[1161.8,1123.2],[1181.1,1205.0],[1143.7,1213.8]],h=6.5,wall=RED,roof='#6e3a2e',balconies=[dict(edge=1,n=2,color='#f4f2ec'),dict(edge=3,n=3,color='#f4f2ec')]),dict(p=[[1149.0,1152.4],[1175.7,1146.1],[1182.4,1174.8],[1155.7,1181.1]],h=6.5,wall=RED,roof='#5a2d26',cross=True,rise=4.4,trim=False,porch=[1179.0,1160.5,'e'])]),
- dict(n='6',g='b',no='«Bispen»',en='«Bispen»',sub_no='',sub_en='',
+ dict(n='6',g='b',no='Bispen',en='Bispen',sub_no='',sub_en='',
       # yellow house, ridge east-west with the gable to the west; steep red-brown roof; low wing on the north side,
       # dark deck with a white fence on the south side, small shed at the south-west corner
       parts=[dict(p=RT(673.1,1123.0,33.1,30.5),h=5.6,wall='#e8c77e',roof='#7a3328',bay=3.4,skylights=dict(s=1)),

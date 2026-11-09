@@ -233,7 +233,7 @@
   #grimerud-map .ltabs button { padding: 8px 6px 7px; font-size: 13.5px; }
   #grimerud-map .maptabs { top: 10px; left: 10px; }
   /* phones: view and zoom stay in the right-hand column; names, season and time sit in a row under the map switch */
-  /* phones: compass, home and the drawer button only; 2D lives in the drawer, zoom is pinch */
+  /* phones: compass (reset) and the drawer button only; 2D lives in the drawer, zoom is pinch */
   #grimerud-map .tools { top: 10px; right: 10px; align-items: flex-end; gap: 8px; }
   #grimerud-map .tgrp { gap: 8px; }
   #grimerud-map .tool { width: 40px; height: 40px; }
