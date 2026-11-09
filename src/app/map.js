@@ -452,7 +452,7 @@ function building(part, item) {
     // front entrance: dark canopy over a glazed double door, with a low step.
     // Built facing +x, then turned to face the side named in porch[2] (w, e, s, n).
     const [x, z] = P(part.porch), side = part.porch[2] || "e";
-    const ent = new THREE.Group(); ent.position.set(x, 0, z); ent.rotation.y = { e: 0, w: Math.PI, s: -Math.PI / 2, n: Math.PI / 2 }[side]; group.add(ent);
+    const ent = new THREE.Group(); ent.position.set(x, 0, z); ent.rotation.y = wallRot(pts, side); group.add(ent);
     const dir = 1;
     const door = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.4, 1.7), toon({ map: canvasTex("door", 32, 48, (g, w, h) => {
       g.fillStyle = "#fbf8f0"; g.fillRect(0, 0, w, h); g.fillStyle = "#3b4a52";
@@ -482,7 +482,7 @@ function building(part, item) {
   }
   if (part.garage) part.garage.forEach(([px, pz, side, w, hgt]) => {
     // roller door: grey ribbed panel in a white frame, set just proud of the wall
-    const [x, z] = P([px, pz]), rot = { e: 0, w: Math.PI, s: -Math.PI / 2, n: Math.PI / 2 }[side || "s"];
+    const [x, z] = P([px, pz]), rot = wallRot(pts, side || "s");
     const ent = new THREE.Group(); ent.position.set(x, 0, z); ent.rotation.y = rot; group.add(ent);
     const tex = canvasTex("garage", 64, 64, (g, W, H) => {
       g.fillStyle = "#2c2a29"; g.fillRect(0, 0, W, H);
@@ -559,6 +559,19 @@ function building(part, item) {
 }
 DATA.context.forEach(p => building(p, null));
 
+// Turn for a door on the wall facing roughly n/s/e/w: the wall's own outward direction, so doors sit flush
+// on buildings that are not square to the map (+x faces east at 0, +z is south)
+function wallRot(pts, side) {
+  const want = { e: [1, 0], w: [-1, 0], s: [0, 1], n: [0, -1] }[side], c = centroid(pts);
+  let best = null, bd = -2;
+  pts.forEach((a, i) => {
+    const b = pts[(i + 1) % pts.length], ex = b[0] - a[0], ez = b[1] - a[1], L = Math.hypot(ex, ez);
+    let nx = ez / L, nz = -ex / L;
+    if (nx * ((a[0] + b[0]) / 2 - c[0]) + nz * ((a[1] + b[1]) / 2 - c[1]) < 0) { nx = -nx; nz = -nz; }
+    const d = nx * want[0] + nz * want[1]; if (d > bd) { bd = d; best = [nx, nz]; }
+  });
+  return Math.atan2(-best[1], best[0]);
+}
 function centroid(pts) { let x = 0, z = 0; pts.forEach(p => { x += p[0]; z += p[1]; }); return [x / pts.length, z / pts.length]; }
 function outlineLoop(pts, y, color) {
   return new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts.map(([x, z]) => new THREE.Vector3(x, y, z))), new THREE.LineBasicMaterial({ color }));
