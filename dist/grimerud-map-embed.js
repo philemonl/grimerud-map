@@ -1050,7 +1050,10 @@
       const free = (r) => r[0] >= 2 && r[1] >= 2 && r[2] <= w - 2 && r[3] <= h - 2 && !busy.some(b => r[0] < b[2] && r[2] > b[0] && r[1] < b[3] && r[3] > b[1]) && !lines.some(l => segRect(l, r));
       // a leader from the number's edge to the nearest point of the label box, or null if it would cross a number, a label or another leader
       const leader = (x, y, q) => {
-        const nx = Math.min(Math.max(x, q[0] + 1), q[2] - 1), ny = Math.min(Math.max(y, q[1] + 1), q[3] - 1), L = Math.hypot(nx - x, ny - y);
+        // aim at the label's rounded outline: nearest point of the box shrunk by the corner radius, then out by the radius
+        // (less a little, so the line tucks under the border instead of stopping short at a rounded corner)
+        const R = 7, ix = Math.min(Math.max(x, q[0] + 1 + R), q[2] - 1 - R), iy = Math.min(Math.max(y, q[1] + 1 + R), q[3] - 1 - R), d = Math.hypot(x - ix, y - iy) || 1;
+        const nx = ix + (x - ix) / d * (R - 2), ny = iy + (y - iy) / d * (R - 2), L = Math.hypot(nx - x, ny - y);
         if (L < 16) return null;
         const seg = [x + (nx - x) / L * 15, y + (ny - y) / L * 15, nx, ny];
         if (busy.some(b => segRect(seg, [b[0] + 2, b[1] + 2, b[2] - 2, b[3] - 2])) || lines.some(l => segSeg(seg, l))) return null;
