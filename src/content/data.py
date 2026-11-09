@@ -65,8 +65,6 @@ ITEMS=[
       area=[[925,1090],[1110,1085],[1115,1250],[930,1250]],pin=[1010,1160]),
  dict(n='G',g='o',no='Garasjen',en='Garage',sub_no='',sub_en='Red garage building east of the barn.',
       parts=[dict(p=RT(974.8,734.4,45.8,112.6),h=5,wall=RED,roof=ROOF_GREY)]),
- dict(n='Y',g='o',no='Det gule huset',en='Yellow house',sub_no='',sub_en='Small yellow house between the garage and the main building.',
-      parts=[dict(p=RT(877.6,859.3,34.0,38.8),h=4.5,wall='#e6bf4f',roof='#c0532f'),dict(p=RT(881.1,829.7,23.5,19.8),h=5.2,wall='#e6bf4f',roof='#c0532f'),dict(p=RT(855.0,846.2,9.6,31.4),h=2.6,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False)]),
  dict(n='S',g='o',no='Barracks',en='Barracks',sub_no='',sub_en='Long, low building along the farm road, opposite the car park.',
       parts=[dict(p=[[1026,872],[1210,832],[1220,866],[1035,906]],h=6,wall=RED,roof='#d6d4ce',flat=True)]),
  dict(n='W',g='o',no='Spiseteltet',en='Dining tent',sub_no='',sub_en='Large white tent just south of the main building.',
@@ -77,6 +75,9 @@ ITEMS=[
       parts=[dict(p=RT(1382,793,44,34),h=4.5,wall=WHITE,roof=ROOF_RED)]),
 ]
 CONTEXT=[
+ # the yellow house, unlabelled for now (was item Y: no='Det gule huset', en='Yellow house',
+ # sub_en='Small yellow house between the garage and the main building.')
+ dict(p=RT(877.6,859.3,34.0,38.8),h=4.5,wall='#e6bf4f',roof='#c0532f'),dict(p=RT(881.1,829.7,23.5,19.8),h=5.2,wall='#e6bf4f',roof='#c0532f'),dict(p=RT(855.0,846.2,9.6,31.4),h=2.6,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False),
  dict(p=RT(872.9,1027.9,12.8,12.8),h=2.6,wall='#f4f2ec',roof='#3e3a38',plain=True,trim=False,rise=1.4),
  dict(p=[[1174.4,1395.0],[1199.0,1364.3],[1230.2,1397.4],[1207.4,1426.1]],h=5,wall=YELLOW,roof='#c97f4a'),
 ]
