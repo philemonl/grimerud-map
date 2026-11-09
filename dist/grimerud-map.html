@@ -92,6 +92,7 @@ html, body { margin: 0; background: #f1efe8; }
 #grimerud-map .item[aria-pressed="true"] .num { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 #grimerud-map .num { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1.6px solid var(--ink); font: 500 13px/1 var(--f); background: var(--panel); margin-top: 1px; }
 #grimerud-map .num.sq { border-radius: 7px; }
+#grimerud-map .num .glyph { font: 400 16px/1 "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols 2", "Noto Sans Symbols", "DejaVu Sans", sans-serif; font-variant-emoji: text; }
 #grimerud-map .nm { display: block; font-weight: 500; font-size: 15.5px; line-height: 1.25; }
 #grimerud-map .nm i { font-weight: 500; }
 #grimerud-map .sub { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.4; margin-top: 2px; }
@@ -465,8 +466,8 @@ FAR_IMG: "data:image/webp;base64,UklGRqRfAQBXRUJQVlA4IJhfAQBQZgadASoABAAEPnk6mUi
     // badge content: the number or letter, or a small icon for the outdoor areas (entrance arrow, ball for the lawn)
     const ICONS = {
       arrow: '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 8h10M8.5 3.8 12.8 8l-4.3 4.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-      // football: a real truncated icosahedron seen face-on to a pentagon (generated), black pentagons, seams as lines
-      ball: '<svg viewBox="0 0 16 16" width="17" height="17" aria-hidden="true"><defs><clipPath id="gm-ball"><circle cx="8" cy="8" r="7"/></clipPath></defs><g clip-path="url(#gm-ball)"><g fill="currentColor"><polygon points="6.59,9.94 9.41,9.94 10.29,7.26 8.00,5.60 5.71,7.26"/><polygon points="5.71,2.45 8.00,3.19 10.29,2.45 9.41,1.25 6.59,1.25"/><polygon points="12.57,6.51 13.98,8.46 14.86,7.26 13.98,4.57 12.57,4.11"/><polygon points="1.14,7.26 2.02,8.46 3.43,6.51 3.43,4.11 2.02,4.57"/><polygon points="9.41,13.83 10.82,14.29 13.11,12.63 13.11,11.15 10.82,11.89"/><polygon points="5.18,14.29 6.59,13.83 5.18,11.89 2.89,11.15 2.89,12.63"/></g><path d="M8.00 5.60L8.00 3.19M8.00 5.60L10.29 7.26M8.00 5.60L5.71 7.26M8.00 3.19L10.29 2.45M8.00 3.19L5.71 2.45M10.29 7.26L12.57 6.51M10.29 7.26L9.41 9.94M10.29 2.45L12.57 4.11M10.29 2.45L9.41 1.25M5.71 7.26L3.43 6.51M5.71 7.26L6.59 9.94M5.71 2.45L3.43 4.11M5.71 2.45L6.59 1.25M12.57 6.51L12.57 4.11M12.57 6.51L13.98 8.46M12.57 4.11L13.98 4.57M3.43 6.51L3.43 4.11M3.43 6.51L2.02 8.46M3.43 4.11L2.02 4.57M9.41 9.94L6.59 9.94M9.41 9.94L10.82 11.89M9.41 1.25L6.59 1.25M6.59 9.94L5.18 11.89M13.98 8.46L14.86 7.26M13.98 8.46L13.11 11.15M13.98 4.57L14.86 7.26M2.02 8.46L2.89 11.15M2.02 8.46L1.14 7.26M2.02 4.57L1.14 7.26M10.82 11.89L13.11 11.15M10.82 11.89L9.41 13.83M5.18 11.89L2.89 11.15M5.18 11.89L6.59 13.83M13.11 11.15L13.11 12.63M2.89 11.15L2.89 12.63M9.41 13.83L6.59 13.83M9.41 13.83L10.82 14.29M6.59 13.83L5.18 14.29M13.11 12.63L10.82 14.29M2.89 12.63L5.18 14.29" stroke="currentColor" stroke-width=".7" fill="none"/></g><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>'
+      // football: the text-style soccer ball character (U+26BD with the text variation selector, so it stays monochrome)
+      ball: '<span class="glyph">\u26BD\uFE0E</span>'
     };
     function numHTML(it) { return it.icon && ICONS[it.icon] ? `${ICONS[it.icon]}<span class="sr">${esc(it.n)}</span>` : esc(it.n); }
     const GROUPS = { b: ["Bygninger", "Buildings"], a: ["Ankomst og uteområder", "Arrival & outdoors"], o: ["Andre bygg på gården", "Other farm buildings"], d: ["Diskgolf", "Disc golf"] };
