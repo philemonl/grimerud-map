@@ -60,8 +60,9 @@ ITEMS=[
       area=[[834,940],[1065,926],[1072,1056],[918,1058],[880,1044],[834,1044]]),
  dict(n='E',g='a',icon='arrow',no='Innkjøring',en='Entrance',sub_no='',sub_en='Turn west off Grimerudvegen. The car park is about 100 m ahead on the left.',
       pin=[1442,838]),
- dict(n='H',g='a',icon='ball',no='Hagen og ballplassen',en='Garden & football lawn',sub_no='Fotballbane og sandvolleyballbane',sub_en='Football pitch and beach volleyball court',
-      area=[[504,988],[770,988],[770,1113],[700,1117],[700,1212],[504,1212]],pin=[600,1045]),
+ # garden & football lawn, unlabelled for now:
+ # dict(n='H',g='a',icon='ball',no='Hagen og ballplassen',en='Garden & football lawn',sub_no='Fotballbane og sandvolleyballbane',sub_en='Football pitch and beach volleyball court',
+ #      area=[[504,988],[770,988],[770,1113],[700,1117],[700,1212],[504,1212]],pin=[600,1045]),
  # playground, unlabelled for now:
  # dict(n='L',g='a',no='Lekeplassen',en='Playground',sub_no='',sub_en='Play area in the trees between the kindergarten and the dormitories.',
  #      area=[[925,1090],[1110,1085],[1115,1250],[930,1250]],pin=[1010,1160]),
