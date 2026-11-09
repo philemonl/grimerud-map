@@ -61,8 +61,9 @@ ITEMS=[
       pin=[1442,838]),
  dict(n='H',g='a',no='Hagen og ballplassen',en='Garden & football lawn',sub_no='Fotballbane og sandvolleyballbane',sub_en='Football pitch and beach volleyball court',
       area=[[504,988],[770,988],[770,1113],[700,1117],[700,1212],[504,1212]],pin=[600,1045]),
- dict(n='L',g='a',no='Lekeplassen',en='Playground',sub_no='',sub_en='Play area in the trees between the kindergarten and the dormitories.',
-      area=[[925,1090],[1110,1085],[1115,1250],[930,1250]],pin=[1010,1160]),
+ # playground, unlabelled for now:
+ # dict(n='L',g='a',no='Lekeplassen',en='Playground',sub_no='',sub_en='Play area in the trees between the kindergarten and the dormitories.',
+ #      area=[[925,1090],[1110,1085],[1115,1250],[930,1250]],pin=[1010,1160]),
  dict(n='G',g='o',no='Garasjen',en='Garage',sub_no='',sub_en='Red garage building east of the barn.',
       parts=[dict(p=RT(974.8,734.4,45.8,112.6),h=5,wall=RED,roof=ROOF_GREY)]),
  dict(n='S',g='o',no='Barracks',en='Barracks',sub_no='',sub_en='Long, low building along the farm road, opposite the car park.',
