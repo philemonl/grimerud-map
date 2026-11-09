@@ -32,6 +32,14 @@ for q in parts:
     # blend out over ~6 m around the apron
     dd=cv2.distanceTransform((1-pad).astype(np.uint8),cv2.DIST_L2,3)
     w=np.clip(1-dd/3.0,0,1); w=w*w*(3-2*w)
+    if q.get('grade'):
+        # a sloping plot (walk-out basement): ground rises grade[0] m towards the east wall and grade[1] m from south to north
+        wx=[(p[0]-896)*M for p in q['p']]; wz=[(p[1]-896)*M for p in q['p']]
+        GX,GZ=np.meshgrid(xs,zs); cx,cz=np.mean(wx),np.mean(wz)
+        # optional grade[2]: fraction of the way east where the rise starts (flat to the west of it)
+        k=q['grade'][2] if len(q['grade'])>2 else 0.0
+        t=np.clip(((GX-min(wx))/(max(wx)-min(wx))-k)/(1-k),0,1); t=t*t*(3-2*t)
+        level=level+q['grade'][0]*(t-0.5)-q['grade'][1]*(GZ-cz)/(max(wz)-min(wz))
     Hm=Hm*(1-w)+level*w
 hmin=float(Hm.min())
 q=np.round((Hm-hmin)*100).astype('<u2')

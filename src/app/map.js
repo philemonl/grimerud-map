@@ -452,7 +452,7 @@ function building(part, item) {
     // front entrance: dark canopy over a glazed double door, with a low step.
     // Built facing +x, then turned to face the side named in porch[2] (w, e, s, n).
     const [x, z] = P(part.porch), side = part.porch[2] || "e";
-    const ent = new THREE.Group(); ent.position.set(x, 0, z); ent.rotation.y = wallRot(pts, side); group.add(ent);
+    const ent = new THREE.Group(); ent.position.set(x, Math.max(0, hAt(x, z) - baseY - 0.1), z); ent.rotation.y = wallRot(pts, side); group.add(ent);  // on sloping ground the door sits at its own ground level
     const dir = 1;
     const door = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.4, 1.7), toon({ map: canvasTex("door", 32, 48, (g, w, h) => {
       g.fillStyle = "#fbf8f0"; g.fillRect(0, 0, w, h); g.fillStyle = "#3b4a52";
@@ -483,7 +483,7 @@ function building(part, item) {
   if (part.garage) part.garage.forEach(([px, pz, side, w, hgt, style]) => {
     // roller door: grey ribbed panel in a white frame, set just proud of the wall; "wood": glazed wooden double doors
     const [x, z] = P([px, pz]), rot = wallRot(pts, side || "s");
-    const ent = new THREE.Group(); ent.position.set(x, 0, z); ent.rotation.y = rot; group.add(ent);
+    const ent = new THREE.Group(); ent.position.set(x, Math.max(0, hAt(x, z) - baseY - 0.1), z); ent.rotation.y = rot; group.add(ent);
     const tex = style === "wood" ? canvasTex("wooddoor", 64, 64, (g, W, H) => {
       g.fillStyle = "#6b3f22"; g.fillRect(0, 0, W, H);
       g.fillStyle = "#2f3a40"; for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) g.fillRect(7 + i * 30 + (i ? 0 : 0), 6 + j * 26, 20, 20);
