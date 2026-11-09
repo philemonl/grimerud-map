@@ -7,7 +7,13 @@ const snow = { value: 0 };   // 0 = summer, 1 = winter; shared by every patched 
 const M = 0.29188, S = 1792 * M, CTX_S = 1643.86816, CTX_CX = 336.24576, CTX_CZ = 37.36064;
 const P = ([x, y]) => [(x - 896) * M, (y - 896) * M];
 const INK = 0x26221d;
-const GROUPS = { b: ["Bygninger", "Buildings"], a: ["Ankomst og uteområder", "Arrival & outdoors"], o: ["Andre bygg", "Other buildings"], d: ["Diskgolf", "Disc golf"] };
+// badge content: the number or letter, or a small icon for the outdoor areas (entrance arrow, ball for the lawn)
+const ICONS = {
+  arrow: '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 8h10M8.5 3.8 12.8 8l-4.3 4.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  ball: '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 5.4l2.5 1.8-.95 2.9h-3.1l-.95-2.9z" fill="currentColor"/><path d="M8 5.4V1.9M10.5 7.2l3.3-1.1M9.55 10.1l2 2.8M6.45 10.1l-2 2.8M5.5 7.2 2.2 6.1" stroke="currentColor" stroke-width="1.2"/></svg>'
+};
+function numHTML(it) { return it.icon && ICONS[it.icon] ? `${ICONS[it.icon]}<span class="sr">${esc(it.n)}</span>` : esc(it.n); }
+const GROUPS = { b: ["Bygninger", "Buildings"], a: ["Ankomst og uteområder", "Arrival & outdoors"], o: ["Andre bygg på gården", "Other farm buildings"], d: ["Diskgolf", "Disc golf"] };
 const ITEMS = DATA.items;
 
 const stage = document.getElementById("gm-stage");
@@ -21,7 +27,7 @@ const subHTML = it => (it.sub_no ? `${esc(it.sub_no)}<i>${esc(it.sub_en)}</i>` :
 const panes = { farm: document.createElement("div"), disc: document.createElement("div") };
 panes.disc.hidden = true;
 listEl.append(panes.farm, panes.disc);
-["b", "a", "o", "d"].forEach(g => {
+["b", "o", "a", "d"].forEach(g => {
   const pane = g === "d" ? panes.disc : panes.farm;
   const sec = document.createElement("section"); sec.className = "grp"; pane.appendChild(sec);
   const items = document.createElement("div"); items.className = "grp-items"; items.id = "gm-grp-" + g;
@@ -34,7 +40,7 @@ listEl.append(panes.farm, panes.disc);
     const b = document.createElement("button");
     b.className = "item"; b.setAttribute("aria-pressed", "false");
     const sq = it.g === "d" ? " dg" : /\d/.test(it.n) ? "" : " sq";
-    b.innerHTML = `<span class="num${sq}">${esc(it.n)}</span><span><span class="nm">${nameHTML(it)}</span>${subHTML(it) ? `<span class="sub">${subHTML(it)}</span>` : ""}</span>`;
+    b.innerHTML = `<span class="num${sq}">${numHTML(it)}</span><span><span class="nm">${nameHTML(it)}</span>${subHTML(it) ? `<span class="sub">${subHTML(it)}</span>` : ""}</span>`;
     b.addEventListener("click", () => select(it, true));
     items.appendChild(b); it.btn = b;
   });
@@ -605,7 +611,7 @@ ITEMS.forEach(it => {
   pin.className = "pin"; pin.setAttribute("aria-label", `${it.no} / ${it.en}`);
   const sq = it.g === "d" ? " dg" : /\d/.test(it.n) ? "" : " sq";
   if (it.g === "d") pin.classList.add("dg-off");
-  pin.innerHTML = `<span class="num${sq}">${esc(it.n)}</span><span class="lbl"><b>${esc(it.no)}</b>${it.no !== it.en ? `<i>${esc(it.en)}</i>` : ""}</span>`;
+  pin.innerHTML = `<span class="num${sq}">${numHTML(it)}</span><span class="lbl"><b>${esc(it.no)}</b>${it.no !== it.en ? `<i>${esc(it.en)}</i>` : ""}</span>`;
   pin.addEventListener("click", e => { e.stopPropagation(); select(it, true); });
   pinsEl.appendChild(pin); it.pinEl = pin;
 });
@@ -814,7 +820,7 @@ function select(it, fly) {
   hideHint();
   root.querySelector(".panel").classList.remove("open");
   styleItem(it, true);
-  const cn = document.getElementById("gm-cnum"); cn.textContent = it.n; cn.className = "num" + (it.g === "d" ? " dg" : /\d/.test(it.n) ? "" : " sq");
+  const cn = document.getElementById("gm-cnum"); cn.innerHTML = numHTML(it); cn.className = "num" + (it.g === "d" ? " dg" : /\d/.test(it.n) ? "" : " sq");
   setDisc(it.g === "d");   // a building chosen from search while on the disc golf map switches back
   document.getElementById("gm-cname").innerHTML = nameHTML(it);
   document.getElementById("gm-cdesc").innerHTML = subHTML(it);
@@ -979,7 +985,7 @@ function pinLevels(h) {
   fv.set(FARM_C[0], hAt(FARM_C[0], FARM_C[1]), FARM_C[1]);
   const across = 2 * FARM_R * h / (2 * camera.position.distanceTo(fv) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
   const lv = discOn || across >= PX_ALL ? 0 : across >= PX_ONE ? 1 : 2;
-  for (const it of FARM_ITEMS) it.pinEl.classList.toggle("lv-off", lv === 2 || (lv === 1 && !/\d/.test(it.n)));
+  for (const it of FARM_ITEMS) it.pinEl.classList.toggle("lv-off", lv === 2 || (lv === 1 && it.g !== "b"));
   fv.project(camera);
   const show = lv === 2 && fv.z < 1 && Math.abs(fv.x) < 0.95 && Math.abs(fv.y) < 0.95;
   farmPin.hidden = !show;
