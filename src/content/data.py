@@ -20,7 +20,16 @@ ROOF_RED='#c4432d'; ROOF_TILE='#b84a30'; ROOF_DARK='#3d3a38'; ROOF_BROWN='#6e3a2
 ITEMS=[
  # numbered as on the drawn site map
  dict(n='1',g='b',no='Hovedbygning',en='Main building',sub_no='Matsal · Stuene · Café Alv · TV-rom',sub_en='Dining hall · Living rooms · Café Alv · TV room',
-      parts=[dict(p=MAIN,h=6.6,wall='#f7f5ef',roof='#7b3a2b',bay=4.7,endBays=3,dormers=6,rise=4.5,dormerSize=1.35,chimneys=[AT(MAIN,.5,.25),AT(MAIN,.5,.55)],porch=AT(MAIN,0,.5)+['w']),
+      parts=[dict(p=MAIN,h=6.6,wall='#f7f5ef',roof='#7b3a2b',bay=4.7,endBays=3,dormers=6,rise=5.0,dormerSize=1.35,chimneys=[AT(MAIN,.5,.25),AT(MAIN,.5,.55)],porch=AT(MAIN,0,.5)+['w'],
+                  # south end, from the site photo: rendered wall on a grey plinth, three windows a floor on the west side
+                  # (French balconies upstairs), the gabled entrance porch up a flight of steps on the east side,
+                  # and a board-clad gable with a row of three attic windows; picnic tables on the gravel in front
+                  facade=dict(side='s',wall='#efe9dc',base=[0.9,'#8e8a84'],
+                              win=[[x,.22,1.1,.48,'cellar'] for x in (.8,2.25,3.7)]+[[x,1.45,1.1,1.75] for x in (.8,2.25,3.7)]
+                                  +[[x,4.0,1.1,1.85,'juliet'] for x in (.8,2.25,3.7)]+[[7.95,5.0,1.4,1.45]],
+                              gable=dict(color='#f8f6f0',win=[[x,.75,1.2,1.3] for x in (4.0,5.35,6.7)])),
+                  stoop=AT(MAIN,.73,1)+['s',1.2],
+                  tables=[AT(MAIN,.13,1.075),AT(MAIN,.36,1.075),AT(MAIN,.1,1.145),AT(MAIN,.33,1.145)]),
              dict(p=SUB(MAIN,-.14,.84,0,.98),h=3.3,wall='#f7f5ef',roof='#e9e6de',flat=True,railing=True),
              # lower wing along the east side, and a small white flat-roofed porch on it
              dict(p=RT(824.7,1016.0,16.0,48.5),h=3.6,wall='#f7f5ef',roof='#8a4a36',bay=4.7,rise=2.2,trim=False),

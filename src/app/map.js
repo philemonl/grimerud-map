@@ -487,6 +487,116 @@ function building(part, item) {
     const step = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.3, 3.2), toon({ color: "#d4cec2" }));
     step.position.set(dir * 0.7 + (part.porch[3] === "gable" ? 2.2 : 0), 0.15, 0); ent.add(step); addInk(step.geometry, step, 25, ink);
   }
+  // facade: one wall drawn from a photo — its own windows (metres from the left corner seen from outside, and up from
+  // the ground), a grey plinth with cellar windows, and a board-clad gable above with its own windows
+  if (part.facade) {
+    const fc = part.facade, want = { e: [1, 0], w: [-1, 0], s: [0, 1], n: [0, -1] }[fc.side], c0 = centroid(pts);
+    let ei = 0, bd = -2;
+    pts.forEach((a, i) => { const b = pts[(i + 1) % pts.length], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      let nx = (b[1] - a[1]) / L, nz = -(b[0] - a[0]) / L;
+      if (nx * ((a[0] + b[0]) / 2 - c0[0]) + nz * ((a[1] + b[1]) / 2 - c0[1]) < 0) { nx = -nx; nz = -nz; }
+      const d = nx * want[0] + nz * want[1]; if (d > bd) { bd = d; ei = i; } });
+    let A = pts[ei], B = pts[(ei + 1) % pts.length];
+    const L = Math.hypot(B[0] - A[0], B[1] - A[1]);
+    let nx = (B[1] - A[1]) / L, nz = -(B[0] - A[0]) / L;
+    if (nx * ((A[0] + B[0]) / 2 - c0[0]) + nz * ((A[1] + B[1]) / 2 - c0[1]) < 0) { nx = -nx; nz = -nz; }
+    if ((B[0] - A[0]) * nz - (B[1] - A[1]) * nx < 0) [A, B] = [B, A];      // A = left corner as seen from outside
+    const ux = (B[0] - A[0]) / L, uz = (B[1] - A[1]) / L, H = part.h, o = 0.07;
+    const at = (s, y, off) => [A[0] + ux * s + nx * off, y, A[1] + uz * s + nz * off];
+    const PX = 48;  // canvas px per metre
+    const win = (g, x0, y0, w, h, Hc, kind) => {
+      const X = x0 * PX, Y = Hc - (y0 + h) * PX, W = w * PX, Hh = h * PX;
+      g.fillStyle = "#fbf8f0"; g.fillRect(X, Y, W, Hh);
+      g.fillStyle = "#3b4a52"; g.fillRect(X + 4, Y + 4, W - 8, Hh - 8);
+      g.fillStyle = "#fbf8f0";
+      const cols = kind === "cellar" ? 2 : 2; for (let k = 1; k < cols; k++) g.fillRect(X + W * k / cols - 2, Y, 4, Hh);
+      if (kind !== "cellar") { g.fillRect(X, Y + Hh * 0.36, W, 3); if (h > 1.4) g.fillRect(X, Y + Hh * 0.68, W, 3); }
+      g.strokeStyle = "#26221d"; g.lineWidth = 2.5; g.strokeRect(X, Y, W, Hh);
+      if (kind === "juliet") {   // French balcony: black wrought railing over the lower part of the window
+        const top = Y + Hh * 0.62, bot = Y + Hh + 2; g.strokeStyle = "#1f1c1a"; g.lineWidth = 3;
+        g.strokeRect(X - 3, top, W + 6, bot - top); g.lineWidth = 2;
+        for (let xx = X + 6; xx < X + W; xx += 9) { g.beginPath(); g.moveTo(xx, top); g.lineTo(xx, bot); g.stroke(); }
+        g.beginPath(); g.moveTo(X, (top + bot) / 2); g.lineTo(X + W, (top + bot) / 2); g.stroke();
+      }
+    };
+    const Wc = Math.round(L * PX), Hc = Math.round(H * PX);
+    const wt = canvasTex("facade" + item.n + fc.side, Wc, Hc, (g, w, h) => {
+      g.fillStyle = fc.wall; g.fillRect(0, 0, w, h);
+      let sd = 11; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+      g.fillStyle = "rgba(0,0,0,.05)"; for (let i = 0; i < w * h / 90; i++) g.fillRect(rnd() * w, rnd() * h, 2, 2);
+      if (fc.base) { g.fillStyle = fc.base[1]; g.fillRect(0, h - fc.base[0] * PX, w, fc.base[0] * PX); g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(0, h - fc.base[0] * PX, w, 2); }
+      (fc.win || []).forEach(([x0, y0, ww, hh, kind]) => win(g, x0, y0, ww, hh, h, kind));
+      // gutter downpipes at the corners
+      g.fillStyle = "#2b2a29"; g.fillRect(6, 0, 5, h); g.fillRect(w - 11, 0, 5, h);
+    });
+    wt.wrapS = wt.wrapT = THREE.ClampToEdgeWrapping;
+    const a0 = at(0, 0, o), a1 = at(L, 0, o), a2 = at(L, H, o), a3 = at(0, H, o);
+    const fm = new THREE.Mesh(geomFrom([...a0, ...a1, ...a2, ...a0, ...a2, ...a3], [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]), toon({ map: wt }));
+    group.add(fm); mats.push(fm.material);
+    if (fc.gable && top > H + 0.5) {
+      const R = top - H, gc = fc.gable, Gc = Math.round(R * PX);
+      const gt = canvasTex("gable" + item.n + fc.side, Wc, Gc, (g, w, h) => {
+        g.fillStyle = gc.color; g.fillRect(0, 0, w, h);
+        g.fillStyle = "rgba(0,0,0,.09)"; for (let x = 0; x < w; x += 12) g.fillRect(x, 0, 2, h);     // vertical boards
+        g.fillStyle = "rgba(0,0,0,.18)"; g.fillRect(0, h - 4, w, 4);
+        (gc.win || []).forEach(([x0, y0, ww, hh]) => win(g, x0, y0, ww, hh, h));
+      });
+      gt.wrapS = gt.wrapT = THREE.ClampToEdgeWrapping;
+      const b0 = at(0, H, o + 0.02), b1 = at(L, H, o + 0.02), b2 = at(L / 2, top - 0.05, o + 0.02);
+      const gm = new THREE.Mesh(geomFrom([...b0, ...b1, ...b2], [0, 0, 1, 0, 0.5, 1]), toon({ map: gt }));
+      group.add(gm); mats.push(gm.material);
+      // the white skirt board where the cladding meets the render
+      const sk = new THREE.Mesh(new THREE.BoxGeometry(L + 0.3, 0.16, 0.12), trimMat);
+      sk.position.set(...at(L / 2, H + 0.02, o + 0.04)); sk.rotation.y = -Math.atan2(uz, ux); group.add(sk);
+    }
+  }
+  // stoop: a gabled porch roof on white posts over a raised landing, with concrete steps and black railings
+  // [x, z, side, landing height]
+  if (part.stoop) {
+    const [x, z] = P(part.stoop), side = part.stoop[2] || "s", LH = part.stoop[3] || 1.2;
+    const ent = new THREE.Group(); ent.position.set(x, Math.max(0, hAt(x, z) - baseY - 0.1), z); ent.rotation.y = wallRot(pts, side); group.add(ent);
+    const add = (geo, mat, px, py, pz, inkIt = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(px, py, pz); ent.add(m); if (inkIt) addInk(geo, m, 25, ink); return m; };
+    const conc = toon({ color: "#a9a49b" }), white = toon({ color: "#f8f6f0" });
+    const LD = 1.7, SW = 3.0, n = 6, r = LH / n, tr = 0.32;
+    add(new THREE.BoxGeometry(LD, LH, SW), conc, LD / 2, LH / 2, 0);
+    for (let k = 0; k < n - 1; k++) { const d = (n - 1 - k) * tr; add(new THREE.BoxGeometry(d, r, SW - 0.3), conc, LD + d / 2, k * r + r / 2, 0); }
+    // glazed double door
+    const door = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.3, 1.6), toon({ map: canvasTex("door2", 32, 48, (g, w, h) => {
+      g.fillStyle = "#fbf8f0"; g.fillRect(0, 0, w, h); g.fillStyle = "#3b4a52"; g.fillRect(3, 3, 12, 40); g.fillRect(17, 3, 12, 40);
+      g.strokeStyle = "#26221d"; g.lineWidth = 2; g.strokeRect(1, 1, w - 2, h - 2);
+    }) }));
+    door.position.set(0.07, LH + 1.15, 0); ent.add(door);
+    // posts, roof and front gable
+    const PH = 2.5, RW = 3.3, RD = LD + 0.35;
+    [[LD - 0.12, -SW / 2 + 0.15], [LD - 0.12, SW / 2 - 0.15]].forEach(([px, pz]) => add(new THREE.BoxGeometry(0.16, PH, 0.16), white, px, LH + PH / 2, pz));
+    const pr = new THREE.Shape([new THREE.Vector2(-RW / 2, 0), new THREE.Vector2(RW / 2, 0), new THREE.Vector2(0, 1.25)]);
+    const roofG = new THREE.ExtrudeGeometry(pr, { depth: RD, bevelEnabled: false });
+    const rf = new THREE.Mesh(roofG, toon({ map: roofTex(part.roof) })); rf.rotation.y = Math.PI / 2; rf.position.set(0, LH + PH, 0); ent.add(rf); addInk(roofG, rf, 25, ink);
+    const tri = new THREE.Shape([new THREE.Vector2(-RW / 2 + 0.25, 0.08), new THREE.Vector2(RW / 2 - 0.25, 0.08), new THREE.Vector2(0, 1.05)]);
+    const gt = new THREE.Mesh(new THREE.ShapeGeometry(tri), white); gt.rotation.y = Math.PI / 2; gt.position.set(RD + 0.01, LH + PH, 0); ent.add(gt);
+    add(new THREE.BoxGeometry(0.14, 0.2, RW - 0.3), white, LD - 0.12, LH + PH - 0.1, 0);   // beam across the posts
+    // railings down both sides of the steps, black balusters under a white handrail
+    const segs = [], foot = LD + (n - 1) * tr;
+    [-1, 1].forEach(sg => {
+      const zz = sg * (SW / 2 - 0.2), y1 = LH + 0.9, y2 = 0.9;
+      segs.push(new THREE.Vector3(LD - 0.1, y1, zz), new THREE.Vector3(foot, y2, zz));
+      for (let t = 0; t <= 1.0001; t += 1 / 8) { const xx = LD - 0.1 + (foot - LD + 0.1) * t, yt = y1 + (y2 - y1) * t, yb = LH - (LH - r) * t - 0.02; segs.push(new THREE.Vector3(xx, Math.max(yb, r), zz), new THREE.Vector3(xx, yt, zz)); }
+      const hr = new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(foot - LD + 0.1, y1 - y2), 0.08, 0.08), white);
+      hr.position.set((LD - 0.1 + foot) / 2, (y1 + y2) / 2 + 0.04, zz); hr.rotation.z = -Math.atan2(y1 - y2, foot - LD + 0.1); ent.add(hr);
+    });
+    ent.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segs), new THREE.LineBasicMaterial({ color: "#1f1c1a" })));
+  }
+  // picnic tables on the ground near the building: [x, z] each, set square to the building
+  if (part.tables) {
+    const wood = toon({ color: "#c19560" }), [ax, az] = [pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]], ry = -Math.atan2(az, ax);
+    part.tables.forEach(tp => {
+      const [x, z] = P(tp), t = new THREE.Group(); t.position.set(x, hAt(x, z) - baseY - 0.02, z); t.rotation.y = ry; group.add(t);
+      const add = (geo, px, py, pz) => { const m = new THREE.Mesh(geo, wood); m.position.set(px, py, pz); t.add(m); addInk(geo, m, 25, ink); };
+      add(new THREE.BoxGeometry(1.9, 0.07, 0.75), 0, 0.76, 0);
+      add(new THREE.BoxGeometry(1.9, 0.06, 0.28), 0, 0.45, 0.62); add(new THREE.BoxGeometry(1.9, 0.06, 0.28), 0, 0.45, -0.62);
+      [-0.7, 0.7].forEach(px => add(new THREE.BoxGeometry(0.08, 0.76, 1.5), px, 0.38, 0));
+    });
+  }
   if (part.garage) part.garage.forEach(([px, pz, side, w, hgt, style]) => {
     // roller door: grey ribbed panel in a white frame, set just proud of the wall; "wood": glazed wooden double doors
     const [x, z] = P([px, pz]), rot = wallRot(pts, side || "s");
