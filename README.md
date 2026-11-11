@@ -2,6 +2,8 @@
 
 Illustrated 3D map of Grimerud Gård (YWAM Grimerud, Grimerudvegen 77, Ottestad), with an optional layer for the Grimerud disc golf course. It runs in the browser with three.js and can be embedded in a Squarespace code block.
 
+**Live map:** https://philemonl.github.io/grimerud-map/dist/grimerud-map.html
+
 ## Layout
 
 ```
