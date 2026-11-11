@@ -59,7 +59,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setClearColor(0x000000, 0);
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xdce7e8, 1300, 8500);
+scene.fog = new THREE.Fog(0xbdd3ea, 1800, 13000);
 const camera = new THREE.PerspectiveCamera(36, 1, 1, 10500);
 const controls = new THREE.OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = 0.08;
@@ -115,9 +115,9 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
   const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex(FAR_IMG) })); scene.add(m);
   // Far hills on the horizon: the real skyline round Grimerud (src/pipeline/horizon.py) in three ranges, one per
   // band of distance. Each further one is paler and bluer (aerial perspective) and rises out of valley haze.
-  const HZ = DATA.horizon, HAZE = [0.90, 0.93, 0.92], pts = [], idx = [], cols = [], BOOST = 1 / EX;   // true angular height from the farm: no exaggeration on top of the terrain's
+  const HZ = DATA.horizon, HAZE = [0.70, 0.80, 0.91], pts = [], idx = [], cols = [], BOOST = 1 / EX;   // true angular height from the farm: no exaggeration on top of the terrain's
   const base = (123 - TERRAIN.h0) * EX - 20, eye = HZ.eye - TERRAIN.h0, floor = 123 + 25 - TERRAIN.h0;
-  const COLS = [[0.42, 0.56, 0.47], [0.47, 0.59, 0.64], [0.66, 0.75, 0.81]];
+  const COLS = [[0.36, 0.49, 0.52], [0.38, 0.48, 0.63], [0.55, 0.65, 0.80]];   // dusky blue-green near, slate blue, pale blue far (as in Google Earth)
   HZ.rings.forEach((ring, ri) => {
     const col = COLS[ri], n = ring.h.length, o = pts.length / 3;
     for (let i = 0; i <= n; i++) {
@@ -126,7 +126,7 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
       const top = Math.max(floor, eye + ring.h[i % n] * BOOST) * EX;
       // three rows: haze at the foot, the range's colour from part of the way up
       pts.push(cx, base, cz, cx, base + (top - base) * 0.4, cz, cx, top, cz);
-      const foot = col.map((c, k) => c + (HAZE[k] - c) * 0.75), mid = col.map((c, k) => c + (HAZE[k] - c) * 0.3);
+      const foot = col.map((c, k) => c + (HAZE[k] - c) * 0.6), mid = col.map((c, k) => c + (HAZE[k] - c) * 0.2);
       cols.push(...foot, ...mid, ...col);
       if (i < n) { const k = o + i * 3; idx.push(k, k + 1, k + 3, k + 1, k + 4, k + 3, k + 1, k + 2, k + 4, k + 2, k + 5, k + 4); }
     }
@@ -1516,11 +1516,11 @@ requestAnimationFrame(frame);
   // Day ↔ night is one value s (0 = day, 1 = night) that we animate; dusk sits in the middle.
   const C = (h) => new THREE.Color(h);
   const K = {
-    skyTop: [C("#cfe0e6"), C("#f2a46b"), C("#0d1426")],
-    skyMid: [C("#e9eee9"), C("#f6c99a"), C("#1a2440")],
-    skyLow: [C("#f7f5ef"), C("#e9b98f"), C("#232c44")],
+    skyTop: [C("#a6cbf0"), C("#f2a46b"), C("#0d1426")],
+    skyMid: [C("#c2dbf3"), C("#f6c99a"), C("#1a2440")],
+    skyLow: [C("#d9e8f5"), C("#e9b98f"), C("#232c44")],
     tint:   [C("#ffffff"), C("#f4c9a4"), C("#46557a")],
-    fog:    [C("#dce7e8"), C("#e7b28a"), C("#1d2640")],   // day haze is a pale blue, so far land fades like the hills
+    fog:    [C("#bdd3ea"), C("#e7b28a"), C("#1d2640")],   // day haze is a pale blue, so far land fades like the hills
     amb:    [C("#ffffff"), C("#ffd2b0"), C("#8fa3d6")],
     sun:    [C("#fff6e6"), C("#ff9a55"), C("#a9bfff")],
   };

@@ -29,7 +29,7 @@ hp=lum-cv2.GaussianBlur(lum,(0,0),4); out=out*(1+np.clip(hp*1.6,-.2,.2)[...,None
 # lake: painted blue, deeper away from shore, with a pale shoreline band and ink edge
 d=cv2.distanceTransform(keep,cv2.DIST_L2,5)
 deep=np.clip(d/60,0,1)[...,None]
-shallow=np.array([0.50,0.74,0.86]); deepc=np.array([0.24,0.50,0.74])
+shallow=np.array([0.40,0.58,0.82]); deepc=np.array([0.20,0.32,0.62])   # deeper blue, nearer Google Earth's Mjøsa
 lake=shallow*(1-deep)+deepc*deep
 # gentle painted ripples
 yy,xx=np.mgrid[0:1536,0:1536]
