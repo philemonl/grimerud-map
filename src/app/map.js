@@ -510,7 +510,8 @@ function building(part, item) {
   const wallMat = part.tent ? toon({ color: part.wall }) : toon({ map: part.barn ? barnUpperTex(part.wall) : part.office ? officeTex(part.wall) : part.plain ? boardTex(part.wall) : part.stucco ? stuccoTex(part.wall) : wallTex(part.wall) });
   const y0 = part.base ? part.base[0] : 0;
   const mats = [wallMat];
-  const walls = new THREE.Mesh(wallGeom(pts, part.h, y0, part.barn ? 16 : part.bay || 4.4, part.endBays), wallMat); group.add(walls); addInk(walls.geometry, group, 25, ink);
+  // open: a roof on posts with no walls (a covered entrance or carport)
+  const walls = new THREE.Mesh(wallGeom(pts, part.h, y0, part.barn ? 16 : part.bay || 4.4, part.endBays), wallMat); if (!part.open) { group.add(walls); addInk(walls.geometry, group, 25, ink); }
   // skin: a stretch of the building with walls of its own colour, laid just outside the main walls
   (part.skin || []).forEach(sk => {
     const sp = sk.p.map(P), c = centroid(sp), out = sp.map(([x, z]) => { const dx = x - c[0], dz = z - c[1]; return [x + Math.sign(dx) * 0.04, z + Math.sign(dz) * 0.04]; });
@@ -547,7 +548,8 @@ function building(part, item) {
     const rg = geomFrom(rp, ruv); rg.computeVertexNormals();
     const rm = new THREE.Mesh(rg, toon({ map: roofTex(part.roof), side: THREE.DoubleSide })); group.add(rm); addInk(rg, group, 25, ink);
     const ends = geomFrom([...V(loA, H), ...V(hiA, H), ...V(hiA, T), ...V(loB, H), ...V(hiB, T), ...V(hiB, H)]);
-    const em = new THREE.Mesh(ends, toon({ map: boardTex(part.wall), side: THREE.DoubleSide })); group.add(em); addInk(ends, group, 25, ink);
+    if (!part.open) { const em = new THREE.Mesh(ends, toon({ map: boardTex(part.wall), side: THREE.DoubleSide })); group.add(em); addInk(ends, group, 25, ink); }
+    else [loA, loB].forEach(([x, z]) => { const p = new THREE.Mesh(new THREE.BoxGeometry(0.18, H, 0.18), toon({ color: "#f6f4ee" })); p.position.set(x, H / 2, z); group.add(p); addInk(p.geometry, p, 25, ink); });
     top = T;
   } else if (part.hip && !part.flat) {
     const hr = hipRoof(pts, part.h);
