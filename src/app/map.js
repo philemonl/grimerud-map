@@ -160,6 +160,22 @@ const boardTex = color => canvasTex("b" + color, 64, 64, (g, w, h) => {
   g.fillStyle = color; g.fillRect(0, 0, w, h);
   g.fillStyle = "rgba(0,0,0,.08)"; for (let i = 0; i < 64; i += 4) g.fillRect(i, 0, 1, h);
 });
+// Barn walls (drone video): the concrete base has a row of small square windows about every 2.2 m;
+// the red board wall above has only the odd small hatch near the eaves
+const barnBaseTex = color => canvasTex("bb" + color, 64, 64, (g, w, h) => {
+  g.fillStyle = color; g.fillRect(0, 0, w, h);
+  let s = 3; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  g.fillStyle = "rgba(0,0,0,.05)"; for (let i = 0; i < 90; i++) g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5);
+  g.fillStyle = "#fffdf8"; g.fillRect(22, 14, 20, 20);
+  g.fillStyle = "#3b4a52"; g.fillRect(25, 17, 14, 14);
+  g.fillStyle = "#fffdf8"; g.fillRect(31, 17, 2, 14);
+  g.strokeStyle = "#26221d"; g.lineWidth = 1.5; g.strokeRect(22, 14, 20, 20);
+});
+const barnUpperTex = color => canvasTex("bu" + color, 64, 64, (g, w, h) => {
+  g.fillStyle = color; g.fillRect(0, 0, w, h);
+  g.fillStyle = "rgba(0,0,0,.08)"; for (let i = 0; i < 64; i += 4) g.fillRect(i, 0, 1, h);
+  g.fillStyle = "#f4f2ec"; g.fillRect(27, 6, 10, 9); g.fillStyle = "#3b4a52"; g.fillRect(29, 8, 6, 5);
+});
 const stuccoTex = color => canvasTex("ws" + color, 64, 64, (g, w, h) => {
   g.fillStyle = color; g.fillRect(0, 0, w, h);
   let s = 5; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -438,10 +454,10 @@ function building(part, item) {
   const baseY = Math.min(...pts.map(([x, z]) => hAt(x, z))) - 0.05; group.position.y = baseY;
   const ink = item ? new THREE.LineBasicMaterial({ color: INK }) : inkMat;
   if (part.trailer) return trailer(part, item, group, pts, baseY, ink);
-  const wallMat = part.tent ? toon({ color: part.wall }) : toon({ map: part.plain ? boardTex(part.wall) : part.stucco ? stuccoTex(part.wall) : wallTex(part.wall) });
+  const wallMat = part.tent ? toon({ color: part.wall }) : toon({ map: part.barn ? barnUpperTex(part.wall) : part.plain ? boardTex(part.wall) : part.stucco ? stuccoTex(part.wall) : wallTex(part.wall) });
   const y0 = part.base ? part.base[0] : 0;
   const mats = [wallMat];
-  const walls = new THREE.Mesh(wallGeom(pts, part.h, y0, part.bay || 4.4, part.endBays), wallMat); group.add(walls); addInk(walls.geometry, group, 25, ink);
+  const walls = new THREE.Mesh(wallGeom(pts, part.h, y0, part.barn ? 16 : part.bay || 4.4, part.endBays), wallMat); group.add(walls); addInk(walls.geometry, group, 25, ink);
   // skin: a stretch of the building with walls of its own colour, laid just outside the main walls
   (part.skin || []).forEach(sk => {
     const sp = sk.p.map(P), c = centroid(sp), out = sp.map(([x, z]) => { const dx = x - c[0], dz = z - c[1]; return [x + Math.sign(dx) * 0.04, z + Math.sign(dz) * 0.04]; });
@@ -449,7 +465,7 @@ function building(part, item) {
     group.add(m); addInk(m.geometry, group, 25, ink); mats.push(m.material);
   });
   if (part.base) {
-    const bw = new THREE.Mesh(wallGeom(pts, y0), toon({ map: part.base[2] === "plain" ? boardTex(part.base[1]) : part.base[2] === "stone" ? stuccoTex(part.base[1]) : wallTex(part.base[1]) }));
+    const bw = new THREE.Mesh(wallGeom(pts, y0, 0, part.base[2] === "barn" ? 2.2 : 4.4), toon({ map: part.base[2] === "barn" ? barnBaseTex(part.base[1]) : part.base[2] === "plain" ? boardTex(part.base[1]) : part.base[2] === "stone" ? stuccoTex(part.base[1]) : wallTex(part.base[1]) }));
     group.add(bw); addInk(bw.geometry, group, 25, ink);
   }
   // white corner boards, as on the painted wooden houses

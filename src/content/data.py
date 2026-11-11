@@ -45,7 +45,7 @@ ITEMS=[
  dict(n='3',g='b',no='Gym-bygning',en='Gym building',sub_no='Gymsal · Lille bønnerommet',sub_en='Gym · Little prayer room',
       parts=[dict(p=GYM,h=6.5,wall='#f4f2ec',roof=ROOF_TILE,steeple=AT(GYM,.5,.83),gables=dict(s='#dcb35a'),skin=[dict(p=SUB(GYM,0,.6,1,1),wall='#dcb35a',stucco=True)],porch=AT(GYM,.85,1)+['s','gable'])]),
  dict(n='4',g='b',no='Låven',en='The Barn',sub_no='Møtesal · Prokla Media · Bønnerom',sub_en='Meeting hall · Prokla Media · Prayer room',
-      parts=[dict(p=BARN,grade=(2.8,0,0.8),h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',plain=True,rise=7.5,garage=[AT(BARN,.44,1)+['s',3.6,3.0],AT(BARN,1,.5)+['e',4.4,3.8],
+      parts=[dict(p=BARN,grade=(2.8,0,0.8),h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#e4e1d8','barn'],roof='#2f3135',plain=True,barn=True,rise=7.5,garage=[AT(BARN,.44,1)+['s',3.6,3.0],AT(BARN,1,.5)+['e',4.4,3.8],
                     # the basement opens onto the north side at ground level (Barn_07): doors along the concrete base
                     AT(BARN,.33,0)+['n',2.6,2.5],AT(BARN,.46,0)+['n',2.6,2.5],AT(BARN,.64,0)+['n',2.6,2.5],AT(BARN,.70,0)+['n',1.2,2.2],AT(BARN,.76,0)+['n',2.4,2.4],AT(BARN,.87,0)+['n',1.2,2.2]],
                     # concrete ramp up the north side at the west end to the upper floor (Barn_07/08)
