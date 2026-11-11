@@ -76,7 +76,8 @@ f=np.clip(1+1.3*(nrm@L-L[1]),0.8,1.12)[...,None]
 out=np.clip(out*np.where(keep[...,None]>0,1.0,f),0,1)
 # fade to paper at the outer edge
 D=np.minimum.reduce([xx,yy,1535-xx,1535-yy]).astype(np.float32); al=np.clip((D-20)/240,0,1)[...,None]
-out=out*al+np.array([0.47,0.58,0.50])*(1-al)  # fade into the hazy green of the horizon hills
+# (no fade at the outer edge: the horizon's hazy plain and near ring carry on in land colours; fog does the rest)
+out[:, :int(1536*0.09)]=np.array([0.22,0.35,0.64])  # west strip: open water (Helgøya's tip is drawn by the horizon ring)
 cv2.imwrite(B+'style/far.jpg',cv2.cvtColor((out*255).astype(np.uint8),cv2.COLOR_RGB2BGR)[::1,::1],[cv2.IMWRITE_JPEG_QUALITY,78,cv2.IMWRITE_JPEG_PROGRESSIVE,1])
 small=cv2.resize(cv2.imread(B+'style/far.jpg'),(1024,1024),interpolation=cv2.INTER_AREA)
 cv2.imwrite(B+'style/far.jpg',small,[cv2.IMWRITE_JPEG_QUALITY,76,cv2.IMWRITE_JPEG_PROGRESSIVE,1])

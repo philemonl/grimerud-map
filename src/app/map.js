@@ -108,6 +108,8 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i), z = pos.getZ(i), col = i % n, row = Math.floor(i / n);
     let y = (v[row * n + col] / 10 + FAR.hmin - TERRAIN.h0) * EX;
+    // the west strip is open water but for the tip of Helgøya, which the horizon ring draws: keep it flat lake
+    if (x < FAR.x0 + FAR.size * 0.09) y = (FAR.lake - TERRAIN.h0) * EX;
     // tuck under the detailed ground so the two never fight
     if (Math.abs(x - CTX_CX) < half && Math.abs(z - CTX_CZ) < half) y -= 12; else y -= 1.2;
     pos.setY(i, y);
@@ -115,7 +117,7 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
   const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex(FAR_IMG) })); scene.add(m);
   // Far hills on the horizon: the real skyline round Grimerud (src/pipeline/horizon.py) in three ranges, one per
   // band of distance. Each further one is paler and bluer (aerial perspective) and rises out of valley haze.
-  const HZ = DATA.horizon, HAZE = [0.70, 0.80, 0.91], pts = [], idx = [], cols = [], BOOST = 1 / EX;   // true angular height from the farm: no exaggeration on top of the terrain's
+  const HZ = DATA.horizon, HAZE = [0.66, 0.77, 0.90], pts = [], idx = [], cols = [], BOOST = 1 / EX;   // true angular height from the farm: no exaggeration on top of the terrain's
   const base = (123 - TERRAIN.h0) * EX - 20, eye = HZ.eye - TERRAIN.h0, floor = 123 + 25 - TERRAIN.h0;
   const COLS = [[0.36, 0.49, 0.52], [0.38, 0.48, 0.63], [0.55, 0.65, 0.80]];   // dusky blue-green near, slate blue, pale blue far (as in Google Earth)
   HZ.rings.forEach((ring, ri) => {
@@ -134,7 +136,8 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
       }
       // three rows: haze at the foot, the range's colour from part of the way up
       pts.push(cx, base, cz, cx, base + (top - base) * 0.4, cz, cx, top, cz);
-      const foot = col.map((c, k) => c + (HAZE[k] - c) * 0.6), mid = col.map((c, k) => c + (HAZE[k] - c) * 0.2);
+      const hz = ri === 0 ? 0.12 : 0.45;   // the near land stays solid down to the water; only the far ranges stand in haze
+      const foot = col.map((c, k) => c + (HAZE[k] - c) * hz), mid = col.map((c, k) => c + (HAZE[k] - c) * hz * 0.3);
       cols.push(...foot, ...mid, ...col);
       if (i < n) { const k = o + i * 3; idx.push(k, k + 1, k + 3, k + 1, k + 4, k + 3, k + 1, k + 2, k + 4, k + 2, k + 5, k + 4); }
     }
@@ -143,7 +146,7 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
   hg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
   // a hazy plain from under the painted landscape out to the hills, so no sky shows between them from high up
   const skirt = new THREE.RingGeometry(3000, 7700, 96, 1); skirt.rotateX(-Math.PI / 2); skirt.translate(HZ.centre[0], base + 2, HZ.centre[1]);
-  scene.add(new THREE.Mesh(skirt, new THREE.MeshBasicMaterial({ map: (() => { const c = document.createElement("canvas"); c.width = c.height = 4; const g = c.getContext("2d"); g.fillStyle = "rgb(120,148,128)"; g.fillRect(0, 0, 4, 4); return new THREE.CanvasTexture(c); })() })));
+  scene.add(new THREE.Mesh(skirt, new THREE.MeshBasicMaterial({ map: (() => { const c = document.createElement("canvas"); c.width = c.height = 4; const g = c.getContext("2d"); g.fillStyle = "rgb(150,160,112)"; g.fillRect(0, 0, 4, 4); return new THREE.CanvasTexture(c); })() })));
   hillsMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, fog: false });
   scene.add(new THREE.Mesh(hg, hillsMat));
 })();

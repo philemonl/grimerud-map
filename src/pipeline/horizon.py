@@ -41,7 +41,7 @@ for R0,d0,d1 in RINGS:
         ang=(height(ux*d,uz*d)-d*d/(2*REFF)-EYE)/d
         hs.append(float(ang.max()*rv))            # height above the viewer at the ring's own distance
         ds.append(float(d[ang.argmax()])/1000)    # how far off that skyline is, km (nearer land keeps more of its own colour)
-    hs=gaussian_filter1d(np.array(hs),1.2,mode='wrap'); ds=gaussian_filter1d(np.array(ds),2.0,mode='wrap')
+    hs=gaussian_filter1d(np.array(hs),3.5,mode='wrap')   # broad, rounded ridges: single sharp summits read as spikes at this scale; ds=gaussian_filter1d(np.array(ds),2.0,mode='wrap')
     out.append(dict(r=R0,h=[round(float(v),1) for v in hs],d=[round(float(v),1) for v in ds]))
     print(R0,'min',round(hs.min()),'max',round(hs.max()),'W',round(hs[180]),'N',round(hs[270]),'E',round(hs[0]),'S',round(hs[90]))
 json.dump(dict(centre=CENTRE,eye=EYE,rings=out),open(CONTENT/'horizon.json','w'),separators=(',',':'))
