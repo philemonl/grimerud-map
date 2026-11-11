@@ -75,6 +75,13 @@ norgeibilder.no orthophotos. To redo it, put the photos in `build/ortho/` with `
 photo px to mosaic px) and run `python3 src/pipeline/gravel.py`, then the ground step. Roads in `data.py` should run
 along that gravel; they carry the public roads, everything outside the photos, and bridge the gaps under trees.
 
+### Horizon
+
+The hill ranges on the horizon are the real skyline seen from the farm. `python3 src/pipeline/horizon.py` fetches a
+coarse height model (70 km each way) from Geonorge and writes `src/content/horizon.json`: the ridge height in every
+direction for three bands of distance (to 14 km, 14 to 30 km, 30 to 68 km), allowing for the earth's curve. `map.js`
+draws one ring per band, slightly exaggerated. It only needs re-running if the rings or bands change.
+
 ## Squarespace
 
 The code block (Display Source off) holds the contents of `dist/squarespace-codeblock.html`. It only needs re-pasting if that file itself changes, which happens only if the Pages address moves.

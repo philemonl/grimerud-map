@@ -59,7 +59,8 @@ def places():
             [1446, 838], [1440, 760], [1428, 588], [1400, 392], [1393, 0]] + data.WALK_FIELD
     return dict(items=items, disc=holes, walk=walk, context=data.CONTEXT, flag=data.FLAG, roads=data.ROADS,
                 circle=data.CIRCLE, islands=data.ISLANDS, island_trees=data.ISLAND_TREES, sports=data.SPORTS, hedges=data.HEDGES, fences=data.FENCES,
-                gravel=json.load(open(paths.CONTENT / 'gravel.json'))['polys'])
+                gravel=json.load(open(paths.CONTENT / 'gravel.json'))['polys'],
+                horizon=json.load(open(paths.CONTENT / 'horizon.json')))
 
 
 def script(data_url, data_bytes=0):

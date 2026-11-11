@@ -113,24 +113,22 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
     pos.setY(i, y);
   }
   const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex(FAR_IMG) })); scene.add(m);
-  // Far hills on the horizon in three overlapping ranges: each further one is taller, paler and bluer
-  // (aerial perspective), and each rises out of valley haze at its foot
-  const HAZE = [0.90, 0.93, 0.92], pts = [], idx = [], cols = [], segs = 240;
-  const base = (123 - TERRAIN.h0) * EX - 20;
-  [[6000, 70, 60, [0.42, 0.56, 0.47], 11], [6700, 150, 85, [0.47, 0.59, 0.64], 29], [7500, 250, 110, [0.66, 0.75, 0.81], 53]].forEach(([R0, h0, amp, col, seed]) => {
-    let s = seed; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-    const ph = [0, 1, 2, 3, 4].map(() => rnd() * 6.283), o = pts.length / 3;
-    for (let i = 0; i <= segs; i++) {
-      const a = i / segs * Math.PI * 2;
-      // rolling ridge: broad swells, a few shoulders, and a fine tree-line ripple; never periodic at a glance
-      const n = 0.55 * Math.sin(a * 2 + ph[0]) + 0.4 * Math.sin(a * 5 + ph[1]) + 0.28 * (1 - Math.abs(Math.sin(a * 6.5 + ph[2]))) * 2 - 0.28
-        + 0.16 * Math.sin(a * 13 + ph[3]) + 0.05 * Math.sin(a * 41 + ph[4]);
-      const h = Math.max(h0 * 0.35, h0 + amp * n), cx = -1000 + Math.cos(a) * R0, cz = Math.sin(a) * R0;
-      // three rows: haze at the foot, the range's colour from a third of the way up
-      pts.push(cx, base, cz, cx, base + h * EX * 0.4, cz, cx, base + h * EX, cz);
+  // Far hills on the horizon: the real skyline round Grimerud (src/pipeline/horizon.py) in three ranges, one per
+  // band of distance. Each further one is paler and bluer (aerial perspective) and rises out of valley haze.
+  const HZ = DATA.horizon, HAZE = [0.90, 0.93, 0.92], pts = [], idx = [], cols = [], BOOST = 1.5;
+  const base = (123 - TERRAIN.h0) * EX - 20, eye = HZ.eye - TERRAIN.h0, floor = 123 + 25 - TERRAIN.h0;
+  const COLS = [[0.42, 0.56, 0.47], [0.47, 0.59, 0.64], [0.66, 0.75, 0.81]];
+  HZ.rings.forEach((ring, ri) => {
+    const col = COLS[ri], n = ring.h.length, o = pts.length / 3;
+    for (let i = 0; i <= n; i++) {
+      const a = i / n * Math.PI * 2, cx = HZ.centre[0] + Math.cos(a) * ring.r, cz = HZ.centre[1] + Math.sin(a) * ring.r;
+      // ridge height as seen from the farm, a little exaggerated so the skyline reads at map scale
+      const top = Math.max(floor, eye + ring.h[i % n] * BOOST) * EX;
+      // three rows: haze at the foot, the range's colour from part of the way up
+      pts.push(cx, base, cz, cx, base + (top - base) * 0.4, cz, cx, top, cz);
       const foot = col.map((c, k) => c + (HAZE[k] - c) * 0.75), mid = col.map((c, k) => c + (HAZE[k] - c) * 0.3);
       cols.push(...foot, ...mid, ...col);
-      if (i < segs) { const k = o + i * 3; idx.push(k, k + 1, k + 3, k + 1, k + 4, k + 3, k + 1, k + 2, k + 4, k + 2, k + 5, k + 4); }
+      if (i < n) { const k = o + i * 3; idx.push(k, k + 1, k + 3, k + 1, k + 4, k + 3, k + 1, k + 2, k + 4, k + 2, k + 5, k + 4); }
     }
   });
   const hg = new THREE.BufferGeometry(); hg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3)); hg.setIndex(idx);
