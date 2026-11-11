@@ -93,7 +93,7 @@ ITEMS=[
  dict(n='14',g='o',no='Vaktmesterboligen',en='Caretaker’s house',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
       parts=[dict(p=RT(1382,793,44,34),h=4.5,wall=WHITE,roof=ROOF_RED)]),
  # cabins on the asphalt between the office and the barn (from the drone photos, Nov 2026)
- dict(n='15',g='o',no='Trailerparken',en='Trailer park',sub_no='Brakker og vogner mellom kontorbygget og låven.',sub_en='Cabins and trailers between the office building and the barn.',
+ dict(n='15',g='o',no='Trailerparken',en='Trailer park',sub_no='Vogner mellom kontorbygget og låven.',sub_en='Trailers between the office building and the barn.',
       pin=[588,838],parts=[dict(p=RT(568,789,24,9.5),h=3.0,trailer=dict(door='n',n=8)),
              dict(p=RT(568,799.5,24,9.5),h=3.0,trailer=dict(door='s',n=7)),
              dict(p=RT(569,832.5,24,9.5),h=3.0,trailer=dict(door='n',n=6)),
