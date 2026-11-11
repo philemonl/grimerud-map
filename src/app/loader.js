@@ -41,10 +41,10 @@
     if (!loadEl) return;
     loadEl.style.setProperty("--p", p.toFixed(3)); loadEl.setAttribute("aria-valuenow", Math.round(p * 100));
   }
-  // Fetch a script with byte progress mapped into [a, b] of the bar, then run it; any trouble falls back to a plain <script>
-  function scriptP(src, ready, a, b, expect) {
-    if (ready()) { progress(b); return Promise.resolve(); }
-    if (!window.fetch || !window.ReadableStream) return script(src, ready).then(function () { progress(b); });
+  // Fetch a script reporting its byte progress (0..1) to rep, then run it; any trouble falls back to a plain <script>
+  function scriptP(src, ready, rep, expect) {
+    if (ready()) { rep(1); return Promise.resolve(); }
+    if (!window.fetch || !window.ReadableStream) return script(src, ready).then(function () { rep(1); });
     return fetch(src).then(function (r) {
       if (!r.ok || !r.body) throw new Error("http " + r.status);
       var len = +r.headers.get("content-length") || 0, enc = r.headers.get("content-encoding");
@@ -53,15 +53,15 @@
         return rd.read().then(function (x) {
           if (x.done) return;
           parts.push(x.value); got += x.value.length;
-          progress(a + (b - a) * (total ? Math.min(1, got / total) : 1 - Math.exp(-got / 4e5)));
+          rep(total ? Math.min(1, got / total) : 1 - Math.exp(-got / 4e5));
           return pump();
         });
       }
       return pump().then(function () {
         var url = URL.createObjectURL(new Blob(parts, { type: "text/javascript" }));
-        return script(url, ready).then(function () { URL.revokeObjectURL(url); progress(b); });
+        return script(url, ready).then(function () { URL.revokeObjectURL(url); rep(1); });
       });
-    }).catch(function () { return script(src, ready).then(function () { progress(b); }); });
+    }).catch(function () { return script(src, ready).then(function () { rep(1); }); });
   }
 
   function script(src, ready) {
@@ -95,9 +95,14 @@
   }
   function start() {
     progress(0.03);
-    scriptP(THREE_URL, function () { return !!window.THREE; }, 0.03, 0.25, 6.0e5)
-      .then(function () { return scriptP(ORBIT_URL, function () { return !!(window.THREE && THREE.OrbitControls); }, 0.25, 0.28, 2.6e4); })
-      .then(function () { return scriptP(DATA_URL, function () { return !!window.GRIMERUD_MAP_DATA; }, 0.28, 0.85, DATA_BYTES); })
+    // three.js and the map data download side by side; the bar shows their combined bytes
+    var got = [0, 0, 0], W = [0.22, 0.03, 0.57];
+    var rep = function (i) { return function (f) { got[i] = f; progress(0.03 + W[0] * got[0] + W[1] * got[1] + W[2] * got[2]); }; };
+    Promise.all([
+      scriptP(THREE_URL, function () { return !!window.THREE; }, rep(0), 6.0e5)
+        .then(function () { return scriptP(ORBIT_URL, function () { return !!(window.THREE && THREE.OrbitControls); }, rep(1), 2.6e4); }),
+      scriptP(DATA_URL, function () { return !!window.GRIMERUD_MAP_DATA; }, rep(2), DATA_BYTES)
+    ])
       .then(function () { var D = window.GRIMERUD_MAP_DATA; return Promise.all([D.TERRAIN, D.FAR, D.OUTER].map(unpackGrid)); })
       .then(function () { progress(0.9); return new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 30); }); }); })  // let the bar paint before the heavy build
       .then(function () {
