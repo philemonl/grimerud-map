@@ -62,6 +62,13 @@ Only needed when the ground painting, trees, terrain or distant landscape change
 
 Then `python3 build.py`, commit and push to `main`, as for everyday changes.
 
+### Gravel yards and lanes
+
+`src/content/gravel.json` holds the outline of all bare gravel on the farm, picked out by colour from the
+norgeibilder.no orthophotos. To redo it, put the photos in `build/ortho/` with `reg.json` (one 2x3 affine per photo,
+photo px to mosaic px) and run `python3 src/pipeline/gravel.py`, then the ground step. Roads in `data.py` should run
+along that gravel; they carry the public roads, everything outside the photos, and bridge the gaps under trees.
+
 ## Squarespace
 
 The code block (Display Source off) holds the contents of `dist/squarespace-codeblock.html`. It only needs re-pasting if that file itself changes, which happens only if the Pages address moves.

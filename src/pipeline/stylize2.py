@@ -53,8 +53,13 @@ out=ink_edges(out,cls)
 pm=cv2.GaussianBlur(pads.astype(np.float32),(0,0),1.5)[...,None]
 out=out*(1-pm)+GRAVEL*pm
 # car park
-park=next(i for i in data.ITEMS if i['n']=='P')['area']
-pk=np.zeros((H,W),np.uint8); cv2.fillPoly(pk,[np.array(park,np.int32)],1)
+# gravel yards and lanes traced from the orthophotos (gravel.py)
+from paths import CONTENT
+pk=np.zeros((H,W),np.uint8)
+for rings in json.load(open(str(CONTENT)+'/gravel.json'))['polys']:
+    one=np.zeros((H,W),np.uint8); cv2.fillPoly(one,[np.array(rings[0],np.int32)],1)
+    for hole in rings[1:]: cv2.fillPoly(one,[np.array(hole,np.int32)],0)
+    pk|=one
 for g in getattr(data,'GRAVEL_AREAS',[]): cv2.fillPoly(pk,[np.array(g,np.int32)],1)
 road=np.zeros((H,W),np.uint8)
 for pts,wm,kind in data.ROADS: draw_poly_path(road,pts,wm/M)

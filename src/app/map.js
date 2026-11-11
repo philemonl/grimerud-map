@@ -227,7 +227,9 @@ function drape(pts, opts) {
 (() => {
   const GRAVEL = "#ddcca8", GRAVEL_LIGHT = GRAVEL, INKC = "#26221d";
   const chaikin = (pts, n) => { for (let k = 0; k < n; k++) { if (pts.length < 3) break; const o = [pts[0]]; for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]]; o.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]); } o.push(pts[pts.length - 1]); pts = o; } return pts; };
-  const park = ITEMS.find(i => i.n === "P").area.map(P), yard = DATA.yard.map(P), island = DATA.island.map(P);
+  // gravel yards and lanes as traced from the orthophotos: [outer ring, ...holes] each, corners rounded off
+  const round = pts => { for (let k = 0; k < 2; k++) { const o = []; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; o.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]); } pts = o; } return pts; };
+  const gravel = (DATA.gravel || []).map(rings => rings.map(r => round(r.map(P))));
   const [ccx, ccy, cr] = DATA.circle, cc = P([ccx, ccy]);
   const lines = DATA.roads.map(([pts, w, kind]) => ({ pts: chaikin(pts.map(P), 3), w: Math.max(w, 3.2), kind }));
   function paint(size, cx, cz, px, clipSite) {
@@ -240,13 +242,14 @@ function drape(pts, opts) {
     // ink outlines first, then the gravel on top, so joins merge cleanly
     strokeLines(1.1, INKC, () => true);
     g.lineWidth = 4.3 * k; g.strokeStyle = INKC; g.beginPath(); g.arc(...X(cc), cr * M * k, 0, 6.2832); g.stroke();
-    [park, yard].forEach(a => { poly(a); g.lineWidth = 1.1 * k; g.strokeStyle = INKC; g.stroke(); });
-    [park, yard].forEach(a => { poly(a); g.fillStyle = GRAVEL; g.fill(); });
+    const rings = rs => { g.beginPath(); rs.forEach(r => { r.forEach((p, i) => g[i ? "lineTo" : "moveTo"](...X(p))); g.closePath(); }); };
+    gravel.forEach(rs => { rings(rs); g.lineWidth = 1.1 * k; g.strokeStyle = INKC; g.stroke(); });
+    gravel.forEach(rs => { rings(rs); g.fillStyle = GRAVEL; g.fill("evenodd"); });
     strokeLines(0, GRAVEL, l => l.kind === "road" || l.kind === "drive");
     strokeLines(0, GRAVEL_LIGHT, l => l.kind === "path" || l.kind === "track");
     g.lineWidth = 3.2 * k; g.strokeStyle = GRAVEL_LIGHT; g.beginPath(); g.arc(...X(cc), cr * M * k, 0, 6.2832); g.stroke();
     // grass island in the farmyard
-    [island, ...(DATA.islands || []).map(a => a.map(P))].forEach(a => { poly(a); g.fillStyle = "#6fa83c"; g.fill(); g.lineWidth = 0.7 * k; g.strokeStyle = INKC; g.stroke(); });
+    (DATA.islands || []).map(a => a.map(P)).forEach(a => { poly(a); g.fillStyle = "#6fa83c"; g.fill(); g.lineWidth = 0.7 * k; g.strokeStyle = INKC; g.stroke(); });
     // a little gravel grain
     let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
     g.globalCompositeOperation = "source-atop"; g.fillStyle = "rgba(90,70,40,.18)";

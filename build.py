@@ -55,10 +55,11 @@ def places():
         items.append(dict(n=str(d["hole"]), g="d", no=f"Hull {d['hole']}", en=f"Hole {d['hole']}",
                           sub_no=f"ca. {d['length']} m · utkast: {tees}", sub_en=f"About {d['length']} m · tee: {tees}",
                           pin=d["basket"], focus=[round(mid[0]), round(mid[1])], size=max(30, d["length"] * 0.55), disc=d["hole"]))
-    walk = [[1020, 962], [1048, 925], [1080, 910], [1150, 893], [1228, 872], [1300, 850], [1385, 834],
-            [1446, 836], [1440, 760], [1428, 588], [1400, 392], [1393, 0]] + data.WALK_FIELD
+    walk = [[1020, 962], [1040, 925], [1090, 902], [1150, 888], [1210, 872], [1260, 860], [1300, 848], [1340, 838], [1385, 836],
+            [1446, 838], [1440, 760], [1428, 588], [1400, 392], [1393, 0]] + data.WALK_FIELD
     return dict(items=items, disc=holes, walk=walk, context=data.CONTEXT, flag=data.FLAG, roads=data.ROADS,
-                circle=data.CIRCLE, island=data.ISLAND, islands=data.ISLANDS, island_trees=data.ISLAND_TREES, yard=data.YARD, sports=data.SPORTS, hedges=data.HEDGES)
+                circle=data.CIRCLE, island=data.ISLAND, islands=data.ISLANDS, island_trees=data.ISLAND_TREES, yard=data.YARD, sports=data.SPORTS, hedges=data.HEDGES,
+                gravel=json.load(open(paths.CONTENT / 'gravel.json'))['polys'])
 
 
 def script(data_url):
