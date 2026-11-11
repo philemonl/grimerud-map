@@ -23,6 +23,8 @@ parts=[
  ('TERRAIN', terrain_z()),
  ('FAR', open(S+'far.json').read()),
  ('FAR_IMG', json.dumps(webp(S+'far.jpg',None,78))),
+ ('OUTER', open(S+'outer.json').read()),
+ ('OUTER_IMG', json.dumps(webp(S+'outer.jpg',None,76))),
 ]
 with open(out,'w') as f:
     f.write('/* Grimerud Gård map data: ground imagery (© Esri, Maxar, Earthstar Geographics), terrain (Kartverket DTM), trees. */\nwindow.GRIMERUD_MAP_DATA = {\n')

@@ -77,10 +77,12 @@ along that gravel; they carry the public roads, everything outside the photos, a
 
 ### Horizon
 
-The hill ranges on the horizon are the real skyline seen from the farm. `python3 src/pipeline/horizon.py` fetches a
-coarse height model (70 km each way) from Geonorge and writes `src/content/horizon.json`: the ridge height in every
-direction for three bands of distance (to 14 km, 14 to 30 km, 30 to 68 km), allowing for the earth's curve. `map.js`
-draws one ring per band at its true angular height. It only needs re-running if the rings or bands change.
+Beyond the painted landscape the map shows the real country round Grimerud. `python3 src/pipeline/horizon.py` fetches
+a coarse height model (70 km each way) from Geonorge; `python3 src/pipeline/outer.py` then paints Esri imagery of the
+35 km round the farm in the map's palette and writes `build/style/outer.jpg` and `outer.json`. `map.js` drapes it as
+real terrain (Mjøsa, Helgøya, the Toten hills), pulls the distant part in towards the camera so every ridge keeps its
+true bearing and height above the horizon, and tints it bluer with distance. `src/content/horizon.json` holds the
+skyline past 35 km, drawn as one pale ridge. Run both, then `build_data.py` and `build.py`, only if that range changes.
 
 ## Squarespace
 

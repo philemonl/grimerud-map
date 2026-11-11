@@ -59,8 +59,8 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setClearColor(0x000000, 0);
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xbdd3ea, 1800, 13000);
-const camera = new THREE.PerspectiveCamera(36, 1, 1, 10500);
+scene.fog = new THREE.Fog(0xbdd3ea, 1800, 15000);
+const camera = new THREE.PerspectiveCamera(36, 1, 2, 15500);
 const controls = new THREE.OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = 0.08;
 controls.minDistance = 30; controls.maxDistance = 1150; controls.maxPolarAngle = 1.3;
@@ -115,38 +115,50 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
     pos.setY(i, y);
   }
   const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex(FAR_IMG) })); scene.add(m);
-  // Far hills on the horizon: the real skyline round Grimerud (src/pipeline/horizon.py) in three ranges, one per
-  // band of distance. Each further one is paler and bluer (aerial perspective) and rises out of valley haze.
-  const HZ = DATA.horizon, HAZE = [0.66, 0.77, 0.90], pts = [], idx = [], cols = [], BOOST = 1 / EX;   // true angular height from the farm: no exaggeration on top of the terrain's
-  const base = (123 - TERRAIN.h0) * EX - 20, eye = HZ.eye - TERRAIN.h0, floor = 123 + 25 - TERRAIN.h0;
-  const COLS = [[0.36, 0.49, 0.52], [0.38, 0.48, 0.63], [0.55, 0.65, 0.80]];   // dusky blue-green near, slate blue, pale blue far (as in Google Earth)
-  HZ.rings.forEach((ring, ri) => {
-    const n = ring.h.length, o = pts.length / 3;
+  const HZ_EYE = DATA.horizon.eye;
+  // The wide landscape out to 35 km (src/pipeline/outer.py): real terrain with painted land cover, Mjøsa and
+  // Helgøya included, laid under the nearer sheet. Beyond PULL metres from the farm it is drawn in towards the
+  // camera along its line of sight (distance squeezed, height above eye level scaled to match), so every ridge
+  // keeps its true bearing and angular height while the whole of it fits inside the view distance. The fog,
+  // working on the squeezed distance, gives the far ridges their blue.
+  const PULL = 9000, REACH = 12600, eyeY = (HZ_EYE - TERRAIN.h0) * EX;
+  {
+    const bin = atob(OUTER.data), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    const v = new Uint16Array(u8.buffer), n = OUTER.n, H = OUTER.half, K = (REACH - PULL) / (H * Math.SQRT2 - PULL);
+    const g = new THREE.PlaneGeometry(H * 2, H * 2, n - 1, n - 1); g.rotateX(-Math.PI / 2);
+    const pos = g.attributes.position, pad = 450;
+    const tint = [];   // distance blue: the land cover is multiplied towards slate blue the further off it lies
+    for (let i = 0; i < pos.count; i++) {
+      let x = pos.getX(i), z = pos.getZ(i), y = (v[i] / 10 + OUTER.hmin - TERRAIN.h0) * EX;
+      // sink it where the nearer sheet lies on top (and a cell beyond, so it never pokes through the edge)
+      if (x > FAR.x0 - pad && x < FAR.x0 + FAR.size + pad && z > FAR.z0 - pad && z < FAR.z0 + FAR.size + pad) y -= 22;
+      const r = Math.hypot(x, z);
+      // far ridges at their true angular height: the terrain's exaggeration is eased off with distance
+      const far = Math.min(1, Math.max(0, (r - 5000) / 15000)), ex = 1 + (1 / EX - 1) * far * far * (3 - 2 * far);
+      if (y > eyeY || r > PULL) y = eyeY + (y - eyeY) * (r > 5000 ? ex : 1);
+      if (r > PULL) { const k = (PULL + (r - PULL) * K) / r; x *= k; z *= k; y = eyeY + (y - eyeY) * k; }
+      pos.setXYZ(i, x, y, z);
+      const b = Math.min(1, Math.max(0, (r - 6000) / 22000)); tint.push(1 - 0.42 * b, 1 - 0.27 * b, 1 - 0.02 * b);
+    }
+    g.setAttribute("color", new THREE.Float32BufferAttribute(tint, 3));
+    scene.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex(OUTER_IMG), vertexColors: true })));
+  }
+  // Past 35 km: one pale range for the furthest skyline (src/pipeline/horizon.py), standing in haze
+  const HZ = DATA.horizon, HAZE = [0.66, 0.77, 0.90], pts = [], idx = [], cols = [];
+  const base = (123 - TERRAIN.h0) * EX - 60;
+  HZ.rings.forEach(ring => {
+    const col = [0.52, 0.63, 0.80], n = ring.h.length, o = pts.length / 3;
     for (let i = 0; i <= n; i++) {
       const a = i / n * Math.PI * 2, cx = HZ.centre[0] + Math.cos(a) * ring.r, cz = HZ.centre[1] + Math.sin(a) * ring.r;
-      // ridge height as seen from the farm
-      const top = Math.max(floor, eye + ring.h[i % n] * BOOST) * EX;
-      // near land (Helgøya, 8 to 10 km off) keeps its farmland colours, in patches of field and wood; further
-      // skylines go over to the range's blue
-      let col = COLS[ri];
-      if (ri === 0) {
-        const near = Math.min(1, Math.max(0, (13 - ring.d[i % n]) / 4)), f = 0.5 + 0.5 * Math.sin(i * 0.9) * Math.sin(i * 0.37 + 1);
-        const land = [0.66 - 0.2 * f, 0.64 - 0.06 * f, 0.47 - 0.1 * f];     // stubble tan to meadow green
-        col = col.map((c, k) => c + (land[k] - c) * near * 0.85);
-      }
-      // three rows: haze at the foot, the range's colour from part of the way up
-      pts.push(cx, base, cz, cx, base + (top - base) * 0.4, cz, cx, top, cz);
-      const hz = ri === 0 ? 0.12 : 0.45;   // the near land stays solid down to the water; only the far ranges stand in haze
-      const foot = col.map((c, k) => c + (HAZE[k] - c) * hz), mid = col.map((c, k) => c + (HAZE[k] - c) * hz * 0.3);
+      const top = eyeY + ring.h[i % n] * EX;     // angular height from the farm, at the terrain's exaggeration
+      pts.push(cx, base, cz, cx, base + (top - base) * 0.5, cz, cx, top, cz);
+      const foot = col.map((c, k) => c + (HAZE[k] - c) * 0.6), mid = col.map((c, k) => c + (HAZE[k] - c) * 0.3);
       cols.push(...foot, ...mid, ...col);
       if (i < n) { const k = o + i * 3; idx.push(k, k + 1, k + 3, k + 1, k + 4, k + 3, k + 1, k + 2, k + 4, k + 2, k + 5, k + 4); }
     }
   });
   const hg = new THREE.BufferGeometry(); hg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3)); hg.setIndex(idx);
   hg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
-  // a hazy plain from under the painted landscape out to the hills, so no sky shows between them from high up
-  const skirt = new THREE.RingGeometry(3000, 7700, 96, 1); skirt.rotateX(-Math.PI / 2); skirt.translate(HZ.centre[0], base + 2, HZ.centre[1]);
-  scene.add(new THREE.Mesh(skirt, new THREE.MeshBasicMaterial({ map: (() => { const c = document.createElement("canvas"); c.width = c.height = 4; const g = c.getContext("2d"); g.fillStyle = "rgb(150,160,112)"; g.fillRect(0, 0, 4, 4); return new THREE.CanvasTexture(c); })() })));
   hillsMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, fog: false });
   scene.add(new THREE.Mesh(hg, hillsMat));
 })();
@@ -162,7 +174,7 @@ const canvasTexRaw = (w, h, draw) => { const c = document.createElement("canvas"
       // the view never tilts far up, so only the few degrees above the horizon are ever seen: fill that band
       const az = rnd() * Math.PI * 2, el = minEl + rnd() * 0.16;
       if (rnd() > 0.4 + 0.6 * Math.min(1, el / 0.05)) continue;     // thinner in the haze right at the horizon
-      const R = 9000; p.push(Math.cos(az) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(az) * Math.cos(el) * R);
+      const R = 14200; p.push(Math.cos(az) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(az) * Math.cos(el) * R);
     }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(p, 3));
     return new THREE.Points(g, new THREE.PointsMaterial({ color: 0xfdf6e3, size, sizeAttenuation: false, transparent: true, opacity: 0, depthWrite: false, fog: false }));
@@ -187,7 +199,7 @@ const canvasTexRaw = (w, h, draw) => { const c = document.createElement("canvas"
   });
   aurora = new THREE.Group(); aurora.visible = false;
   [[-1.25, 0.55, 0.012, 0.085, 1.0], [-0.5, 1.2, 0.022, 0.075, 0.8], [-0.95, 0.2, 0.034, 0.06, 0.55]].forEach(([a0, a1, el0, tall, op], ci) => {
-    const n = 48, R = 8800, pos = [], uv = [], idx = [], vc = [];
+    const n = 48, R = 14000, pos = [], uv = [], idx = [], vc = [];
     for (let i = 0; i <= n; i++) {
       const t = i / n, az = a0 + (a1 - a0) * t + 0.05 * Math.sin(t * 9 + ci), el = el0 + 0.008 * Math.sin(t * 6.5 + ci * 2) + 0.004 * Math.sin(t * 17 + ci);
       [el, el + tall].forEach((e, k) => { pos.push(Math.sin(az) * Math.cos(e) * R, Math.sin(e) * R, -Math.cos(az) * Math.cos(e) * R); uv.push(t * (0.8 + ci * 0.15) + ci * 0.31, k);

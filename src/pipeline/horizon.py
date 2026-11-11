@@ -28,9 +28,10 @@ def height(X,Z):
     e,n=to_en(X,Z); return map_coordinates(dem,[(n0+HALF-n)/cell-0.5,(e-(e0-HALF))/cell-0.5],order=1,mode='nearest')
 EYE=215.0                      # a viewer a little above the farmyard (196 m)
 REFF=6371000/(1-0.13)          # earth radius with standard refraction
-CENTRE=(-1000.0,0.0); SEGS=360
-# ring radius (m, round CENTRE: just outside the painted landscape) and the band of distances from the farm it stands for
-RINGS=[(6000,None,14000),(6700,14000,30000),(7500,30000,68000)]
+CENTRE=(0.0,0.0); SEGS=360
+# ring radius (m, round CENTRE: just beyond the pulled-in wide landscape, see outer.py and map.js) and the band of
+# distances from the farm it stands for: everything past the wide landscape's 35 km
+RINGS=[(12700,35000,68000)]
 out=[]
 for R0,d0,d1 in RINGS:
     hs=[]; ds=[]
