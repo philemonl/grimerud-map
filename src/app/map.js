@@ -697,6 +697,21 @@ function building(part, item) {
       const wm = new THREE.Mesh(wg, wallC); rg.add(wm); addInk(wg, wm, 25, ink);
     });
   }
+  // retaining wall: concrete, its top falling from h0 at the first point to h1 at the second, red railing along the top
+  // [x0, z0, x1, z1, h0 m, h1 m]
+  if (part.retain) {
+    const [ax, az, bx, bz, h0, h1] = part.retain, A = P([ax, az]), Bp = P([bx, bz]);
+    const L = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]), ya = hAt(...A) - baseY, yb = hAt(...Bp) - baseY;
+    const rg = new THREE.Group(); rg.position.set(A[0], 0, A[1]); rg.rotation.y = Math.atan2(-(Bp[1] - A[1]), Bp[0] - A[0]); group.add(rg);
+    const sh = new THREE.Shape([new THREE.Vector2(0, ya - 0.4), new THREE.Vector2(L, yb - 0.4), new THREE.Vector2(L, yb + h1), new THREE.Vector2(0, ya + h0)]);
+    const wg = new THREE.ExtrudeGeometry(sh, { depth: 0.35, bevelEnabled: false }); wg.translate(0, 0, -0.175);
+    const wm = new THREE.Mesh(wg, toon({ color: "#cfcbc1" })); rg.add(wm); addInk(wg, wm, 25, ink);
+    const red = toon({ color: "#9e2a26" }), n = Math.max(2, Math.round(L / 1.2)), segs = [];
+    const hr = new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(L, (yb + h1) - (ya + h0)), 0.07, 0.07), red);
+    hr.position.set(L / 2, (ya + h0 + yb + h1) / 2 + 1.0, 0); hr.rotation.z = Math.atan2((yb + h1) - (ya + h0), L); rg.add(hr);
+    for (let k = 0; k <= n; k++) { const t = k / n, y = ya + h0 + ((yb + h1) - (ya + h0)) * t;
+      const p = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.0, 0.05), red); p.position.set(L * t, y + 0.5, 0); rg.add(p); }
+  }
   // picnic tables on the ground near the building: [x, z] each, set square to the building
   if (part.tables) {
     const wood = toon({ color: "#c19560" }), [ax, az] = [pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]], ry = -Math.atan2(az, ax);
