@@ -42,6 +42,13 @@ Names, descriptions, outlines, colours, roads, or anything in the app:
 2. `python3 build.py`, then open `dist/grimerud-map.html` to check it.
 3. Commit and push to `main`.
 
+Map rules:
+
+- **All roads connect.** No road or path may stop short of the road, yard or building it meets. `_connect()` in
+  `src/content/data.py` carries each road end within 30 px on to the nearest road (or the roundabout ring, or failing
+  that a building, the car park or a gravel yard), and the ground painter draws roads with round ends and no ink
+  outline where they run onto a gravel pad. Changing roads means re-running the ground step (see below).
+
 ## Rebuilding the imagery and terrain
 
 Only needed when the ground painting, trees, terrain or distant landscape change, such as after moving a road or a building outline. Needs Python with numpy, scipy, opencv, pillow, pyproj and tifffile. Downloads and intermediates go to `build/`.

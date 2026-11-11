@@ -34,7 +34,7 @@ ITEMS=[
              # lower wing along the east side, and a small white flat-roofed porch on it
              dict(p=RT(824.7,1016.0,16.0,48.5),h=3.6,wall='#efe9dc',stucco=True,roof='#8a4a36',bay=4.7,rise=2.2,trim=False),
              dict(p=RT(836.1,1003.7,8.3,17.1),h=2.6,wall='#efe9dc',stucco=True,roof='#e9e6de',flat=True,trim=False)]),
- dict(n='1a',g='b',no='The Bird & Baby Café',en='The Bird & Baby Café',sub_no='Kafé i nordenden av hovedbygningen',sub_en='Café at the north end of the main building',pin=AT(MAIN,.5,.1),inside='1'),
+ dict(n='1a',g='b',no='The Bird & Baby Café',en='The Bird & Baby Café',sub_no='Serverer kaffe, espresso, te-drikker og mer.',sub_en='Serving coffee, espresso, tea drinks, and more.',pin=AT(MAIN,.5,.1),inside='1'),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
       parts=[dict(p=OFFICE,grade=(1.9,0.6,0.5),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#f1f0eb','stone'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5)],chimneyColor='#dcae4f',balconies=[dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True),
                  # south side (edge 2 runs east to west): long balcony over the basement doors, a small one up by the east corner
@@ -130,5 +130,41 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
 ]
 ROADS+=ROADS_EXTRA
 CIRCLE=[739,937,19]
+
+# RULE: every road and path joins the network; none may stop short of the road it meets.
+# Each road end within SNAP px of another road's centre line (or the roundabout ring) is carried on to that
+# centre line, so the painted roads always overlap where they meet and no ink outline cuts across a junction.
+def _connect(roads,circle,polys=(),snap=30):
+    import math
+    def near_seg(p,a,b):
+        dx,dy=b[0]-a[0],b[1]-a[1]; L2=dx*dx+dy*dy or 1
+        t=max(0,min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L2)); q=[a[0]+t*dx,a[1]+t*dy]
+        return math.hypot(p[0]-q[0],p[1]-q[1]),q
+    out=[]
+    for i,(pts,w,k) in enumerate(roads):
+        pts=[list(p) for p in pts]
+        for end in (0,-1):
+            p=pts[end]; best=(snap+1,None)
+            for j,(o,_,_) in enumerate(roads):
+                if j==i: continue
+                for a,b in zip(o,o[1:]):
+                    d,q=near_seg(p,a,b)
+                    if d<best[0]: best=(d,q)
+            cx,cy,r=circle; d0=math.hypot(p[0]-cx,p[1]-cy) or 1
+            dr=abs(d0-r)
+            if dr<best[0]: best=(dr,[cx+(p[0]-cx)/d0*r,cy+(p[1]-cy)/d0*r])
+            if best[1] is None:
+                # a lane that ends at a building or a gravel yard runs on to its edge
+                for pg in polys:
+                    for a,b in zip(pg,pg[1:]+pg[:1]):
+                        d,q=near_seg(p,a,b)
+                        if d<best[0]: best=(d,q)
+            if best[1] is not None and best[0]>0.5:
+                q=[round(best[1][0],1),round(best[1][1],1)]
+                if end==0: pts.insert(0,q)
+                else: pts.append(q)
+        out.append((pts,w,k))
+    return out
 # paved ground we paint as gravel besides the car park: the yard north of the main building, up to its wall
 GRAVEL_AREAS=[RT(606,981,106,15),[[752,944],[800,948],[845,955],[853,972],[850,998],[835,998],[773,998],[760,1006],[749,1000]]]
+ROADS=_connect(ROADS,CIRCLE,[p['p'] for it in ITEMS for p in it.get('parts',[])]+[p['p'] for p in CONTEXT]+[it['area'] for it in ITEMS if it.get('area')]+GRAVEL_AREAS)

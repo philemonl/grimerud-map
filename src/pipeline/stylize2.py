@@ -34,6 +34,8 @@ def ink_edges(out,cls,w=2,a=0.5):
 def draw_poly_path(mask,pts,width_px):
     p=np.array(pts,np.int32).reshape(-1,1,2)
     cv2.polylines(mask,[p],False,1,int(round(width_px)),cv2.LINE_AA)
+    # round joins and ends, so bends and junctions close up with no notch
+    for x,y in pts: cv2.circle(mask,(int(round(x)),int(round(y))),max(1,int(round(width_px/2))),1,-1,cv2.LINE_AA)
 
 site=load(B+'z18.jpg')
 sm,cls,dark,gr,v=classify(site)
@@ -61,9 +63,11 @@ paved=np.clip(road+pk,0,1)
 # ink outline then fill
 outline=cv2.dilate(paved,np.ones((5,5),np.uint8))
 om=cv2.GaussianBlur(outline.astype(np.float32),(0,0),0.8)[...,None]
+# no ink where a road runs onto a building's gravel pad: the two read as one surface
+om=om*(1-cv2.GaussianBlur((cv2.dilate(pads,np.ones((5,5),np.uint8))>0).astype(np.float32),(0,0),1.2))[...,None]
 out=out*(1-om*0.85)+INK*om*0.85
 fm=cv2.GaussianBlur(paved.astype(np.float32),(0,0),0.8)[...,None]
-col=np.where((road>0)[...,None],ROADC,GRAVEL)
+col=np.where(((road>0)&(pk==0))[...,None],ROADC,GRAVEL)   # roads crossing the car park or a yard take the yard's colour
 out=out*(1-fm)+col*fm
 # trees
 treem=canopy(B+'z18.jpg')
