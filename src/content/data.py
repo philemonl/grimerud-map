@@ -20,7 +20,7 @@ ROOF_RED='#c4432d'; ROOF_TILE='#b84a30'; ROOF_DARK='#3d3a38'; ROOF_BROWN='#6e3a2
 ITEMS=[
  # numbered as on the drawn site map
  dict(n='1',g='b',no='Hovedbygning',en='Main building',sub_no='Matsal · Stuene · Café Alv · TV-rom',sub_en='Dining hall · Living rooms · Café Alv · TV room',
-      parts=[dict(p=MAIN,h=6.6,wall='#f7f5ef',roof='#7b3a2b',bay=4.7,endBays=3,dormers=6,rise=5.0,dormerSize=1.35,chimneys=[AT(MAIN,.5,.25),AT(MAIN,.5,.55)],porch=AT(MAIN,0,.5)+['w'],
+      parts=[dict(p=MAIN,h=6.6,wall='#efe9dc',stucco=True,base=[0.9,'#8e8a84','stone'],gable='#f8f6f0',trim=False,roof='#7b3a2b',bay=4.7,endBays=3,dormers=6,rise=5.0,dormerSize=1.35,chimneys=[AT(MAIN,.5,.25),AT(MAIN,.5,.55)],porch=AT(MAIN,0,.5)+['w'],
                   # south end, from the site photo: rendered wall on a grey plinth, three windows a floor on the west side
                   # (French balconies upstairs), the gabled entrance porch up a flight of steps on the east side,
                   # and a board-clad gable with a row of three attic windows; picnic tables on the gravel in front
@@ -30,10 +30,10 @@ ITEMS=[
                               gable=dict(color='#f8f6f0',win=[[x,.75,1.2,1.3] for x in (4.0,5.35,6.7)])),
                   stoop=AT(MAIN,.73,1)+['s',1.2],
                   tables=[AT(MAIN,.13,1.075),AT(MAIN,.36,1.075),AT(MAIN,.1,1.145),AT(MAIN,.33,1.145)]),
-             dict(p=SUB(MAIN,-.14,.84,0,.98),h=3.3,wall='#f7f5ef',roof='#e9e6de',flat=True,railing=True),
+             dict(p=SUB(MAIN,-.14,.84,0,.98),h=3.3,wall='#efe9dc',stucco=True,trim=False,roof='#e9e6de',flat=True,railing=True),
              # lower wing along the east side, and a small white flat-roofed porch on it
-             dict(p=RT(824.7,1016.0,16.0,48.5),h=3.6,wall='#f7f5ef',roof='#8a4a36',bay=4.7,rise=2.2,trim=False),
-             dict(p=RT(836.1,1003.7,8.3,17.1),h=2.6,wall='#f7f5ef',roof='#e9e6de',flat=True,trim=False)]),
+             dict(p=RT(824.7,1016.0,16.0,48.5),h=3.6,wall='#efe9dc',stucco=True,roof='#8a4a36',bay=4.7,rise=2.2,trim=False),
+             dict(p=RT(836.1,1003.7,8.3,17.1),h=2.6,wall='#efe9dc',stucco=True,roof='#e9e6de',flat=True,trim=False)]),
  dict(n='1a',g='b',no='The Bird & Baby Café',en='The Bird & Baby Café',sub_no='Kafé i nordenden av hovedbygningen',sub_en='Café at the north end of the main building',pin=AT(MAIN,.5,.1),inside='1'),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
       parts=[dict(p=OFFICE,grade=(1.9,0.6,0.5),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#f1f0eb','stone'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5)],chimneyColor='#dcae4f',balconies=[dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True),
