@@ -4,7 +4,7 @@ Fetches a coarse height model (200 m cells, 70 km each way) from Geonorge and, f
 finds how high the land stands above the horizon in three distance bands: just beyond the painted landscape,
 the middle distance, and the far ridges. Earth curvature and refraction are allowed for. Writes
 src/content/horizon.json: for each ring of hills, its radius and the height (m above the farm) of its ridge at
-every vertex, so map.js only has to draw them.
+every vertex, with the distance (km) of that skyline, so map.js only has to draw them.
 """
 from paths import B, CONTENT
 import math, json, subprocess, os, numpy as np, tifffile
@@ -33,14 +33,15 @@ CENTRE=(-1000.0,0.0); SEGS=360
 RINGS=[(6000,None,14000),(6700,14000,30000),(7500,30000,68000)]
 out=[]
 for R0,d0,d1 in RINGS:
-    hs=[]
+    hs=[]; ds=[]
     for i in range(SEGS):
         a=i/SEGS*2*math.pi; vx,vz=CENTRE[0]+math.cos(a)*R0,CENTRE[1]+math.sin(a)*R0
         rv=math.hypot(vx,vz); ux,uz=vx/rv,vz/rv
         d=np.arange(d0 or rv,d1,150.0)
         ang=(height(ux*d,uz*d)-d*d/(2*REFF)-EYE)/d
         hs.append(float(ang.max()*rv))            # height above the viewer at the ring's own distance
-    hs=gaussian_filter1d(np.array(hs),1.2,mode='wrap')
-    out.append(dict(r=R0,h=[round(float(v),1) for v in hs]))
+        ds.append(float(d[ang.argmax()])/1000)    # how far off that skyline is, km (nearer land keeps more of its own colour)
+    hs=gaussian_filter1d(np.array(hs),1.2,mode='wrap'); ds=gaussian_filter1d(np.array(ds),2.0,mode='wrap')
+    out.append(dict(r=R0,h=[round(float(v),1) for v in hs],d=[round(float(v),1) for v in ds]))
     print(R0,'min',round(hs.min()),'max',round(hs.max()),'W',round(hs[180]),'N',round(hs[270]),'E',round(hs[0]),'S',round(hs[90]))
 json.dump(dict(centre=CENTRE,eye=EYE,rings=out),open(CONTENT/'horizon.json','w'),separators=(',',':'))
