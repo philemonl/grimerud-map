@@ -321,7 +321,7 @@ function wallGeom(pts, h, y0 = 0, bay = 4.4, endBays = 0) {
   for (let i = 0; i < pts.length; i++) {
     const [x1, z1] = pts[i], [x2, z2] = pts[(i + 1) % pts.length];
     // whole windows only: each wall gets an integer number of bays and floors, so no window is cut at a corner
-    const L = lens[i], bays = endBays && L < 0.8 * longest ? endBays : Math.max(1, Math.round(L / bay)), floors = Math.max(1, Math.round((h - y0) / 2.9));
+    const L = lens[i], bays = endBays && L < 0.99 * longest ? endBays : Math.max(1, Math.round(L / bay)), floors = Math.max(1, Math.round((h - y0) / 2.9));
     const W = L / bays;
     if (W <= bay * 1.05) {   // close to the texture's own spacing: one quad, scaled to fit
       pos.push(x1, y0, z1, x2, y0, z2, x2, h, z2, x1, y0, z1, x2, h, z2, x1, h, z1);
@@ -529,7 +529,27 @@ function building(part, item) {
     b.position.set(x, y0 + hb / 2, z); group.add(b);
   });
   let top = part.h, ridge = null, gAx = [1, 0];
-  if (part.hip && !part.flat) {
+  if (part.shed) {
+    // mono-pitch roof rising toward the side named in part.shed (n/s/e/w) at the gable pitch, so a lean-to's roof
+    // carries the main roof's slope straight on down; the two end walls are filled up to the slope
+    const want = { e: [1, 0], w: [-1, 0], s: [0, 1], n: [0, -1] }[part.shed], c = centroid(pts);
+    let best = 0, bd = -2;
+    pts.forEach((a, i) => { const b = pts[(i + 1) % 4]; let nx = b[1] - a[1], nz = -(b[0] - a[0]); const l = Math.hypot(nx, nz); nx /= l; nz /= l;
+      if (nx * ((a[0] + b[0]) / 2 - c[0]) + nz * ((a[1] + b[1]) / 2 - c[1]) < 0) { nx = -nx; nz = -nz; }
+      const d = nx * want[0] + nz * want[1]; if (d > bd) { bd = d; best = i; } });
+    const hiA = pts[best], hiB = pts[(best + 1) % 4], loA = pts[(best + 3) % 4], loB = pts[(best + 2) % 4];
+    const depth = Math.hypot(hiA[0] - loA[0], hiA[1] - loA[1]), rise = 0.84 * depth, ov = 0.3;
+    const ex = [(hiA[0] - loA[0]) / depth, (hiA[1] - loA[1]) / depth];                 // low side to high side
+    const out = (p, k) => [p[0] - ex[0] * ov * k, p[1] - ex[1] * ov * k];
+    const V = (p, y) => [p[0], y, p[1]], H = part.h, T = part.h + rise;
+    const rp = [...V(out(loA, 1), H - 0.84 * ov), ...V(out(loB, 1), H - 0.84 * ov), ...V(hiB, T), ...V(out(loA, 1), H - 0.84 * ov), ...V(hiB, T), ...V(hiA, T)];
+    const ruv = []; for (let i = 0; i < rp.length; i += 3) ruv.push((rp[i] * ex[1] - rp[i + 2] * ex[0]) / 2.2, rp[i + 1] / 0.6);
+    const rg = geomFrom(rp, ruv); rg.computeVertexNormals();
+    const rm = new THREE.Mesh(rg, toon({ map: roofTex(part.roof), side: THREE.DoubleSide })); group.add(rm); addInk(rg, group, 25, ink);
+    const ends = geomFrom([...V(loA, H), ...V(hiA, H), ...V(hiA, T), ...V(loB, H), ...V(hiB, T), ...V(hiB, H)]);
+    const em = new THREE.Mesh(ends, toon({ map: boardTex(part.wall), side: THREE.DoubleSide })); group.add(em); addInk(ends, group, 25, ink);
+    top = T;
+  } else if (part.hip && !part.flat) {
     const hr = hipRoof(pts, part.h);
     const rm = new THREE.Mesh(hr.geom, toon({ map: roofTex(part.roof), side: THREE.DoubleSide })); group.add(rm); addInk(hr.geom, group, 25, ink);
     top = hr.top;
