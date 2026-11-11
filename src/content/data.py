@@ -48,7 +48,7 @@ ITEMS=[
       parts=[dict(p=BARN,h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',plain=True,rise=7.5,garage=[AT(BARN,.44,1)+['s',3.6,3.0]]),
              # concrete barn ramp up to the north side at the west end (drone video), in two steps
              dict(p=RT(590,681,16,24),h=2.0,wall='#bdb9af',roof='#c9c5bb',flat=True,plain=True,trim=False),dict(p=RT(588.6,657,16,24),h=1.0,wall='#bdb9af',roof='#c9c5bb',flat=True,plain=True,trim=False),
-             dict(p=BARNX,h=6.2,wall='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',cross=True,gables=dict(s='#a3282a'),rise=4.6,porch=AT(BARNX,.55,1)+['s','plain']),dict(p=RT(672.5,767.5,10,10),h=2.6,wall='#a3282a',roof='#46474b',plain=True,trim=False,rise=0.9),dict(p=SUB(BARN,-.045,.6,0,.95),h=2.4,wall='#a3282a',roof='#cfd6d8',flat=True,plain=True,trim=False),dict(p=R(756,750,797,840),h=2.8,wall='#fbfaf5',roof='#f6f4ee',tent=True,trim=False)]),
+             dict(p=BARNX,h=6.2,wall='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',cross=True,gables=dict(s='#a3282a'),rise=4.6,porch=AT(BARNX,.55,1)+['s','plain']),dict(p=RT(672.5,767.5,10,10),h=2.6,wall='#a3282a',roof='#46474b',plain=True,trim=False,rise=0.9),dict(p=SUB(BARN,-.045,.6,0,.95),h=2.4,wall='#a3282a',roof='#cfd6d8',flat=True,plain=True,trim=False),dict(p=RT(779,799,36,72),h=2.8,wall='#fbfaf5',roof='#f6f4ee',tent=True,trim=False)]),
  dict(n='4a',g='b',no='Bønnerommet',en='Prayer room',sub_no='Oppe i inngangsfløyen til låven',sub_en='Upstairs in the barn’s entrance wing',pin=[722,752],inside='4',pinH=11),
  dict(n='4b',g='b',no='Overflow-rommet',en='Overflow room',sub_no='Inne i låven, i vestenden',sub_en='Inside the barn, at the west end',pin=[606,688],inside='4'),
  dict(n='5',g='b',no='Internatet',en='Dormitories',sub_no='',sub_en='',
@@ -82,7 +82,7 @@ ITEMS=[
  dict(n='11',g='o',no='Barracks',en='Barracks',sub_no='',sub_en='Long, low building along the farm road, opposite the car park.',
       parts=[dict(p=RT(1122.8,869,188,34.6,a=-12.3),h=6,wall=RED,roof='#dcdbd6',flat=True,stripes=2.9)]),
  dict(n='12',g='o',no='Spiseteltet',en='Dining tent',sub_no='',sub_en='Large white tent just south of the main building.',
-      parts=[dict(p=RT(807.4,1168.5,33.1,63.6),h=2.6,wall='#fbfaf5',roof='#f6f4ee',tent=True)]),
+      parts=[dict(p=RT(806,1170,34,74,a=-22),h=2.6,wall='#fbfaf5',roof='#f6f4ee',tent=True)]),
  dict(n='13',g='o',no='Nordlåven',en='North barn',sub_no='',sub_en='Older farm barn and work yard north of the garage, reached by the farm track.',
       parts=[dict(p=[[982,258],[1036,261],[1031,415],[977,412]],h=7,wall=RED,gable=RED,roof='#55585c',plain=True,base=[1.6,CONCRETE]),dict(p=RT(845,328,30,36),h=3.5,wall=RED,roof='#55585c',plain=True)]),
  dict(n='14',g='o',no='Vaktmesterboligen',en='Caretaker’s house',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
@@ -131,6 +131,8 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  ([[600,778],[576,776],[564,755],[561,700],[563,662],[576,642],[600,638],[700,646],[790,653],[840,665],[880,688],[905,700],[922,705]],3,'track'),
  # the barn's east end to the garage lane; barn yard to the roundabout
  ([[922,712],[870,710],[830,712],[806,716]],3,'path'),
+ # footpath from the garage lane through the trees to the marquee's east entrance
+ ([[922,806],[892,803],[858,804],[826,800],[799,800]],2.4,'path'),
  ([[700,880],[706,895],[712,906]],3.2,'path'),
  # west side of the main building, the spur to Bispen, and round the south end
  ([[748,972],[753,988],[757,1020],[757,1080],[757,1105]],3.2,'path'),
