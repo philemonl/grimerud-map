@@ -76,7 +76,7 @@ ITEMS=[
  # dict(n='L',g='a',no='Lekeplassen',en='Playground',sub_no='',sub_en='Play area in the trees between the kindergarten and the dormitories.',
  #      area=[[925,1090],[1110,1085],[1115,1250],[930,1250]],pin=[1010,1160]),
  dict(n='10',g='o',no='Garasjen',en='Garage',sub_no='',sub_en='Red garage building east of the barn.',
-      parts=[dict(p=RT(974.8,734.4,45.8,112.6),h=5,wall=RED,roof=ROOF_GREY)]),
+      parts=[dict(p=RT(974.8,734.4,45.8,112.6),h=5,wall=RED,roof='#34363a',plain=True,garage=[[970,791,'s',3.4,3.0],[985,790,'s',3.4,3.0]])]),   # black roof, two doors in the south gable (drone video)
  dict(n='11',g='o',no='Barracks',en='Barracks',sub_no='',sub_en='Long, low building along the farm road, opposite the car park.',
       parts=[dict(p=RT(1122.8,869,188,34.6,a=-12.3),h=6,wall=RED,roof='#dcdbd6',flat=True,stripes=2.9)]),
  dict(n='12',g='o',no='Spiseteltet',en='Dining tent',sub_no='',sub_en='Large white tent just south of the main building.',
@@ -125,9 +125,9 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  ([[600,778],[576,776],[564,755],[561,700],[563,662],[576,642],[600,638],[700,646],[790,653],[840,665],[880,688],[905,700],[922,705]],3,'track'),
  # the barn's east end to the garage lane; barn yard to the roundabout
  ([[922,712],[870,710],[830,712],[806,716]],3,'path'),
- ([[698,890],[712,902],[735,914],[755,928],[772,942],[790,956]],3.2,'path'),
+ ([[700,880],[706,895],[712,906]],3.2,'path'),
  # west side of the main building, the spur to Bispen, and round the south end
- ([[742,965],[752,985],[757,1020],[757,1080],[757,1105]],3.2,'path'),
+ ([[748,972],[753,988],[757,1020],[757,1080],[757,1105]],3.2,'path'),
  ([[757,1092],[725,1097],[700,1100]],2.8,'path'),
  ([[925,1045],[890,1040],[852,1045],[843,1080],[840,1118]],3,'path'),
  ([[757,1105],[765,1118],[800,1118],[838,1118],[842,1160],[857,1200],[880,1235],[930,1264],[990,1287]],3,'path'),
@@ -180,7 +180,8 @@ def _connect(roads,circle,polys=(),snap=30):
 # Hand-traced surfaces from the drone photos (Nov 2026, light frost: asphalt black, driven gravel tracked).
 # Gravel picked from the orthophotos is only trusted inside GRAVEL_ZONES; everywhere else gravel is the roads
 # above plus these yards, so worn grass and garden paths never turn into lanes.
-GRAVEL_AREAS=[[[560,640],[800,648],[815,690],[800,700],[578,692],[560,700]]]     # storage yard north of the barn
+GRAVEL_AREAS=[[[560,640],[800,648],[815,690],[800,700],[578,692],[560,700]],     # storage yard north of the barn
+              [[812,952],[885,944],[888,1048],[852,1052],[815,1052]]]             # east side of the main building, up to its wall
 GRAVEL_ZONES=[[[872,915],[1085,903],[1092,1064],[882,1066]],                       # the car park
               [[915,375],[1065,375],[1065,475],[915,475]]]                        # north barn yard
 ASPHALT=[
