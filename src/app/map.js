@@ -636,9 +636,12 @@ function building(part, item) {
     }
     const plainDoor = part.porch[3] === "plain";
     if (plainDoor) door.material = toon({ color: "#24211f" });
-    const canopy = new THREE.Mesh(new THREE.ConeGeometry(1.75, 0.8, 4, 1), toon({ color: "#23304a" }));
+    // hipped hood: a four-sided pyramid turned square to the wall in its own geometry, then stretched along the wall
+    // (stretching after turning the mesh skewed it into a lopsided diamond)
+    const cg = new THREE.ConeGeometry(1.75, 0.8, 4, 1); cg.rotateY(Math.PI / 4);
+    const canopy = new THREE.Mesh(cg, toon({ color: "#23304a" }));
     canopy.visible = !plainDoor && part.porch[3] !== "gable";
-    canopy.rotation.y = Math.PI / 4; canopy.scale.set(0.75, 1, 1.1);
+    canopy.scale.set(0.75, 1, 1.1);
     canopy.position.set(dir * 0.75, 2.45 + 0.4 + 0.05, 0); ent.add(canopy);   // sits just above the 2.45 m door top addInk(canopy.geometry, canopy, 25, ink);
     const step = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.3, 3.2), toon({ color: "#d4cec2" }));
     step.position.set(dir * 0.7 + (part.porch[3] === "gable" ? 2.2 : 0), 0.15, 0); ent.add(step); addInk(step.geometry, step, 25, ink);
