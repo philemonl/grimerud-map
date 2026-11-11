@@ -113,7 +113,7 @@ ITEMS=[
              dict(p=RT(1366,786,15.5,31,a=-8),h=0.9,wall='#8a6a48',roof='#a88a64',flat=True,plain=True,trim=False,railing=True,tables=[[1366,783],[1366,778]]),
              dict(p=RT(1364.5,770.5,9,4.5,a=-8),h=2.0,wall='#8a6a48',roof='#5b5148',flat=True,plain=True,trim=False)]),
  # cabins on the asphalt between the office and the barn (from the drone photos, Nov 2026)
- dict(n='15',g='o',no='Trailerparken',en='Trailer park',sub_no='Vogner mellom kontorbygget og låven.',sub_en='Trailers between the office building and the barn.',
+ dict(n='15',g='o',no='Trailerparken',en='Trailer park',sub_no='',sub_en='',
       pin=[588,838],parts=[dict(p=RT(568,789,24,9.5),h=3.0,trailer=dict(door='n',n=8)),
              dict(p=RT(568,799.5,24,9.5),h=3.0,trailer=dict(door='s',n=7)),
              dict(p=RT(569,832.5,24,9.5),h=3.0,trailer=dict(door='n',n=6)),
