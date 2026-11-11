@@ -150,9 +150,12 @@ def _connect(roads,circle,polys=(),snap=30):
                 for a,b in zip(o,o[1:]):
                     d,q=near_seg(p,a,b)
                     if d<best[0]: best=(d,q)
+            # the roundabout: stop where the road's round end just meets the island, never biting into it
+            # (ring painted 3 m wide around radius r; this road is w m wide, 0.29188 m a px)
             cx,cy,r=circle; d0=math.hypot(p[0]-cx,p[1]-cy) or 1
+            rr=r-(1.5/0.29188)+1+(w/0.29188)/2
             dr=abs(d0-r)
-            if dr<best[0]: best=(dr,[cx+(p[0]-cx)/d0*r,cy+(p[1]-cy)/d0*r])
+            if dr<best[0]: best=(dr,[cx+(p[0]-cx)/d0*rr,cy+(p[1]-cy)/d0*rr])
             if best[1] is None:
                 # a lane that ends at a building or a gravel yard runs on to its edge
                 for pg in polys:
@@ -161,6 +164,7 @@ def _connect(roads,circle,polys=(),snap=30):
                         if d<best[0]: best=(d,q)
             if best[1] is not None and best[0]>0.5:
                 q=[round(best[1][0],1),round(best[1][1],1)]
+                if math.hypot(p[0]-circle[0],p[1]-circle[1])<circle[2]+2: pts.pop(end)   # an end already over the ring is moved, not extended
                 if end==0: pts.insert(0,q)
                 else: pts.append(q)
         out.append((pts,w,k))
