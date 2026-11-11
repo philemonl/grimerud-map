@@ -383,7 +383,9 @@ const trimMat = toon({ color: "#fbf8f0" });
 function addDormers(group, g, part, ink) {
   // Each dormer's front wall stands on the slope and its body runs back into the roof
   // until its own ridge meets the main roof, so nothing floats above the tiles.
-  const dWall = toon({ map: wallTex(part.wall) }), dRoof = toon({ color: part.roof });
+  // window only on the dormer's front; its side cheeks and back are plain cladding
+  const dWall = toon({ map: wallTex(part.wall) }), dPlain = toon({ map: boardTex(part.wall) }), dRoof = toon({ color: part.roof });
+  const dMats = [dPlain, dPlain, dPlain, dPlain, dWall, dPlain];
   const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
   const shed = part.dormerStyle === "shed", k = part.dormerSize || 1, w = 1.6 * k * (shed ? 1.3 : 1), tf = part.dormerSize ? 0.22 : 0.3;
   g.slopes.forEach(([e0, e1, r0, r1]) => {
@@ -405,7 +407,7 @@ function addDormers(group, g, part, ink) {
       const e = lerp(e0, e1, 0.08 + t * 0.84), r = lerp(r0, r1, 0.08 + t * 0.84);
       const c = lerp(e, r, tf), out = [e[0] - r[0], e[1] - r[1]];
       const d = new THREE.Group(); d.position.set(c[0], yb, c[1]); d.rotation.y = Math.atan2(out[0], out[1]);
-      const box = new THREE.Mesh(new THREE.BoxGeometry(w, hgt + 0.15, D), dWall); box.position.set(0, (hgt + 0.15) / 2, -D / 2);
+      const box = new THREE.Mesh(new THREE.BoxGeometry(w, hgt + 0.15, D), dMats); box.position.set(0, (hgt + 0.15) / 2, -D / 2);
       const cap = new THREE.Mesh(prism, dRoof); cap.position.y = hgt + 0.15;
       d.add(box, cap); addInk(box.geometry, box, 25, ink); addInk(prism, cap, 25, ink);
       group.add(d);
@@ -440,12 +442,14 @@ function trailer(part, item, group, pts, baseY, ink) {
     g2.fillStyle = "#1c1c1c"; g2.font = "bold 22px sans-serif"; g2.textAlign = "center"; g2.fillText(String(num), w / 2, 40);
   });
   const trWin = [[31, 21, 34, 18], [135, 21, 16, 26]];
-  const sideD = toon({ map: withGlow(side(true), trWin) }), sideP = toon({ map: withGlow(side(false), trWin.concat([[193, 21, 34, 18]])) }), endM = toon({ map: end(t.n || "") }), roofM = toon({ color: WHITE });
+  const sideD = toon({ map: withGlow(side(true), trWin) }), sideP = toon({ map: withGlow(side(false), trWin.concat([[193, 21, 34, 18]])) });
+  sideD.userData.early = sideP.userData.early = true;   // lived-in cabins: their lights come on first and stay bright
+  const endM = toon({ map: end(t.n || "") }), roofM = toon({ color: WHITE });
   // BoxGeometry material order: +x, -x, +y, -y, +z, -z
   const box = new THREE.Mesh(new THREE.BoxGeometry(L - 0.2, H, W - 0.3), [endM, endM, roofM, roofM, doorSide > 0 ? sideD : sideP, doorSide > 0 ? sideP : sideD]);
   box.position.y = lift + H / 2; g.add(box); addInk(box.geometry, box, 25, ink);
   // the long-side texture reads left to right from outside, so mirror the far side
-  if (doorSide < 0) { const m = sideD.map.clone(); m.needsUpdate = true; m.repeat.x = -1; m.offset.x = 1; m.__key = sideD.map.__key; m.__glow = sideD.map.__glow; box.material[5] = toon({ map: m }); }
+  if (doorSide < 0) { const m = sideD.map.clone(); m.needsUpdate = true; m.repeat.x = -1; m.offset.x = 1; m.__key = sideD.map.__key; m.__glow = sideD.map.__glow; const fm = toon({ map: m }); fm.userData.early = true; box.material[5] = fm; }
   // chassis and twin wheels
   const dark = toon({ color: "#2b2b2b" });
   const ch = new THREE.Mesh(new THREE.BoxGeometry(L * 0.8, 0.18, W - 0.8), toon({ color: "#55534f" })); ch.position.y = lift - 0.1; g.add(ch);
@@ -1388,7 +1392,7 @@ requestAnimationFrame(frame);
   poolMat.opacity = 0;
   const sunHome = sun.position.clone();
   // each window-wall colour switches on at its own moment, so lights come on one house at a time
-  const lightAt = glows.map((m, i) => 0.55 + ((i * 0.6180339) % 1) * 0.3);
+  const lightAt = glows.map((m, i) => m.userData.early ? 0.42 : 0.55 + ((i * 0.6180339) % 1) * 0.3);
   let s = 0;
   const WSKY = [C("#c9d3dc"), C("#dfe5ea"), C("#eef1f3")];
   function render(s) {
@@ -1405,7 +1409,7 @@ requestAnimationFrame(frame);
     key(K.tint, s, tmp);
     basics.forEach(([m, c]) => m.color.copy(c).multiply(tmp));
     if (hillsMat) hillsMat.color.copy(tmp);
-    glows.forEach((m, i) => { m.emissiveIntensity = 1.4 * smooth(lightAt[i] - 0.08, lightAt[i] + 0.04, s); });
+    glows.forEach((m, i) => { m.emissiveIntensity = (m.userData.early ? 1.9 : 1.4) * smooth(lightAt[i] - 0.08, lightAt[i] + 0.04, s); });
     poolMat.opacity = smooth(0.6, 0.95, s); pools.visible = s > 0.55;
   }
   const fmt = mins => { mins = ((mins % 1440) + 1440) % 1440; return String(Math.floor(mins / 60)).padStart(2, "0") + ":" + String(Math.floor(mins % 60)).padStart(2, "0"); };
