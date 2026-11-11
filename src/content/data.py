@@ -83,7 +83,7 @@ ITEMS=[
       parts=[dict(p=RT(885.0,1100.6,44.1,25.5),h=5.5,wall=RED,roof='#b23e2c'),dict(p=RT(857.3,1102.1,11.3,31.4),h=2.8,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False),dict(p=RT(888.5,1160.9,34.0,95.4),h=4.5,wall=RED,roof='#b23e2c',solar=True),dict(p=RT(913.4,1159.6,20.4,29.4),h=4.5,wall=RED,roof='#5a2d26',rise=2.7,cross=True,trim=False,solar='s')]),
  # lettered: arrival, outdoors, other buildings
  dict(n='P',g='a',no='Parkering',en='Car park',sub_no='',sub_en='Main parking on the south side of the farm road.',
-      area=[[834,957],[1088,950],[1092,1064],[1062,1077.4],[906.3,1086.6],[862.2,1089.2],[834,1062]]),   # south edge on the line of the kindergarten's north wall
+      pin=[962,1017],area=[[834,957],[1088,950],[1092,1064],[1062,1077.4],[906.3,1086.6],[862.2,1089.2],[834,1062]]),   # south edge on the line of the kindergarten's north wall
  dict(n='E',g='a',icon='arrow',no='Innkjøring',en='Entrance',sub_no='',sub_en='Turn west off Grimerudvegen. The car park is about 100 m ahead on the left.',
       pin=[1442,838]),
  # garden & football lawn, unlabelled for now:
