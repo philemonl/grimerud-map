@@ -1635,3 +1635,32 @@ requestAnimationFrame(frame);
   });
   clear.addEventListener("click", () => { input.value = ""; run(); input.focus(); });
 })();
+
+// Rubber-band scrolling for the place list: past the top or bottom the list stretches a little with
+// growing resistance and springs back, the way iOS lists do. iOS Safari already does this natively
+// (and its own bounce must not be doubled), so this only runs elsewhere.
+(() => {
+  const ios = /iP(hone|ad|od)/.test(navigator.platform) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (ios || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const el = listEl; let off = 0, raf = 0, idle = 0, ty = null, tyStart = 0;
+  const atTop = () => el.scrollTop <= 0, atEnd = () => el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+  const paint = () => { el.style.setProperty("--rb", off.toFixed(1) + "px"); };   // the rows move, the list box stays put
+  const settle = () => { cancelAnimationFrame(raf); const step = () => { off *= 0.8; if (Math.abs(off) < 0.4) off = 0; paint(); if (off) raf = requestAnimationFrame(step); }; raf = requestAnimationFrame(step); };
+  const pull = d => { const max = 90, r = 1 - Math.min(1, Math.abs(off) / max); off = Math.max(-max, Math.min(max, off + d * 0.35 * r)); paint(); };
+  el.addEventListener("wheel", e => {
+    if (e.ctrlKey) return;
+    if ((e.deltaY < 0 && atTop()) || (e.deltaY > 0 && atEnd())) {
+      e.preventDefault(); cancelAnimationFrame(raf); pull(-e.deltaY * (e.deltaMode === 1 ? 16 : 1));
+      clearTimeout(idle); idle = setTimeout(settle, 90);
+    } else if (off) { off = 0; paint(); }
+  }, { passive: false });
+  el.addEventListener("touchstart", e => { if (e.touches.length === 1) { ty = e.touches[0].clientY; tyStart = el.scrollTop; cancelAnimationFrame(raf); } }, { passive: true });
+  el.addEventListener("touchmove", e => {
+    if (ty === null || e.touches.length !== 1) return;
+    const y = e.touches[0].clientY, d = y - ty; ty = y;
+    if ((d > 0 && atTop()) || (d < 0 && atEnd()) || off) { if (e.cancelable) e.preventDefault(); pull(d / 0.35 * 0.5); }
+  }, { passive: false });
+  const end = () => { ty = null; if (off) settle(); };
+  el.addEventListener("touchend", end); el.addEventListener("touchcancel", end);
+})();
+
