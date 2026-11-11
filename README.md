@@ -84,6 +84,14 @@ real terrain (Mjøsa, Helgøya, the Toten hills), pulls the distant part in towa
 true bearing and height above the horizon, and tints it bluer with distance. `src/content/horizon.json` holds the
 skyline past 35 km, drawn as one pale ridge. Run both, then `build_data.py` and `build.py`, only if that range changes.
 
+## Analytics
+
+`loader.js` loads GoatCounter (philemon.goatcounter.com; cookieless, so no consent banner) unless the page already has
+it, and skips it in claude.ai previews and on local files. Besides the page view it counts these events, each at most
+once per 3 s: `map/loaded`, `map/place/<n>` and `map/hole/<n>` (a place or hole opened by a tap, the list or search),
+`map/tab/discgolf`, `map/search`, and `map/view/2d|labels|night|winter|fullscreen` when those are switched on.
+In GoatCounter, events are listed with the pages; untick "Hide events" if they don't show.
+
 ## Squarespace
 
 The code block (Display Source off) holds the contents of `dist/squarespace-codeblock.html`. It only needs re-pasting if that file itself changes, which happens only if the Pages address moves.

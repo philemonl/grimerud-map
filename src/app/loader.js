@@ -13,6 +13,27 @@
   var loadEl = document.getElementById("gm-load");
   var DATA_BYTES = /*@DATA_BYTES*/0;   // size of the data file, so its download can show real progress
 
+  // Analytics: GoatCounter (cookieless, no consent banner needed). Counts the page view and a few map actions as
+  // events under /map/... . Skipped in previews (claude.ai, local files) and if the host page already loads it.
+  var GC = "https://philemon.goatcounter.com/count";
+  var gcOn = /^https?:$/.test(location.protocol) && !/(^|\.)claude\.ai$|claudeusercontent|localhost|127\.0\.0\.1/.test(location.hostname);
+  if (gcOn && !window.goatcounter && !document.querySelector("script[data-goatcounter]")) {
+    var gs = document.createElement("script"); gs.async = true; gs.src = "https://gc.zgo.at/count.js";
+    gs.setAttribute("data-goatcounter", GC); document.head.appendChild(gs);
+  }
+  var gcQueue = [], gcSeen = {};
+  function track(path, title) {
+    if (!gcOn) return;
+    var k = path; if (gcSeen[k] && Date.now() - gcSeen[k] < 3000) return; gcSeen[k] = Date.now();   // no double counts from quick repeat taps
+    var ev = { path: "map/" + path, title: title || path, event: true };
+    if (window.goatcounter && window.goatcounter.count) window.goatcounter.count(ev); else gcQueue.push(ev);
+  }
+  // events raised before count.js has arrived are sent once it has
+  var gcWait = setInterval(function () {
+    if (!gcOn || (window.goatcounter && window.goatcounter.count)) { clearInterval(gcWait); while (gcQueue.length && gcOn) window.goatcounter.count(gcQueue.shift()); }
+  }, 1000);
+  setTimeout(function () { clearInterval(gcWait); }, 60000);
+
   // Loader progress: 0..1, never backwards; the logo fills and the bar grows with it
   var shown = 0;
   function progress(p) {
@@ -75,7 +96,7 @@
       .then(function () { return decodeTerrain(window.GRIMERUD_MAP_DATA.TERRAIN); })
       .then(function () { progress(0.9); return new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 30); }); }); })  // let the bar paint before the heavy build
       .then(function () {
-        init(window.GRIMERUD_MAP_DATA); progress(1);
+        init(window.GRIMERUD_MAP_DATA); progress(1); track("loaded", "Map loaded");
         if (loadEl) { setTimeout(function () { loadEl.classList.add("done"); setTimeout(function () { loadEl.remove(); }, 500); }, 250); }
       })
       .catch(fail);

@@ -26,6 +26,27 @@
   var loadEl = document.getElementById("gm-load");
   var DATA_BYTES = 2624167;   // size of the data file, so its download can show real progress
 
+  // Analytics: GoatCounter (cookieless, no consent banner needed). Counts the page view and a few map actions as
+  // events under /map/... . Skipped in previews (claude.ai, local files) and if the host page already loads it.
+  var GC = "https://philemon.goatcounter.com/count";
+  var gcOn = /^https?:$/.test(location.protocol) && !/(^|\.)claude\.ai$|claudeusercontent|localhost|127\.0\.0\.1/.test(location.hostname);
+  if (gcOn && !window.goatcounter && !document.querySelector("script[data-goatcounter]")) {
+    var gs = document.createElement("script"); gs.async = true; gs.src = "https://gc.zgo.at/count.js";
+    gs.setAttribute("data-goatcounter", GC); document.head.appendChild(gs);
+  }
+  var gcQueue = [], gcSeen = {};
+  function track(path, title) {
+    if (!gcOn) return;
+    var k = path; if (gcSeen[k] && Date.now() - gcSeen[k] < 3000) return; gcSeen[k] = Date.now();   // no double counts from quick repeat taps
+    var ev = { path: "map/" + path, title: title || path, event: true };
+    if (window.goatcounter && window.goatcounter.count) window.goatcounter.count(ev); else gcQueue.push(ev);
+  }
+  // events raised before count.js has arrived are sent once it has
+  var gcWait = setInterval(function () {
+    if (!gcOn || (window.goatcounter && window.goatcounter.count)) { clearInterval(gcWait); while (gcQueue.length && gcOn) window.goatcounter.count(gcQueue.shift()); }
+  }, 1000);
+  setTimeout(function () { clearInterval(gcWait); }, 60000);
+
   // Loader progress: 0..1, never backwards; the logo fills and the bar grows with it
   var shown = 0;
   function progress(p) {
@@ -88,7 +109,7 @@
       .then(function () { return decodeTerrain(window.GRIMERUD_MAP_DATA.TERRAIN); })
       .then(function () { progress(0.9); return new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 30); }); }); })  // let the bar paint before the heavy build
       .then(function () {
-        init(window.GRIMERUD_MAP_DATA); progress(1);
+        init(window.GRIMERUD_MAP_DATA); progress(1); track("loaded", "Map loaded");
         if (loadEl) { setTimeout(function () { loadEl.classList.add("done"); setTimeout(function () { loadEl.remove(); }, 500); }, 250); }
       })
       .catch(fail);
@@ -1393,7 +1414,7 @@
     farmGo.addEventListener("click", e => { e.stopPropagation(); setDisc(false, true); });
     mDisc.addEventListener("click", () => setDisc(true, true));
     mFarm.addEventListener("click", () => setDisc(false, true));
-    tDisc.addEventListener("click", () => setDisc(true, true));
+    tDisc.addEventListener("click", () => { setDisc(true, true); track("tab/discgolf", "Disc golf tab"); });
     tFarm.addEventListener("click", () => setDisc(false, true));
 
     // Selection
@@ -1410,6 +1431,7 @@
       if (current) styleItem(current, false);
       current = it || null;
       if (!it) { card.hidden = true; return; }
+      if (fly) track((it.g === "d" && it.n !== "DG" ? "hole/" : "place/") + it.n, `${it.n} ${it.en}`);
       hideHint();
       root.querySelector(".panel").classList.remove("open");
       styleItem(it, true);
@@ -1470,10 +1492,11 @@
       const v = m === "top" ? topView(discOn ? TOP_DISC : TOP) : homeView(); flyTo(v.t, v.d, v.polar, v.az);
     }
     b3d.addEventListener("click", () => setMode("3d"));
+    const trackTop = () => track("view/2d", "2D view");
     // phones: one 2D switch in the drawer instead of the 3D/2D pair
     const vmode = document.getElementById("gm-vmode");
-    vmode.addEventListener("click", () => setMode(vmode.getAttribute("aria-pressed") === "true" ? "3d" : "top"));
-    btop.addEventListener("click", () => setMode("top"));
+    vmode.addEventListener("click", () => { const top = vmode.getAttribute("aria-pressed") !== "true"; setMode(top ? "top" : "3d"); if (top) trackTop(); });
+    btop.addEventListener("click", () => { setMode("top"); trackTop(); });
     // compass: shows which way north is, and a tap goes back to the opening view (west up)
     document.getElementById("gm-compass").addEventListener("click", () => { if (current) select(null); discOn ? setDisc(true, true) : setMode("3d"); });
     // zoom buttons: move the camera towards or away from what it looks at
@@ -1484,7 +1507,7 @@
     document.getElementById("gm-zin").addEventListener("click", () => zoomBy(0.65));
     document.getElementById("gm-zout").addEventListener("click", () => zoomBy(1.55));
     const bn = document.getElementById("gm-vnames");
-    bn.addEventListener("click", () => { const on = bn.getAttribute("aria-pressed") !== "true"; bn.setAttribute("aria-pressed", on); pinsEl.classList.toggle("names", on); });
+    bn.addEventListener("click", () => { const on = bn.getAttribute("aria-pressed") !== "true"; bn.setAttribute("aria-pressed", on); pinsEl.classList.toggle("names", on); if (on) track("view/labels", "All labels shown"); });
 
     // Tap to pick
     const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
@@ -1781,7 +1804,7 @@
       }
       render(0);
       rerenderSky = () => render(nightS);
-      btn.addEventListener("click", () => go(!on));
+      btn.addEventListener("click", () => { go(!on); if (on) track("view/night", "Night mode"); });
     })();
 
     // Touch devices: inline, one finger scrolls the page (taps still pick places) and two fingers move and
@@ -1827,7 +1850,7 @@
         btn.setAttribute("aria-label", on ? "Lukk fullskjerm \u00b7 Close full screen" : "Utforsk kartet i fullskjerm \u00b7 Explore the map full screen");
         resize();
       }
-      btn.addEventListener("click", e => { e.stopPropagation(); setFull(!full); });
+      btn.addEventListener("click", e => { e.stopPropagation(); setFull(!full); if (full) track("view/fullscreen", "Full screen"); });
       document.addEventListener("keydown", e => { if (e.key === "Escape" && full) setFull(false); });
       document.addEventListener("fullscreenchange", () => { if (full && document.fullscreenElement !== root) setFull(false); });
     })();
@@ -1891,7 +1914,7 @@
         if (k < 1) requestAnimationFrame(step); else anim = null;
       }
       btn.addEventListener("click", () => {
-        on = !on; btn.setAttribute("aria-pressed", on);
+        on = !on; btn.setAttribute("aria-pressed", on); if (on) track("view/winter", "Winter mode");
         btn.dataset.tip = on ? "Vis sommer\nShow summer" : "Vis vinter\nShow winter";
         if (reduce) { apply(on ? 1 : 0); return; }
         anim = { t0: performance.now(), from: snow.value, to: on ? 1 : 0 }; requestAnimationFrame(step);
@@ -1971,6 +1994,7 @@
         none.hidden = !!first;
       }
       input.addEventListener("input", run);
+      input.addEventListener("change", () => { if (input.value.trim()) track("search", "Search used"); });
       input.addEventListener("keydown", e => {
         if (e.key === "Enter" && first) { select(first, true); input.blur(); }
         if (e.key === "Escape") { input.value = ""; run(); }

@@ -1270,7 +1270,7 @@ dgGo.addEventListener("click", e => { e.stopPropagation(); setDisc(true, true); 
 farmGo.addEventListener("click", e => { e.stopPropagation(); setDisc(false, true); });
 mDisc.addEventListener("click", () => setDisc(true, true));
 mFarm.addEventListener("click", () => setDisc(false, true));
-tDisc.addEventListener("click", () => setDisc(true, true));
+tDisc.addEventListener("click", () => { setDisc(true, true); track("tab/discgolf", "Disc golf tab"); });
 tFarm.addEventListener("click", () => setDisc(false, true));
 
 // Selection
@@ -1287,6 +1287,7 @@ function select(it, fly) {
   if (current) styleItem(current, false);
   current = it || null;
   if (!it) { card.hidden = true; return; }
+  if (fly) track((it.g === "d" && it.n !== "DG" ? "hole/" : "place/") + it.n, `${it.n} ${it.en}`);
   hideHint();
   root.querySelector(".panel").classList.remove("open");
   styleItem(it, true);
@@ -1347,10 +1348,11 @@ function setMode(m, move = true) {
   const v = m === "top" ? topView(discOn ? TOP_DISC : TOP) : homeView(); flyTo(v.t, v.d, v.polar, v.az);
 }
 b3d.addEventListener("click", () => setMode("3d"));
+const trackTop = () => track("view/2d", "2D view");
 // phones: one 2D switch in the drawer instead of the 3D/2D pair
 const vmode = document.getElementById("gm-vmode");
-vmode.addEventListener("click", () => setMode(vmode.getAttribute("aria-pressed") === "true" ? "3d" : "top"));
-btop.addEventListener("click", () => setMode("top"));
+vmode.addEventListener("click", () => { const top = vmode.getAttribute("aria-pressed") !== "true"; setMode(top ? "top" : "3d"); if (top) trackTop(); });
+btop.addEventListener("click", () => { setMode("top"); trackTop(); });
 // compass: shows which way north is, and a tap goes back to the opening view (west up)
 document.getElementById("gm-compass").addEventListener("click", () => { if (current) select(null); discOn ? setDisc(true, true) : setMode("3d"); });
 // zoom buttons: move the camera towards or away from what it looks at
@@ -1361,7 +1363,7 @@ function zoomBy(f) {
 document.getElementById("gm-zin").addEventListener("click", () => zoomBy(0.65));
 document.getElementById("gm-zout").addEventListener("click", () => zoomBy(1.55));
 const bn = document.getElementById("gm-vnames");
-bn.addEventListener("click", () => { const on = bn.getAttribute("aria-pressed") !== "true"; bn.setAttribute("aria-pressed", on); pinsEl.classList.toggle("names", on); });
+bn.addEventListener("click", () => { const on = bn.getAttribute("aria-pressed") !== "true"; bn.setAttribute("aria-pressed", on); pinsEl.classList.toggle("names", on); if (on) track("view/labels", "All labels shown"); });
 
 // Tap to pick
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
@@ -1658,7 +1660,7 @@ requestAnimationFrame(frame);
   }
   render(0);
   rerenderSky = () => render(nightS);
-  btn.addEventListener("click", () => go(!on));
+  btn.addEventListener("click", () => { go(!on); if (on) track("view/night", "Night mode"); });
 })();
 
 // Touch devices: inline, one finger scrolls the page (taps still pick places) and two fingers move and
@@ -1704,7 +1706,7 @@ requestAnimationFrame(frame);
     btn.setAttribute("aria-label", on ? "Lukk fullskjerm · Close full screen" : "Utforsk kartet i fullskjerm · Explore the map full screen");
     resize();
   }
-  btn.addEventListener("click", e => { e.stopPropagation(); setFull(!full); });
+  btn.addEventListener("click", e => { e.stopPropagation(); setFull(!full); if (full) track("view/fullscreen", "Full screen"); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && full) setFull(false); });
   document.addEventListener("fullscreenchange", () => { if (full && document.fullscreenElement !== root) setFull(false); });
 })();
@@ -1768,7 +1770,7 @@ requestAnimationFrame(frame);
     if (k < 1) requestAnimationFrame(step); else anim = null;
   }
   btn.addEventListener("click", () => {
-    on = !on; btn.setAttribute("aria-pressed", on);
+    on = !on; btn.setAttribute("aria-pressed", on); if (on) track("view/winter", "Winter mode");
     btn.dataset.tip = on ? "Vis sommer\nShow summer" : "Vis vinter\nShow winter";
     if (reduce) { apply(on ? 1 : 0); return; }
     anim = { t0: performance.now(), from: snow.value, to: on ? 1 : 0 }; requestAnimationFrame(step);
@@ -1848,6 +1850,7 @@ requestAnimationFrame(frame);
     none.hidden = !!first;
   }
   input.addEventListener("input", run);
+  input.addEventListener("change", () => { if (input.value.trim()) track("search", "Search used"); });
   input.addEventListener("keydown", e => {
     if (e.key === "Enter" && first) { select(first, true); input.blur(); }
     if (e.key === "Escape") { input.value = ""; run(); }
