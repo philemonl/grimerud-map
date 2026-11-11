@@ -80,6 +80,7 @@ treem[cv2.dilate(paved,np.ones((7,7),np.uint8))>0]=0
 treem[pads>0]=0
 cv2.circle(treem,(data.CIRCLE[0],data.CIRCLE[1]),data.CIRCLE[2]+3,0,-1)  # the flag stands alone on the island
 dist=ndi.distance_transform_edt(treem)
+bdist=ndi.distance_transform_edt(build==0)   # px from the nearest building wall
 trees=[]
 step=17
 for y in range(0,H,step):
@@ -87,6 +88,10 @@ for y in range(0,H,step):
         jx=int(x+rng.uniform(0,step)); jy=int(y+rng.uniform(0,step))
         if jx>=W or jy>=H or not treem[jy,jx] or dist[jy,jx]<1.5: continue
         rr=(min(dist[jy,jx]*M,4.2)*rng.uniform(.85,1.05)+1.8)
+        # crowns never reach into a building: shrink to fit the gap, or leave the tree out
+        room=bdist[jy,jx]*M-0.6
+        if room<1.6: continue
+        rr=min(rr,room)
         trees.append((jx,jy,rr,int(rng.random()<0.2)))
 # painted tree shadows (sun from the south-west, shadows fall north-east)
 sh=np.zeros((H,W),np.float32)
