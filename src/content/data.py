@@ -55,7 +55,7 @@ ITEMS=[
                     ramp=[AT(BARN,.1,0)[0]-0.0588*50,AT(BARN,.1,0)[1]-0.998*50,AT(BARN,.1,0)[0]+0.0588*2,AT(BARN,.1,0)[1]+0.998*2,4.8,3.0]),   # square to the wall and running into it
              dict(p=BARNX,h=6.2,wall='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',cross=True,gables=dict(s='#a3282a'),rise=4.6,porch=AT(BARNX,.55,1)+['s','plain']),dict(p=RT(672.5,767.5,10,10),h=2.6,wall='#a3282a',roof='#46474b',plain=True,trim=False,rise=0.9),dict(p=SUB(BARN,-.045,.6,0,.95),h=2.4,wall='#a3282a',roof='#cfd6d8',flat=True,plain=True,trim=False),dict(p=RT(779,799,36,72),h=2.8,wall='#fbfaf5',roof='#f6f4ee',tent=True,trim=False)]),
  dict(n='4a',g='b',no='Bønnerommet',en='Prayer room',sub_no='Oppe i inngangsfløyen til låven',sub_en='Upstairs in the barn’s entrance wing',pin=[722,752],inside='4',pinH=11),
- dict(n='4b',g='b',no='Overflow-rommet',en='Overflow room',sub_no='Inne i låven, i vestenden',sub_en='Inside the barn, at the west end',pin=[606,688],inside='4'),
+ dict(n='4b',g='b',no='Overflow-rommet',en='Overflow room',sub_no='Inne i låven, i vestenden',sub_en='Inside the barn, at the west end',pin=[606,733],inside='4'),
  dict(n='5',g='b',no='Internatet',en='Dormitories',sub_no='',sub_en='',
       parts=[dict(p=[[1124.4,1132.0],[1161.8,1123.2],[1181.1,1205.0],[1143.7,1213.8]],h=6.5,wall=RED,roof='#6e3a2e',balconies=[dict(edge=1,n=2,color='#f4f2ec'),dict(edge=3,n=3,color='#f4f2ec')]),dict(p=[[1149.0,1152.4],[1175.7,1146.1],[1182.4,1174.8],[1155.7,1181.1]],h=6.5,wall=RED,roof='#5a2d26',cross=True,rise=4.4,trim=False,porch=[1179.0,1160.5,'e'])]),
  dict(n='6',level=True,g='b',no='Bispen',en='Bispen',sub_no='',sub_en='',
