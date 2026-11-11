@@ -21,8 +21,8 @@ src/
 dist/                            built files: never edit by hand
   grimerud-map.html              standalone page, everything inlined
   grimerud-map-data.js           imagery, terrain, trees, distant landscape
-  grimerud-map-embed.js          styles, markup and map code for the ywam.no embed
-  squarespace-codeblock.html     the code block on ywam.no (pasted once; loads the embed from Pages)
+  grimerud-map-embed.js          styles, markup and map code for the Squarespace embed
+  squarespace-codeblock.html     the code block on the Squarespace site (pasted once; loads the embed from Pages)
 build/                           gitignored: tiles, terrain model, painted intermediates
 ```
 
@@ -30,9 +30,9 @@ Coordinates in `src/content` are pixels of the 1792 px zoom-18 satellite mosaic 
 
 ## How the live site updates
 
-GitHub Pages serves this repo from `main`. The code block on ywam.no is pasted once and only loads `dist/grimerud-map-embed.js` from `https://philemonl.github.io/grimerud-map/dist/`. That file loads the data file, whose URL carries a hash of its contents.
+GitHub Pages serves this repo from `main`. The code block on the Squarespace site is pasted once and only loads `dist/grimerud-map-embed.js` from `https://philemonl.github.io/grimerud-map/dist/`. That file loads the data file, whose URL carries a hash of its contents.
 
-**Whatever is in `dist/` on `main` is live.** A push shows up on ywam.no within about 10 minutes, the time Pages caches files. No tags, releases or re-pasting.
+**Whatever is in `dist/` on `main` is live.** A push shows up on the site within about 10 minutes, the time Pages caches files. No tags, releases or re-pasting.
 
 ## Everyday changes
 

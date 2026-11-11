@@ -7,11 +7,11 @@ Reads the map source (src/app), the places and outlines (src/content) and the he
 (dist/grimerud-map-data.js, written by src/pipeline/build_data.py), and writes:
 
   dist/grimerud-map.html            standalone page with everything inlined
-  dist/grimerud-map-embed.js        styles, markup and map code for the ywam.no embed
-  dist/squarespace-codeblock.html   the code block on ywam.no (paste once)
+  dist/grimerud-map-embed.js        styles, markup and map code for the Squarespace embed
+  dist/squarespace-codeblock.html   the code block on the Squarespace site (paste once)
 
 The code block only loads dist/grimerud-map-embed.js from GitHub Pages, so pushing a rebuilt
-dist/ to main updates ywam.no within a few minutes (Pages caches files for about 10 minutes).
+dist/ to main updates the site within a few minutes (Pages caches files for about 10 minutes).
 The data file URL carries a hash of its contents, so browsers fetch it again only when it changes.
 """
 import hashlib, json, math, sys
