@@ -591,7 +591,8 @@ function building(part, item) {
       g.strokeStyle = "#26221d"; g.lineWidth = 2; g.strokeRect(1, 1, w - 2, h - 2);
     }) }));
     door.position.set(0.07, LH + 1.15, 0); ent.add(door);
-    // posts, roof and front gable
+    // posts, roof and front gable (an 'open' stoop is just the landing, door and steps)
+    if (part.stoop[4] !== "open") {
     const PH = 2.5, RW = 3.3, RD = LD + 0.35;
     [[LD - 0.12, -SW / 2 + 0.15], [LD - 0.12, SW / 2 - 0.15]].forEach(([px, pz]) => add(new THREE.BoxGeometry(0.16, PH, 0.16), white, px, LH + PH / 2, pz));
     const pr = new THREE.Shape([new THREE.Vector2(-RW / 2, 0), new THREE.Vector2(RW / 2, 0), new THREE.Vector2(0, 1.25)]);
@@ -600,6 +601,7 @@ function building(part, item) {
     const tri = new THREE.Shape([new THREE.Vector2(-RW / 2 + 0.25, 0.08), new THREE.Vector2(RW / 2 - 0.25, 0.08), new THREE.Vector2(0, 1.05)]);
     const gt = new THREE.Mesh(new THREE.ShapeGeometry(tri), white); gt.rotation.y = Math.PI / 2; gt.position.set(RD + 0.01, LH + PH, 0); ent.add(gt);
     add(new THREE.BoxGeometry(0.14, 0.2, RW - 0.3), white, LD - 0.12, LH + PH - 0.1, 0);   // beam across the posts
+    }
     // railings down both sides of the steps, black balusters under a white handrail
     const segs = [], foot = LD + (n - 1) * tr;
     [-1, 1].forEach(sg => {
