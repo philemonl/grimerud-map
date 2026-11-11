@@ -182,8 +182,8 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xf7f5ef, 1300, 8500);
-    const camera = new THREE.PerspectiveCamera(36, 1, 1, 9000);
+    scene.fog = new THREE.Fog(0xdce7e8, 1300, 8500);
+    const camera = new THREE.PerspectiveCamera(36, 1, 1, 10500);
     const controls = new THREE.OrbitControls(camera, canvas);
     controls.enableDamping = true; controls.dampingFactor = 0.08;
     controls.minDistance = 30; controls.maxDistance = 1150; controls.maxPolarAngle = 1.3;
@@ -236,19 +236,27 @@
         pos.setY(i, y);
       }
       const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex(FAR_IMG) })); scene.add(m);
-      // a soft ring of far hills on the horizon, in hazy aerial-perspective blue
-      const R0 = 6200, segs = 180, pts = [], idx = [];
-      let s = 11; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-      const ph = [rnd() * 6, rnd() * 6, rnd() * 6];
-      for (let i = 0; i <= segs; i++) {
-        const a = i / segs * Math.PI * 2;
-        const h = 120 + 70 * Math.sin(a * 3 + ph[0]) + 45 * Math.sin(a * 7 + ph[1]) + 22 * Math.sin(a * 17 + ph[2]);
-        const cx = -1000 + Math.cos(a) * R0, cz = Math.sin(a) * R0, base = (123 - TERRAIN.h0) * EX - 20;
-        pts.push(cx, base, cz, cx, base + h * EX, cz);
-        if (i < segs) { const k = i * 2; idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
-      }
+      // Far hills on the horizon in three overlapping ranges: each further one is taller, paler and bluer
+      // (aerial perspective), and each rises out of valley haze at its foot
+      const HAZE = [0.90, 0.93, 0.92], pts = [], idx = [], cols = [], segs = 240;
+      const base = (123 - TERRAIN.h0) * EX - 20;
+      [[6000, 70, 60, [0.42, 0.56, 0.47], 11], [6700, 150, 85, [0.47, 0.59, 0.64], 29], [7500, 250, 110, [0.66, 0.75, 0.81], 53]].forEach(([R0, h0, amp, col, seed]) => {
+        let s = seed; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+        const ph = [0, 1, 2, 3, 4].map(() => rnd() * 6.283), o = pts.length / 3;
+        for (let i = 0; i <= segs; i++) {
+          const a = i / segs * Math.PI * 2;
+          // rolling ridge: broad swells, a few shoulders, and a fine tree-line ripple; never periodic at a glance
+          const n = 0.55 * Math.sin(a * 2 + ph[0]) + 0.4 * Math.sin(a * 5 + ph[1]) + 0.28 * (1 - Math.abs(Math.sin(a * 6.5 + ph[2]))) * 2 - 0.28
+            + 0.16 * Math.sin(a * 13 + ph[3]) + 0.05 * Math.sin(a * 41 + ph[4]);
+          const h = Math.max(h0 * 0.35, h0 + amp * n), cx = -1000 + Math.cos(a) * R0, cz = Math.sin(a) * R0;
+          // three rows: haze at the foot, the range's colour from a third of the way up
+          pts.push(cx, base, cz, cx, base + h * EX * 0.4, cz, cx, base + h * EX, cz);
+          const foot = col.map((c, k) => c + (HAZE[k] - c) * 0.75), mid = col.map((c, k) => c + (HAZE[k] - c) * 0.3);
+          cols.push(...foot, ...mid, ...col);
+          if (i < segs) { const k = o + i * 3; idx.push(k, k + 1, k + 3, k + 1, k + 4, k + 3, k + 1, k + 2, k + 4, k + 2, k + 5, k + 4); }
+        }
+      });
       const hg = new THREE.BufferGeometry(); hg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3)); hg.setIndex(idx);
-      const cols = []; for (let i = 0; i <= segs; i++) cols.push(0.47, 0.58, 0.50, 0.49, 0.58, 0.64);  // base: hazy green, ridge: blue-grey
       hg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
       hillsMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, fog: false });
       scene.add(new THREE.Mesh(hg, hillsMat));
@@ -1637,7 +1645,7 @@
         skyMid: [C("#e9eee9"), C("#f6c99a"), C("#1a2440")],
         skyLow: [C("#f7f5ef"), C("#e9b98f"), C("#232c44")],
         tint:   [C("#ffffff"), C("#f4c9a4"), C("#46557a")],
-        fog:    [C("#f7f5ef"), C("#e7b28a"), C("#1d2640")],
+        fog:    [C("#dce7e8"), C("#e7b28a"), C("#1d2640")],   // day haze is a pale blue, so far land fades like the hills
         amb:    [C("#ffffff"), C("#ffd2b0"), C("#8fa3d6")],
         sun:    [C("#fff6e6"), C("#ff9a55"), C("#a9bfff")],
       };
