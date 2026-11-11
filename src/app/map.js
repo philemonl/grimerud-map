@@ -593,8 +593,8 @@ function building(part, item) {
   }
   // facade: one wall drawn from a photo — its own windows (metres from the left corner seen from outside, and up from
   // the ground), a grey plinth with cellar windows, and a board-clad gable above with its own windows
-  if (part.facade) {
-    const fc = part.facade, want = { e: [1, 0], w: [-1, 0], s: [0, 1], n: [0, -1] }[fc.side], c0 = centroid(pts);
+  if (part.facade) (Array.isArray(part.facade) ? part.facade : [part.facade]).forEach(fc => {
+    const want = { e: [1, 0], w: [-1, 0], s: [0, 1], n: [0, -1] }[fc.side], c0 = centroid(pts);
     let ei = 0, bd = -2;
     pts.forEach((a, i) => { const b = pts[(i + 1) % pts.length], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
       let nx = (b[1] - a[1]) / L, nz = -(b[0] - a[0]) / L;
@@ -628,6 +628,7 @@ function building(part, item) {
       g.fillStyle = fc.wall; g.fillRect(0, 0, w, h);
       let sd = 11; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
       g.fillStyle = "rgba(0,0,0,.05)"; for (let i = 0; i < w * h / 90; i++) g.fillRect(rnd() * w, rnd() * h, 2, 2);
+      if (fc.boards) { g.fillStyle = "rgba(0,0,0,.07)"; for (let x = 0; x < w; x += 9) g.fillRect(x, 0, 1.5, h); }   // vertical board cladding
       if (fc.base) { g.fillStyle = fc.base[1]; g.fillRect(0, h - fc.base[0] * PX, w, fc.base[0] * PX); g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(0, h - fc.base[0] * PX, w, 2); }
       (fc.win || []).forEach(([x0, y0, ww, hh, kind]) => win(g, x0, y0, ww, hh, h, kind));
       // gutter downpipes at the corners
@@ -653,7 +654,7 @@ function building(part, item) {
       const sk = new THREE.Mesh(new THREE.BoxGeometry(L + 0.3, 0.16, 0.12), trimMat);
       sk.position.set(...at(L / 2, H + 0.02, o + 0.04)); sk.rotation.y = -Math.atan2(uz, ux); group.add(sk);
     }
-  }
+  });
   // stoop: a gabled porch roof on white posts over a raised landing, with concrete steps and black railings
   // [x, z, side, landing height]
   if (part.stoop) {

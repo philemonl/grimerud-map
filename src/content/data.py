@@ -20,14 +20,17 @@ ROOF_RED='#c4432d'; ROOF_TILE='#b84a30'; ROOF_DARK='#3d3a38'; ROOF_BROWN='#6e3a2
 ITEMS=[
  # numbered as on the drawn site map
  dict(n='1',g='b',no='Hovedbygning',en='Main building',sub_no='Matsal · Stuene · Café Alv · TV-rom',sub_en='Dining hall · Living rooms · Café Alv · TV room',
-      parts=[dict(p=MAIN,h=6.6,wall='#f6f4ee',stucco=True,base=[0.9,'#8e8a84','stone'],gable='#f8f6f0',trim=False,roof='#6a3226',bay=4.7,endBays=3,dormers=6,dormerStyle='shed',rise=5.0,dormerSize=1.35,chimneys=[AT(MAIN,.5,.25),AT(MAIN,.5,.55)],porch=AT(MAIN,0,.5)+['w'],
+      parts=[dict(p=MAIN,h=6.6,wall='#f6f4ee',base=[0.6,'#8e8a84','stone'],gable='#f8f6f0',trim=False,roof='#6a3226',bay=4.7,endBays=3,dormers=6,dormerStyle='shed',rise=5.0,dormerSize=1.35,chimneys=[AT(MAIN,.5,.25),AT(MAIN,.5,.55)],porch=AT(MAIN,0,.41)+['w'],
                   # south end, from the site photo: rendered wall on a grey plinth, three windows a floor on the west side
                   # (French balconies upstairs), the gabled entrance porch up a flight of steps on the east side,
                   # and a board-clad gable with a row of three attic windows; picnic tables on the gravel in front
-                  facade=dict(side='s',wall='#f6f4ee',base=[0.9,'#8e8a84'],
+                  facade=[dict(side='w',wall='#f6f4ee',boards=True,base=[0.5,'#8e8a84'],
+                              # west front from the site photo: four pairs of windows a floor either side of the centre door
+                              win=[[2.01, 3.95, 1.25, 1.7], [4.37, 3.95, 1.25, 1.7], [7.87, 3.95, 1.25, 1.7], [9.91, 3.95, 1.25, 1.7], [13.91, 3.95, 1.25, 1.7], [18.45, 3.95, 1.25, 1.7], [20.49, 3.95, 1.25, 1.7], [24.26, 3.95, 1.25, 1.7], [26.3, 3.95, 1.25, 1.7], [1.88, 0.95, 1.25, 1.7], [4.15, 0.95, 1.25, 1.7], [7.78, 0.95, 1.25, 1.7], [9.82, 0.95, 1.25, 1.7], [18.45, 0.95, 1.25, 1.7], [20.49, 0.95, 1.25, 1.7], [24.35, 0.95, 1.25, 1.7], [26.48, 0.95, 1.25, 1.7]]),
+                         dict(side='s',wall='#f6f4ee',base=[0.9,'#8e8a84'],
                               win=[[x,.22,1.1,.48,'cellar'] for x in (.8,2.25,3.7)]+[[x,1.45,1.1,1.75] for x in (.8,2.25,3.7)]
                                   +[[x,4.0,1.1,1.85,'juliet'] for x in (.8,2.25,3.7)]+[[7.95,5.0,1.4,1.45]],
-                              gable=dict(color='#f8f6f0',win=[[x,.75,1.2,1.3] for x in (4.0,5.35,6.7)])),
+                              gable=dict(color='#f8f6f0',win=[[x,.75,1.2,1.3] for x in (4.0,5.35,6.7)]))],
                   stoop=AT(MAIN,.73,1)+['s',1.2],
                   tables=[AT(MAIN,.13,1.075),AT(MAIN,.36,1.075),AT(MAIN,.1,1.145),AT(MAIN,.33,1.145)]),
              dict(p=SUB(MAIN,-.14,.84,0,.98),h=3.3,wall='#f6f4ee',stucco=True,trim=False,roof='#e9e6de',flat=True,railing=True),
