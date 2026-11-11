@@ -38,7 +38,7 @@ ITEMS=[
              dict(p=RT(840.0,1005.0,13.0,22.0),h=2.6,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True)]),
  dict(n='1a',g='b',no='The Bird & Baby Café',en='The Bird & Baby Café',sub_no='Serverer kaffe, espresso, te-drikker og mer.',sub_en='Serving coffee, espresso, tea drinks, and more.',pin=AT(MAIN,.5,.1),inside='1'),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
-      parts=[dict(p=OFFICE,grade=(1.9,0.6,0.5),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#f1f0eb','stone'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5)],chimneyColor='#dcae4f',balconies=[dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True),
+      parts=[dict(p=OFFICE,grade=(1.9,0.6,0.5),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#f1f0eb','stone'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5),AT(OFFICE,.55,.3)],chimneyColor='#dcae4f',balconies=[dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True),
                  # south side (edge 2 runs east to west): long balcony over the basement doors, a small one up by the east corner
                  dict(edge=2,n=1,at=.56,upper=True,y=2.75,w=5.6,color='#7f8b74',rail=True),dict(edge=2,n=1,at=.06,upper=True,y=5.75,w=2.2,color='#7f8b74',rail=True)],
              garage=[AT(OFFICE,.44,1)+['s',2.8,2.3,'wood']],porch=AT(OFFICE,.965,1)+['s'])]),
@@ -56,7 +56,7 @@ ITEMS=[
  dict(n='6',g='b',no='Bispen',en='Bispen',sub_no='',sub_en='',
       # yellow house, ridge east-west with the gable to the west; steep red-brown roof; low wing on the north side,
       # dark deck with a white fence on the south side, small shed at the south-west corner
-      parts=[dict(p=RT(673.1,1123.0,33.1,30.5),h=5.6,wall='#e8c77e',roof='#7a3328',bay=3.4,skylights=dict(s=1)),
+      parts=[dict(p=RT(673.1,1123.0,33.1,30.5),h=5.6,wall='#e8c77e',roof='#7a3328',bay=3.4,solar='s'),
              dict(p=RT(667.6,1104.5,18.5,7.1),h=3.0,wall='#e8c77e',roof='#7a3328',bay=3.4),
              dict(p=RT(672.9,1144.5,30.2,12.3),h=0.6,wall='#4a4440',roof='#5b5148',flat=True,plain=True,trim=False,railing=True),
              dict(p=RT(651.8,1144.4,10.8,11.4),h=2.3,wall='#9a9a92',roof='#43474c',bay=3.4)]),
@@ -94,7 +94,11 @@ ITEMS=[
 CONTEXT=[
  # the yellow house, unlabelled for now (was item Y: no='Det gule huset', en='Yellow house',
  # sub_en='Small yellow house between the garage and the main building.')
- dict(p=RT(895,876,36,42),h=4.5,wall='#e6bf4f',roof='#c0532f'),dict(p=RT(892,850,24,12),h=3.0,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False),dict(p=RT(873,870,9,28),h=2.6,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False),
+ dict(p=RT(887,881,38,44),h=5.0,wall='#e6bf4f',roof='#c0432b'),dict(p=RT(884,848,30,22),h=3.0,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False),dict(p=RT(864,874,10,40),h=2.8,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False),
+ # around the garage (drone video): tall red shed by the track, log stacks at the garage's north end, a white container
+ dict(p=RT(903,612,16,18),h=6.0,wall='#a3282a',roof='#34363a',plain=True,trim=False,rise=1.8),
+ dict(p=RT(962,656,44,20),h=1.6,wall='#a98a62',roof='#d9d2c4',flat=True,plain=True,trim=False),
+ dict(p=RT(978,878,40,11,a=-12),h=2.6,wall='#f4f2ec',roof='#e9e6de',flat=True,plain=True,trim=False),
  dict(p=RT(872.9,1027.9,14,20),h=2.5,wall='#f4f2ec',roof='#7b3a2b',plain=True,trim=False,rise=1.6),   # white shed with a tiled roof in the yard
  dict(p=[[1174.4,1395.0],[1199.0,1364.3],[1230.2,1397.4],[1207.4,1426.1]],h=5,wall=YELLOW,roof='#c97f4a'),
 ]
