@@ -149,6 +149,14 @@ const wallTex = color => canvasTex("w" + color, 64, 64, (g, w, h) => {
   g.fillStyle = "#fffdf8"; g.fillRect(31, 21, 2, 20); g.fillRect(25, 30, 14, 2);
   g.strokeStyle = "#26221d"; g.lineWidth = 1.5; g.strokeRect(22, 18, 20, 26);
 });
+// Night glow for a texture with its own window layout: black, with the given panes lit
+function glowMap(key, w, h, rects) {
+  return canvasTex("glow:" + key, w, h, (g) => {
+    g.fillStyle = "#000"; g.fillRect(0, 0, w, h);
+    rects.forEach(([x, y, rw, rh]) => { const grd = g.createLinearGradient(0, y, 0, y + rh); grd.addColorStop(0, "#ffd98a"); grd.addColorStop(1, "#ffb347"); g.fillStyle = grd; g.fillRect(x, y, rw, rh); });
+  });
+}
+const withGlow = (t, rects) => { if (!t.__glow) t.__glow = glowMap(t.__key, t.image.width, t.image.height, rects); return t; };
 // Window glow for night mode: the same layout as wallTex, lit panes only
 const glowTex = canvasTex("glow", 64, 64, (g, w, h) => {
   g.fillStyle = "#000"; g.fillRect(0, 0, w, h);
@@ -162,7 +170,7 @@ const boardTex = color => canvasTex("b" + color, 64, 64, (g, w, h) => {
 });
 // Barn walls (drone video): the concrete base has a row of small square windows about every 2.2 m;
 // the red board wall above has only the odd small hatch near the eaves
-const barnBaseTex = color => canvasTex("bb" + color, 64, 64, (g, w, h) => {
+const barnBaseTex = color => withGlow(canvasTex("bb" + color, 64, 64, (g, w, h) => {
   g.fillStyle = color; g.fillRect(0, 0, w, h);
   let s = 3; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   g.fillStyle = "rgba(0,0,0,.05)"; for (let i = 0; i < 90; i++) g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5);
@@ -170,14 +178,14 @@ const barnBaseTex = color => canvasTex("bb" + color, 64, 64, (g, w, h) => {
   g.fillStyle = "#3b4a52"; g.fillRect(25, 17, 14, 14);
   g.fillStyle = "#fffdf8"; g.fillRect(31, 17, 2, 14);
   g.strokeStyle = "#26221d"; g.lineWidth = 1.5; g.strokeRect(22, 14, 20, 20);
-});
+}), [[25, 17, 14, 14]]);
 const barnUpperTex = color => canvasTex("bu" + color, 64, 64, (g, w, h) => {
   g.fillStyle = color; g.fillRect(0, 0, w, h);
   g.fillStyle = "rgba(0,0,0,.08)"; for (let i = 0; i < 64; i += 4) g.fillRect(i, 0, 1, h);
   g.fillStyle = "#f4f2ec"; g.fillRect(27, 6, 10, 9); g.fillStyle = "#3b4a52"; g.fillRect(29, 8, 6, 5);
 });
 // Office (drone video): rendered walls, tall white-framed windows with four panes on a white apron panel
-const officeTex = color => canvasTex("of" + color, 64, 64, (g, w, h) => {
+const officeTex = color => withGlow(canvasTex("of" + color, 64, 64, (g, w, h) => {
   g.fillStyle = color; g.fillRect(0, 0, w, h);
   let s = 9; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   g.fillStyle = "rgba(0,0,0,.05)"; for (let i = 0; i < 140; i++) g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5);
@@ -186,7 +194,7 @@ const officeTex = color => canvasTex("of" + color, 64, 64, (g, w, h) => {
   g.fillStyle = "#f6f4ee"; g.fillRect(31, 15, 2, 26); g.fillRect(23, 27, 18, 2);
   g.fillStyle = "rgba(0,0,0,.12)"; g.fillRect(20, 43, 24, 1.5);         // sill line
   g.strokeStyle = "#26221d"; g.lineWidth = 1.2; g.strokeRect(20, 12, 24, 44);
-});
+}), [[23, 15, 18, 26]]);
 const stuccoTex = color => canvasTex("ws" + color, 64, 64, (g, w, h) => {
   g.fillStyle = color; g.fillRect(0, 0, w, h);
   let s = 5; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -256,7 +264,6 @@ function drape(pts, opts) {
   const chaikin = (pts, n) => { for (let k = 0; k < n; k++) { if (pts.length < 3) break; const o = [pts[0]]; for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]]; o.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]); } o.push(pts[pts.length - 1]); pts = o; } return pts; };
   // gravel yards and lanes as traced from the orthophotos: [outer ring, ...holes] each, corners rounded off
   const round = pts => { for (let k = 0; k < 2; k++) { const o = []; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; o.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]); } pts = o; } return pts; };
-  const ASPHALT = GRAVEL /* one surface colour for every road and yard */, asphalt = (DATA.asphalt || []).map(a => round(a.map(P)).length ? a.map(P) : []);
   const gravel = (DATA.gravel || []).map(rings => rings.map(r => round(r.map(P))));
   const [ccx, ccy, cr] = DATA.circle, cc = P([ccx, ccy]);
   const lines = DATA.roads.map(([pts, w, kind]) => ({ pts: chaikin(pts.map(P), 3), w: Math.max(w, 3.2), kind }));
@@ -272,14 +279,11 @@ function drape(pts, opts) {
     g.lineWidth = 4.3 * k; g.strokeStyle = INKC; g.beginPath(); g.arc(...X(cc), cr * M * k, 0, 6.2832); g.stroke();
     const rings = rs => { g.beginPath(); rs.forEach(r => { r.forEach((p, i) => g[i ? "lineTo" : "moveTo"](...X(p))); g.closePath(); }); };
     gravel.forEach(rs => { rings(rs); g.lineWidth = 1.1 * k; g.strokeStyle = INKC; g.stroke(); });
-    asphalt.forEach(a => { poly(a); g.lineWidth = 1.1 * k; g.strokeStyle = INKC; g.stroke(); });
-    gravel.forEach(rs => { rings(rs); g.fillStyle = GRAVEL; g.fill("evenodd"); });
     strokeLines(0, GRAVEL, l => l.kind === "road" || l.kind === "drive");
     strokeLines(0, GRAVEL_LIGHT, l => l.kind === "path" || l.kind === "track");
-    // asphalt yards and the roundabout ring, on top of the gravel lanes that run into them
-    asphalt.forEach(a => { poly(a); g.fillStyle = ASPHALT; g.fill(); });
-    gravel.forEach(rs => { rings(rs); g.fillStyle = GRAVEL; g.fill("evenodd"); });   // the merged surface last, over every seam
-    g.lineWidth = 3.2 * k; g.strokeStyle = ASPHALT; g.beginPath(); g.arc(...X(cc), cr * M * k, 0, 6.2832); g.stroke();
+    // the merged surface (yards, lanes, ring) last, over every seam
+    gravel.forEach(rs => { rings(rs); g.fillStyle = GRAVEL; g.fill("evenodd"); });
+    g.lineWidth = 3.2 * k; g.strokeStyle = GRAVEL; g.beginPath(); g.arc(...X(cc), cr * M * k, 0, 6.2832); g.stroke();
     // grass island in the farmyard
     (DATA.islands || []).map(a => a.map(P)).forEach(a => { poly(a); g.fillStyle = "#6fa83c"; g.fill(); g.lineWidth = 0.7 * k; g.strokeStyle = INKC; g.stroke(); });
     // a little gravel grain
@@ -435,12 +439,13 @@ function trailer(part, item, group, pts, baseY, ink) {
     g2.fillStyle = WHITE; g2.fillRect(0, 0, w, 4); g2.fillRect(0, h - 3, w, 3); g2.fillRect(0, 0, 4, h); g2.fillRect(w - 4, 0, 4, h);
     g2.fillStyle = "#1c1c1c"; g2.font = "bold 22px sans-serif"; g2.textAlign = "center"; g2.fillText(String(num), w / 2, 40);
   });
-  const sideD = toon({ map: side(true) }), sideP = toon({ map: side(false) }), endM = toon({ map: end(t.n || "") }), roofM = toon({ color: WHITE });
+  const trWin = [[31, 21, 34, 18], [135, 21, 16, 26]];
+  const sideD = toon({ map: withGlow(side(true), trWin) }), sideP = toon({ map: withGlow(side(false), trWin.concat([[193, 21, 34, 18]])) }), endM = toon({ map: end(t.n || "") }), roofM = toon({ color: WHITE });
   // BoxGeometry material order: +x, -x, +y, -y, +z, -z
   const box = new THREE.Mesh(new THREE.BoxGeometry(L - 0.2, H, W - 0.3), [endM, endM, roofM, roofM, doorSide > 0 ? sideD : sideP, doorSide > 0 ? sideP : sideD]);
   box.position.y = lift + H / 2; g.add(box); addInk(box.geometry, box, 25, ink);
   // the long-side texture reads left to right from outside, so mirror the far side
-  if (doorSide < 0) { const m = sideD.map.clone(); m.needsUpdate = true; m.repeat.x = -1; m.offset.x = 1; box.material[5] = toon({ map: m }); }
+  if (doorSide < 0) { const m = sideD.map.clone(); m.needsUpdate = true; m.repeat.x = -1; m.offset.x = 1; m.__key = sideD.map.__key; m.__glow = sideD.map.__glow; box.material[5] = toon({ map: m }); }
   // chassis and twin wheels
   const dark = toon({ color: "#2b2b2b" });
   const ch = new THREE.Mesh(new THREE.BoxGeometry(L * 0.8, 0.18, W - 0.8), toon({ color: "#55534f" })); ch.position.y = lift - 0.1; g.add(ch);
@@ -634,6 +639,7 @@ function building(part, item) {
       // gutter downpipes at the corners
       g.fillStyle = "#2b2a29"; g.fillRect(6, 0, 5, h); g.fillRect(w - 11, 0, 5, h);
     });
+    withGlow(wt, (fc.win || []).map(([x0, y0, ww, hh]) => [x0 * PX + 4, Hc - (y0 + hh) * PX + 4, ww * PX - 8, hh * PX - 8]));
     wt.wrapS = wt.wrapT = THREE.ClampToEdgeWrapping;
     const a0 = at(0, 0, o), a1 = at(L, 0, o), a2 = at(L, H, o), a3 = at(0, H, o);
     const fm = new THREE.Mesh(geomFrom([...a0, ...a1, ...a2, ...a0, ...a2, ...a3], [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]), toon({ map: wt }));
@@ -646,6 +652,7 @@ function building(part, item) {
         g.fillStyle = "rgba(0,0,0,.18)"; g.fillRect(0, h - 4, w, 4);
         (gc.win || []).forEach(([x0, y0, ww, hh]) => win(g, x0, y0, ww, hh, h));
       });
+      withGlow(gt, (gc.win || []).map(([x0, y0, ww, hh]) => [x0 * PX + 4, Gc - (y0 + hh) * PX + 4, ww * PX - 8, hh * PX - 8]));
       gt.wrapS = gt.wrapT = THREE.ClampToEdgeWrapping;
       const b0 = at(0, H, o + 0.02), b1 = at(L, H, o + 0.02), b2 = at(L / 2, top - 0.05, o + 0.02);
       const gm = new THREE.Mesh(geomFrom([...b0, ...b1, ...b2], [0, 0, 1, 0, 0.5, 1]), toon({ map: gt }));
@@ -1341,7 +1348,7 @@ requestAnimationFrame(frame);
       if (!m) return;
       if (m.isMeshBasicMaterial && !m.transparent && m.color) basics.push([m, m.color.clone()]);
       if (m.isMeshBasicMaterial && m.transparent && m.map && !m.opacity === false) basics.push([m, m.color.clone()]);
-      if (m.isMeshToonMaterial && m.map && m.map.image && /^w/.test(m.map.__key || "")) glows.push(m);
+      if (m.isMeshToonMaterial && m.map && m.map.image && (m.map.__glow || /^w/.test(m.map.__key || ""))) glows.push(m);
     });
   });
   const tint = new THREE.Color("#46557a");
@@ -1377,7 +1384,7 @@ requestAnimationFrame(frame);
   const key = (arr, s, out) => s < 0.5 ? out.copy(arr[0]).lerp(arr[1], s * 2) : out.copy(arr[1]).lerp(arr[2], (s - 0.5) * 2);
   const num = (arr, s) => s < 0.5 ? arr[0] + (arr[1] - arr[0]) * s * 2 : arr[1] + (arr[2] - arr[1]) * (s - 0.5) * 2;
   const smooth = (a, b, x) => { const k = Math.min(1, Math.max(0, (x - a) / (b - a))); return k * k * (3 - 2 * k); };
-  glows.forEach(m => { m.emissiveMap = glowTex; m.emissive.copy(WARM); m.emissiveIntensity = 0; m.needsUpdate = true; });
+  glows.forEach(m => { m.emissiveMap = m.map.__glow || glowTex; m.emissive.copy(WARM); m.emissiveIntensity = 0; m.needsUpdate = true; });
   poolMat.opacity = 0;
   const sunHome = sun.position.clone();
   // each window-wall colour switches on at its own moment, so lights come on one house at a time

@@ -62,6 +62,12 @@ Only needed when the ground painting, trees, terrain or distant landscape change
 
 Then `python3 build.py`, commit and push to `main`, as for everyday changes.
 
+### Levelling the ground without the height service
+
+`python3 src/pipeline/level.py` flattens (or, with `grade=`, slopes) the ground under every building on the saved
+heightmap and redoes the hill shading. It always starts from `build/style/terrain_base.json`, so repeated runs never
+sink the ground; copy `terrain.json` there after a fresh `terrain.py` run.
+
 ### Gravel yards and lanes
 
 `src/content/gravel.json` holds the outline of all bare gravel on the farm, picked out by colour from the
