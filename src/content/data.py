@@ -78,7 +78,7 @@ ITEMS=[
  dict(n='10',g='o',no='Garasjen',en='Garage',sub_no='',sub_en='Red garage building east of the barn.',
       parts=[dict(p=RT(974.8,734.4,45.8,112.6),h=5,wall=RED,roof=ROOF_GREY)]),
  dict(n='11',g='o',no='Barracks',en='Barracks',sub_no='',sub_en='Long, low building along the farm road, opposite the car park.',
-      parts=[dict(p=[[1026,872],[1210,832],[1220,866],[1035,906]],h=6,wall=RED,roof='#d6d4ce',flat=True)]),
+      parts=[dict(p=[[1026,872],[1210,832],[1220,866],[1035,906]],h=6,wall=RED,roof='#dcdbd6',flat=True,stripes=2.9)]),
  dict(n='12',g='o',no='Spiseteltet',en='Dining tent',sub_no='',sub_en='Large white tent just south of the main building.',
       parts=[dict(p=RT(807.4,1168.5,33.1,63.6),h=2.6,wall='#fbfaf5',roof='#f6f4ee',tent=True)]),
  dict(n='13',g='o',no='Nordlåven',en='North barn',sub_no='',sub_en='Older farm barn and work yard north of the garage, reached by the farm track.',
@@ -93,7 +93,7 @@ CONTEXT=[
  dict(p=RT(872.9,1027.9,12.8,12.8),h=2.6,wall='#f4f2ec',roof='#3e3a38',plain=True,trim=False,rise=1.4),
  dict(p=[[1174.4,1395.0],[1199.0,1364.3],[1230.2,1397.4],[1207.4,1426.1]],h=5,wall=YELLOW,roof='#c97f4a'),
 ]
-FLAG=[740,925]
+FLAG=[739,937]
 ROADS_EXTRA=[]
 WALK_FIELD=[[1396,10],[1700,12],[2000,14],[2310,16],[2360,100],[2385,150]]
 YARD=[[590,752],[805,752],[840,790],[840,840],[700,845],[595,840]]
@@ -109,7 +109,7 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  ([[1445,846],[1600,846],[1792,841]],5.5,'road'),
  ([[1189,1576],[1350,1588],[1500,1588],[1792,1588]],4.5,'road'),
  # farm drive from Grimerudvegen to the yard
- ([[1445,836],[1385,834],[1300,856],[1228,882],[1150,904],[1080,916],[1030,921],[960,927],[900,933],[840,935],[790,931],[762,928]],5,'drive'),
+ ([[1445,836],[1385,834],[1300,856],[1228,882],[1150,904],[1080,916],[1030,921],[960,927],[900,934],[866,944],[845,962],[815,972],[785,972],[762,962]],5,'drive'),
  ([[975,926],[955,912],[930,890],[910,860],[907,830],[898,798],[860,788],[828,790]],5,'drive'),
  ([[1386,823],[1386,836]],3,'path'),
  # farm tracks
@@ -119,8 +119,8 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  ([[598,790],[566,782],[552,760],[550,700],[553,645],[562,625],[600,620],[700,618],[800,622],[860,640],[905,680],[925,700]],3,'track'),
  # yard and main building
  ([[828,795],[860,795],[930,803]],3,'path'),
- ([[715,845],[725,880],[735,907]],3,'path'),
- ([[747,943],[745,1000],[745,1060],[745,1100],[752,1122]],3,'path'),
+ ([[715,845],[727,885],[736,919]],3,'path'),
+ ([[745,956],[745,1000],[745,1060],[745,1100],[752,1122]],3,'path'),
  ([[745,1080],[725,1092],[711,1098]],2.8,'path'),
  ([[925,1040],[890,1036],[852,1040],[845,1080],[841,1128]],3,'path'),
  ([[752,1122],[800,1123],[845,1123],[855,1160],[868,1210],[935,1250],[990,1280]],3,'path'),
@@ -129,6 +129,6 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  ([[990,1280],[1031,1276],[1100,1325],[1150,1362],[1160,1395],[1175,1430],[1215,1462],[1254,1477]],3.2,'drive'),
 ]
 ROADS+=ROADS_EXTRA
-CIRCLE=[740,925,19]
+CIRCLE=[739,937,19]
 # paved ground we paint as gravel besides the car park: the yard north of the main building, up to its wall
 GRAVEL_AREAS=[RT(606,981,106,15),[[752,944],[800,948],[845,955],[853,972],[850,998],[835,998],[773,998],[760,1006],[749,1000]]]
