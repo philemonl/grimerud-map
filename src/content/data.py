@@ -72,11 +72,11 @@ ITEMS=[
  dict(n='7',g='b',no='Hybelhuset',en='Boys’ House',sub_no='',sub_en='',
       parts=[dict(p=[[1100,1300],[1118,1276],[1158,1306],[1140,1332]],h=3.4,wall='#e6bf4f',roof='#c0532f',rise=4.8,chimneys=[[1124,1298]],bay=3.6),dict(p=[[1128, 1302], [1149, 1318], [1175, 1284], [1154, 1268]],h=3.0,wall='#e6bf4f',roof='#c0532f',rise=2.8,trim=False,bay=3.6)]),
  dict(n='8',g='b',no='Rekkehusene',en='Row houses',sub_no='',sub_en='',
-      # two homes a block, front doors up short flights of steps on the road side; the ground climbs about 1.5 m to the
-      # gardens behind, so the basement walks out at the front (drone photo)
-      parts=[dict(p=[[1025, 1300.5], [1062, 1326.5], [1040.6, 1355.7], [1003.6, 1328.7]],h=5.6,grade=(-0.9,-1.3,0),wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2),stoops=[[1035.3, 1307.1, 'n', 1.4, 'open'], [1051.2, 1318.3, 'n', 1.4, 'open']]),
-             dict(p=[[1069, 1319.5], [1106, 1346.5], [1085.6, 1375.7], [1048.6, 1348.7]],h=5.6,grade=(-0.9,-1.3,0),wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2),stoops=[[1079.3, 1326.4, 'n', 1.4, 'open'], [1095.2, 1338.0, 'n', 1.4, 'open']]),
-             dict(p=[[1102, 1355.5], [1139, 1382.5], [1117.6, 1411.7], [1080.6, 1384.7]],h=5.6,grade=(-0.9,-1.3,0),wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2),stoops=[[1112.3, 1362.4, 'n', 1.4, 'open'], [1128.2, 1374.0, 'n', 1.4, 'open']])]),
+      # two homes a block, front doors on the road (north-east) side; the ground falls about 1.5 m to the gardens
+      # behind, so the basement walks out on the garden (south-west) side (drone photo)
+      parts=[dict(p=[[1025, 1300.5], [1062, 1326.5], [1040.6, 1355.7], [1003.6, 1328.7]],h=5.6,grade=(0.9,1.3,0),wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2),stoops=[[1035.3, 1307.1, 'n', 0.6, 'open'], [1051.2, 1318.3, 'n', 0.6, 'open']]),
+             dict(p=[[1069, 1319.5], [1106, 1346.5], [1085.6, 1375.7], [1048.6, 1348.7]],h=5.6,grade=(0.9,1.3,0),wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2),stoops=[[1079.3, 1326.4, 'n', 0.6, 'open'], [1095.2, 1338.0, 'n', 0.6, 'open']]),
+             dict(p=[[1102, 1355.5], [1139, 1382.5], [1117.6, 1411.7], [1080.6, 1384.7]],h=5.6,grade=(0.9,1.3,0),wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2),stoops=[[1112.3, 1362.4, 'n', 0.6, 'open'], [1128.2, 1374.0, 'n', 0.6, 'open']])]),
  dict(n='9',g='b',no='Grimerud Barnehage',en='Grimerud Kindergarten',sub_no='',sub_en='',
       parts=[dict(p=RT(885.0,1100.6,44.1,25.5),h=5.5,wall=RED,roof='#b23e2c'),dict(p=RT(857.3,1102.1,11.3,31.4),h=2.8,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False),dict(p=RT(888.5,1160.9,34.0,95.4),h=4.5,wall=RED,roof='#b23e2c',solar=True),dict(p=RT(913.4,1159.6,20.4,29.4),h=4.5,wall=RED,roof='#5a2d26',rise=2.7,cross=True,trim=False,solar='s')]),
  # lettered: arrival, outdoors, other buildings
