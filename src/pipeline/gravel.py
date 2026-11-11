@@ -46,6 +46,13 @@ for i in range(1,n):
 n,lab,st,_=cv2.connectedComponentsWithStats(1-m)
 for i in range(1,n):
     if st[i,cv2.CC_STAT_AREA]<220 and not (build[lab==i].any()): m[lab==i]=1
+# only trust the colour pick inside the zones checked against the drone photos; add the hand-traced yards
+zone=np.zeros((N,N),np.uint8)
+for z in data.GRAVEL_ZONES: cv2.fillPoly(zone,[np.array(z,np.int32)],1)
+m=m*zone
+m=cv2.morphologyEx(m,cv2.MORPH_OPEN,k(11)); m=cv2.morphologyEx(m,cv2.MORPH_CLOSE,k(21))
+for g in data.GRAVEL_AREAS: cv2.fillPoly(m,[np.array(g,np.int32)],1)
+for g in data.ASPHALT: cv2.fillPoly(m,[np.array(g,np.int32)],0)
 m[cut>0]=0
 cv2.imwrite(B+'style/gravel.png',m*255); cv2.imwrite(B+'style/gravel_cov.png',(cov>0.5).astype(np.uint8)*255)
 print('gravel px',int(m.sum()))

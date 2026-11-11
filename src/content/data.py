@@ -14,7 +14,7 @@ def AT(q,u,v):
     return [round((1-u)*(1-v)*a[i]+u*(1-v)*b[i]+u*v*c[i]+(1-u)*v*d[i],1) for i in (0,1)]
 def SUB(q,u1,v1,u2,v2): return [AT(q,u1,v1),AT(q,u2,v1),AT(q,u2,v2),AT(q,u1,v2)]
 MAIN=RT(798.3,1050.3,40.8,120.6); OFFICE=RT(604.8,947.1,100.3,50.7); GYM=RT(672.5,932.8,36.5,68.4)
-BARN=RT(689.6,695.0,227,67.9); LEAN=RT(692.3,741.6,227,25.5); BARNX=RT(717.3,756.2,77.5,29.7)
+BARN=RT(690.2,705.5,227,46.9); LEAN=RT(692.3,741.6,227,25.5); BARNX=RT(717.3,756.2,77.5,29.7)
 WHITE='#f4f1ea'; YELLOW='#e6bd4e'; RED='#a8292a'; DARKRED='#8c2626'; CREAM='#f2ece0'; CONCRETE='#d9d5cc'
 ROOF_RED='#c4432d'; ROOF_TILE='#b84a30'; ROOF_DARK='#3d3a38'; ROOF_BROWN='#6e3a2a'; ROOF_GREY='#8b8f8c'
 ITEMS=[
@@ -85,11 +85,14 @@ ITEMS=[
       parts=[dict(p=[[982,258],[1036,261],[1031,415],[977,412]],h=7,wall=RED,gable=RED,roof='#55585c',plain=True,base=[1.6,CONCRETE]),dict(p=RT(845,328,30,36),h=3.5,wall=RED,roof='#55585c',plain=True)]),
  dict(n='14',g='o',no='Vaktmesterboligen',en='Caretaker’s house',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
       parts=[dict(p=RT(1382,793,44,34),h=4.5,wall=WHITE,roof=ROOF_RED)]),
+ # cabins on the asphalt between the office and the barn (from the drone photos, Nov 2026)
+ dict(n='15',g='o',no='Trailerparken',en='Trailer park',sub_no='Brakker og vogner mellom kontorbygget og låven.',sub_en='Cabins and trailers between the office building and the barn.',
+      pin=[588,838],parts=[dict(p=RT(568,789,24,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(568,799.5,24,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(569,832.5,24,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(569,843,24,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(574,875,26,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(574,885.5,26,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(609.5,816,9.5,26),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(615,866,9.5,26),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True)]),
 ]
 CONTEXT=[
  # the yellow house, unlabelled for now (was item Y: no='Det gule huset', en='Yellow house',
  # sub_en='Small yellow house between the garage and the main building.')
- dict(p=RT(877.6,859.3,34.0,38.8),h=4.5,wall='#e6bf4f',roof='#c0532f'),dict(p=RT(881.1,829.7,23.5,19.8),h=5.2,wall='#e6bf4f',roof='#c0532f'),dict(p=RT(855.0,846.2,9.6,31.4),h=2.6,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False),
+ dict(p=RT(895,876,36,42),h=4.5,wall='#e6bf4f',roof='#c0532f'),dict(p=RT(892,850,24,12),h=3.0,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False),dict(p=RT(873,870,9,28),h=2.6,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False),
  dict(p=RT(872.9,1027.9,12.8,12.8),h=2.6,wall='#f4f2ec',roof='#3e3a38',plain=True,trim=False,rise=1.4),
  dict(p=[[1174.4,1395.0],[1199.0,1364.3],[1230.2,1397.4],[1207.4,1426.1]],h=5,wall=YELLOW,roof='#c97f4a'),
 ]
@@ -122,7 +125,7 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  ([[600,778],[576,776],[564,755],[561,700],[563,662],[576,642],[600,638],[700,646],[790,653],[840,665],[880,688],[905,700],[922,705]],3,'track'),
  # the barn's east end to the garage lane; barn yard to the roundabout
  ([[922,712],[870,710],[830,712],[806,716]],3,'path'),
- ([[695,805],[695,850],[700,885],[720,910]],3.2,'path'),
+ ([[698,890],[712,902],[735,914],[755,928],[772,942],[790,956]],3.2,'path'),
  # west side of the main building, the spur to Bispen, and round the south end
  ([[742,965],[752,985],[757,1020],[757,1080],[757,1105]],3.2,'path'),
  ([[757,1092],[725,1097],[700,1100]],2.8,'path'),
@@ -174,5 +177,19 @@ def _connect(roads,circle,polys=(),snap=30):
         out.append((pts,w,k))
     return out
 # paved ground we paint as gravel besides the car park: the yard north of the main building, up to its wall
-GRAVEL_AREAS=[]   # hand-drawn extras; the yards now come from the orthophotos (gravel.json)
-ROADS=_connect(ROADS,CIRCLE,[p['p'] for it in ITEMS for p in it.get('parts',[])]+[p['p'] for p in CONTEXT]+[it['area'] for it in ITEMS if it.get('area')]+GRAVEL_AREAS)
+# Hand-traced surfaces from the drone photos (Nov 2026, light frost: asphalt black, driven gravel tracked).
+# Gravel picked from the orthophotos is only trusted inside GRAVEL_ZONES; everywhere else gravel is the roads
+# above plus these yards, so worn grass and garden paths never turn into lanes.
+GRAVEL_AREAS=[[[560,640],[800,648],[815,690],[800,700],[578,692],[560,700]]]     # storage yard north of the barn
+GRAVEL_ZONES=[[[872,915],[1085,903],[1092,1064],[882,1066]],                       # the car park
+              [[915,375],[1065,375],[1065,475],[915,475]]]                        # north barn yard
+ASPHALT=[
+ [[600,772],[612,755],[815,755],[818,800],[806,836],[757,842],[757,826],[745,821],[720,820],[708,828],[707,885],[690,885],[690,815],[680,800],[650,797],[636,800],[600,800]],  # barn yard
+ [[550,772],[600,772],[600,878],[691,878],[691,897],[550,897]],                    # trailer park
+ [[691,885],[707,885],[714,912],[718,985],[691,985]],                              # east of the gym
+ [[588,972],[691,968],[691,986],[588,989]],                                        # along the office's south side
+ [[718,962],[762,958],[764,990],[762,1045],[747,1045],[745,992],[718,985]],        # roundabout to the main building's west side
+ [[800,708],[880,708],[905,690],[948,685],[950,800],[1000,800],[1000,815],[925,815],[905,790],[900,740],[880,728],[800,728]],  # barn's east end and the garage yard
+ [[928,1140],[960,1150],[968,1215],[940,1235],[915,1212],[925,1175]],              # kindergarten playground (approximate)
+]
+ROADS=_connect(ROADS,CIRCLE,[p['p'] for it in ITEMS for p in it.get('parts',[])]+[p['p'] for p in CONTEXT]+[it['area'] for it in ITEMS if it.get('area')]+GRAVEL_AREAS+ASPHALT)

@@ -60,7 +60,7 @@ for rings in json.load(open(str(CONTENT)+'/gravel.json'))['polys']:
     one=np.zeros((H,W),np.uint8); cv2.fillPoly(one,[np.array(rings[0],np.int32)],1)
     for hole in rings[1:]: cv2.fillPoly(one,[np.array(hole,np.int32)],0)
     pk|=one
-for g in getattr(data,'GRAVEL_AREAS',[]): cv2.fillPoly(pk,[np.array(g,np.int32)],1)
+for g in getattr(data,'GRAVEL_AREAS',[])+getattr(data,'ASPHALT',[]): cv2.fillPoly(pk,[np.array(g,np.int32)],1)
 road=np.zeros((H,W),np.uint8)
 for pts,wm,kind in data.ROADS: draw_poly_path(road,pts,wm/M)
 cx,cy,r=data.CIRCLE; cv2.circle(road,(cx,cy),r,1,int(3/M),cv2.LINE_AA)
