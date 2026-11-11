@@ -85,7 +85,7 @@ ITEMS=[
  dict(n='P',g='a',no='Parkering',en='Car park',sub_no='',sub_en='Main parking on the south side of the farm road.',
       pin=[962,1017],area=[[834,957],[1088,950],[1092,1064],[1062,1077.4],[906.3,1086.6],[862.2,1089.2],[834,1062]]),   # south edge on the line of the kindergarten's north wall
  dict(n='E',g='a',icon='arrow',no='Innkjøring',en='Entrance',sub_no='',sub_en='Turn west off Grimerudvegen. The car park is about 100 m ahead on the left.',
-      pin=[1442,838]),
+      pin=[1442,838],toward=[1385,836]),   # the arrow always points along the drive, into the farm
  # garden & football lawn, unlabelled for now:
  # dict(n='H',g='a',icon='ball',no='Hagen og ballplassen',en='Garden & football lawn',sub_no='Fotballbane og sandvolleyballbane',sub_en='Football pitch and beach volleyball court',
  #      area=[[504,988],[770,988],[770,1113],[700,1117],[700,1212],[504,1212]],pin=[600,1045]),

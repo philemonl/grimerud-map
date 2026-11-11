@@ -1451,6 +1451,14 @@ function frame(now) {
   pinLevels(h);
   declutter();
   for (const it of ITEMS) if (!it.pinEl.hidden) { const s = it.pinEl.style; s.left = (it.sx - 14).toFixed(1) + "px"; s.top = (it.sy - 14).toFixed(1) + "px"; }
+  // an arrow badge with a "toward" point turns to keep pointing that way on screen (the entrance points in)
+  for (const it of ITEMS) if (it.toward && !it.pinEl.hidden) {
+    const g = it.c, t = P(it.toward), y = hAt(...g);
+    v.set(g[0], y, g[1]).project(camera); const ax = v.x * w, ay = -v.y * h;
+    v.set(t[0], y, t[1]).project(camera);
+    const ang = Math.atan2(-v.y * h - ay, v.x * w - ax);
+    (it.arrowEl || (it.arrowEl = it.pinEl.querySelector(".num svg"))).style.transform = `rotate(${ang}rad)`;
+  }
   if (!hintTimer && onScreen()) hintTimer = setTimeout(hideHint, 8000);
   if (pinsEl.classList.contains("names")) placeLabels(w, h);
   for (const [el, at, show] of [[dgGo, DG_AT, !discOn], [farmGo, FARM_AT, discOn]]) {
