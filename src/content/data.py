@@ -94,10 +94,11 @@ ITEMS=[
       # from the drone photo (DJI_0033): an L of two tiled gables, cream walls, a low west wing and a raised wooden deck
       # traced from the user's marked-up drone photo: an L of two pale-tiled blocks, a dark-tiled block on the south side,
       # and a small lower roof in the corner, each its own roof
-      parts=[dict(p=[[1414.9, 781.0], [1416.6, 793.2], [1385.3, 797.6], [1383.6, 785.4]],h=4.2,wall='#d4a640',roof='#8a4a3a',bay=3.4,chimneys=[[1396.8, 796.0]]),
-             dict(p=[[1397.1, 777.7], [1399.1, 791.7], [1373.1, 795.4], [1371.1, 781.3]],h=4.2,wall='#d4a640',roof='#8a4a3a',bay=3.4),
-             dict(p=[[1416.8, 793.1], [1418.7, 806.7], [1388.1, 811.0], [1386.2, 797.5]],h=4.0,wall='#d4a640',roof='#6a2a20',bay=3.4,porch=[1405.1, 808.6]+['s']),
-             dict(p=[[1384.5, 793.8], [1385.8, 803.2], [1376.4, 804.6], [1375.0, 795.1]],h=2.8,wall='#d4a640',roof='#7a3328',bay=3.4,rise=1.2,trim=False),
+      # from the marked-up drone photo, each marked piece being one roof slope with ridges between them:
+      # main block, ridge east-west where the frosty north slope meets the bare south slope;
+      # west wing, its own east-west ridge a little further north, running into the main roof
+      parts=[dict(p=[[1414.87, 781.04], [1418.48, 806.73], [1387.69, 811.05], [1384.08, 785.37]],h=4.2,wall='#d4a640',roof='#7a3328',bay=3.4,chimneys=[[1396.64, 795.01]],porch=[1403.79, 808.79]+['s']),
+             dict(p=[[1397.14, 777.67], [1400.44, 801.18], [1374.44, 804.84], [1371.13, 781.33]],h=3.6,wall='#d4a640',roof='#7a3328',bay=3.4),
              dict(p=RT(1366,786,15.5,31,a=-8),h=0.9,wall='#8a6a48',roof='#a88a64',flat=True,plain=True,trim=False,railing=True,tables=[[1366,783],[1366,778]]),
              dict(p=RT(1364.5,770.5,9,4.5,a=-8),h=2.0,wall='#8a6a48',roof='#5b5148',flat=True,plain=True,trim=False)]),
  # cabins on the asphalt between the office and the barn (from the drone photos, Nov 2026)

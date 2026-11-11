@@ -346,6 +346,37 @@ function flatRoof(pts, y) {
   const shape = new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)));
   const g = new THREE.ShapeGeometry(shape); g.rotateX(-Math.PI / 2); g.translate(0, y, 0); return g;
 }
+// Hipped roof over any right-angled outline (an L, a T, a stepped plan): every point rises at the same pitch
+// with its distance to the nearest wall, measured square to the walls. On a grid whose lines pass through
+// every corner that height is flat on each half-cell, so splitting each cell along the right diagonal gives
+// the exact roof: straight hips, ridges and valleys, one piece, no crossing roofs.
+function hipRoof(pts, h, pitch = 0.84, maxRise = 5) {
+  const o = pts[0], e = [pts[1][0] - o[0], pts[1][1] - o[1]], el = Math.hypot(...e), u = [e[0] / el, e[1] / el], v = [-u[1], u[0]];
+  const st = 0.25, snap = x => Math.round(x / st) * st;
+  const loc = pts.map(p => [snap((p[0] - o[0]) * u[0] + (p[1] - o[1]) * u[1]), snap((p[0] - o[0]) * v[0] + (p[1] - o[1]) * v[1])]);
+  const segs = loc.map((a, i) => [a, loc[(i + 1) % loc.length]]);
+  const inside = (x, y) => { let c = false; for (const [a, b] of segs) if ((a[1] > y) !== (b[1] > y) && x < a[0] + (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1])) c = !c; return c; };
+  const dInf = (x, y) => { let m = Infinity; for (const [a, b] of segs) {
+    const dx = Math.max(0, Math.min(a[0], b[0]) - x, x - Math.max(a[0], b[0])), dy = Math.max(0, Math.min(a[1], b[1]) - y, y - Math.max(a[1], b[1]));
+    m = Math.min(m, Math.max(dx, dy)); } return m; };
+  const H = (x, y) => h + Math.min(pitch * dInf(x, y), maxRise);
+  const xs = loc.map(p => p[0]), ys = loc.map(p => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const W = (x, y) => [o[0] + u[0] * x + v[0] * y, o[1] + u[1] * x + v[1] * y];
+  const pos = [], uv = [], put = (x, y) => { const [wx, wz] = W(x, y), hy = H(x, y); pos.push(wx, hy, wz); uv.push(x / 2.2, hy / 0.6); };
+  let top = h;
+  for (let x = x0; x < x1 - 1e-6; x += st) for (let y = y0; y < y1 - 1e-6; y += st) {
+    if (!inside(x + st / 2, y + st / 2)) continue;
+    const a = H(x, y), b = H(x + st, y), c = H(x + st, y + st), d = H(x, y + st), m = H(x + st / 2, y + st / 2);
+    top = Math.max(top, a, b, c, d);
+    if (Math.abs((a + c) / 2 - m) <= Math.abs((b + d) / 2 - m)) { put(x, y); put(x, y + st); put(x + st, y + st); put(x, y); put(x + st, y + st); put(x + st, y); }
+    else { put(x, y); put(x, y + st); put(x + st, y); put(x + st, y); put(x, y + st); put(x + st, y + st); }
+  }
+  const g = geomFrom(pos, uv); g.computeVertexNormals();
+  // keep the faces lit toward the sky whichever way the outline winds
+  const n = g.attributes.normal; let up = 0; for (let i = 0; i < n.count; i++) up += n.getY(i);
+  if (up < 0) { const p = g.attributes.position; for (let i = 0; i < p.count; i += 3) for (let k = 0; k < 3; k++) { const t = p.getX(i + 1); } g.index = null; const arr = p.array; for (let i = 0; i < arr.length; i += 9) for (let k = 0; k < 3; k++) { const t = arr[i + 3 + k]; arr[i + 3 + k] = arr[i + 6 + k]; arr[i + 6 + k] = t; } g.computeVertexNormals(); }
+  return { geom: g, top };
+}
 function gable(pts, h, maxRise = 6.5, cross = false) {
   const d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
   let [p0, p1, p2, p3] = pts;
@@ -496,7 +527,16 @@ function building(part, item) {
     b.position.set(x, y0 + hb / 2, z); group.add(b);
   });
   let top = part.h, ridge = null, gAx = [1, 0];
-  if (pts.length === 4 && !part.flat) {
+  if (part.hip && !part.flat) {
+    const hr = hipRoof(pts, part.h);
+    const rm = new THREE.Mesh(hr.geom, toon({ map: roofTex(part.roof), side: THREE.DoubleSide })); group.add(rm); addInk(hr.geom, group, 25, ink);
+    top = hr.top;
+    if (part.chimneys) part.chimneys.forEach(cp => {
+      const [x, z] = P(cp), hgt = hr.top - part.h + 1.0;
+      const ch = new THREE.Mesh(new THREE.BoxGeometry(0.9, hgt, 0.9), toon({ color: "#a5452e" }));
+      ch.position.set(x, part.h + hgt / 2 + 0.3, z); group.add(ch); addInk(ch.geometry, ch, 25, ink);
+    });
+  } else if (pts.length === 4 && !part.flat) {
     const g = gable(pts, part.h, part.rise || 6.5, !!part.cross);
     // solar: true = both slopes; "s"/"n"/"e"/"w" = only the slope facing that way (+z is south, +x is east)
     const faces = { s: [0, 1], n: [0, -1], e: [1, 0], w: [-1, 0] }[part.solar];
