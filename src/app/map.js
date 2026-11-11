@@ -457,8 +457,11 @@ function building(part, item) {
     if (part.stripes) {
       // ribbed sheet roof: darker bands across the building every `stripes` metres, square to its longest wall
       let best = [1, 0], bl = 0; pts.forEach((a, i) => { const b = pts[(i + 1) % pts.length], L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (L > bl) { bl = L; best = [(b[0] - a[0]) / L, (b[1] - a[1]) / L]; } });
-      const p = fg.attributes.position, uv = [];
-      for (let i = 0; i < p.count; i++) uv.push((p.getX(i) * best[0] + p.getZ(i) * best[1]) / part.stripes, 0.5);
+      // start at the end wall and fit a whole number of panels, so both ends finish on a full panel
+      const p = fg.attributes.position, uv = [], pr = i => p.getX(i) * best[0] + p.getZ(i) * best[1];
+      let lo = Infinity, hi = -Infinity; for (let i = 0; i < p.count; i++) { lo = Math.min(lo, pr(i)); hi = Math.max(hi, pr(i)); }
+      const sp = (hi - lo) / Math.max(1, Math.round((hi - lo) / part.stripes));
+      for (let i = 0; i < p.count; i++) uv.push((pr(i) - lo) / sp + 0.33, 0.5);
       fg.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
       rmat = { map: canvasTex("stripes" + part.roof, 32, 4, (g, w, h) => {
         g.fillStyle = part.roof; g.fillRect(0, 0, w, h); g.fillStyle = "rgba(60,64,70,.38)"; g.fillRect(0, 0, 9, h); g.fillStyle = "rgba(255,255,255,.25)"; g.fillRect(9, 0, 2, h);

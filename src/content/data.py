@@ -78,7 +78,7 @@ ITEMS=[
  dict(n='10',g='o',no='Garasjen',en='Garage',sub_no='',sub_en='Red garage building east of the barn.',
       parts=[dict(p=RT(974.8,734.4,45.8,112.6),h=5,wall=RED,roof=ROOF_GREY)]),
  dict(n='11',g='o',no='Barracks',en='Barracks',sub_no='',sub_en='Long, low building along the farm road, opposite the car park.',
-      parts=[dict(p=[[1026,872],[1210,832],[1220,866],[1035,906]],h=6,wall=RED,roof='#dcdbd6',flat=True,stripes=2.9)]),
+      parts=[dict(p=RT(1122.8,869,188,34.6,a=-12.3),h=6,wall=RED,roof='#dcdbd6',flat=True,stripes=2.9)]),
  dict(n='12',g='o',no='Spiseteltet',en='Dining tent',sub_no='',sub_en='Large white tent just south of the main building.',
       parts=[dict(p=RT(807.4,1168.5,33.1,63.6),h=2.6,wall='#fbfaf5',roof='#f6f4ee',tent=True)]),
  dict(n='13',g='o',no='Nordlåven',en='North barn',sub_no='',sub_en='Older farm barn and work yard north of the garage, reached by the farm track.',
@@ -109,7 +109,7 @@ ROADS=[ # traced from the z18 imagery; (points, width in metres, kind)
  ([[1445,846],[1600,846],[1792,841]],5.5,'road'),
  ([[1189,1576],[1350,1588],[1500,1588],[1792,1588]],4.5,'road'),
  # farm drive from Grimerudvegen to the yard
- ([[1445,836],[1385,834],[1300,856],[1228,882],[1150,904],[1080,916],[1030,921],[960,927],[900,934],[866,944],[845,962],[815,972],[785,972],[762,962]],5,'drive'),
+ ([[1445,836],[1385,834],[1300,856],[1228,882],[1150,904],[1080,916],[1030,921],[960,927],[900,934],[868,946],[848,957],[815,962],[785,962],[764,957]],5,'drive'),
  ([[975,926],[955,912],[930,890],[910,860],[907,830],[898,798],[860,788],[828,790]],5,'drive'),
  ([[1386,823],[1386,836]],3,'path'),
  # farm tracks
