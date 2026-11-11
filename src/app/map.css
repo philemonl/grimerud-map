@@ -178,9 +178,11 @@
 #grimerud-map .card p i { display: block; }
 #grimerud-map .close { border: 0; background: none; cursor: pointer; padding: 2px 4px; color: #5a5248; font-size: 22px; line-height: 1; }
 #grimerud-map .hint { position: absolute; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font: italic 12px/1 var(--f); color: #26221d; background: rgba(255,253,248,.85); border: 1px solid rgba(38,34,29,.3); padding: 6px 10px; border-radius: 20px; pointer-events: none; white-space: nowrap; z-index: 6; transition: opacity .5s; }
-#grimerud-map .toast { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; padding: 10px 16px; border-radius: 12px; background: rgba(38,34,29,.82); color: #fffdf8; font-size: 14px; line-height: 1.35; text-align: center; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .25s, visibility 0s .25s; }
+#grimerud-map .toast { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; padding: 12px 18px; border: 0; border-radius: 12px; background: rgba(38,34,29,.86); color: #fffdf8; font: 14px/1.35 var(--f); text-align: center; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .25s, visibility 0s .25s; cursor: pointer; }
+#grimerud-map .toast b { font-weight: 600; }
+#grimerud-map .toast { width: max-content; max-width: min(280px, calc(100% - 40px)); }
 #grimerud-map .toast i { display: block; font-size: 12.5px; opacity: .8; }
-#grimerud-map .toast.show { opacity: 1; visibility: visible; transition: opacity .15s; }
+#grimerud-map .toast.show { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .15s; }
 #grimerud-map .hint.gone { opacity: 0; visibility: hidden; transition: opacity .5s, visibility 0s .5s; }
 #grimerud-map [hidden] { display: none !important; }
 #grimerud-map .pin.behind { visibility: hidden; }
@@ -225,7 +227,15 @@
 /* Touch: the page scrolls past the map; "Utforsk" opens it full screen for turning and zooming */
 
 @media (pointer: coarse) {
+  /* finger-sized hit areas round the pins without making them look bigger */
+  #grimerud-map .pin .num::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
   #grimerud-map .stage { touch-action: pan-y; }
+  /* iOS zooms the page into any text field under 16px: keep the search at 16px on touch screens */
+  #grimerud-map .search input { font-size: 16px; }
+  /* in the page, the full-screen button says what it does: one finger moves the map once it is open */
+  #grimerud-map:not(.gm-full) #gm-expand { width: auto; padding: 0 14px 0 11px; gap: 7px; display: flex; align-items: center; border-radius: 21px; font: 600 13.5px/1 var(--f); }
+  #grimerud-map:not(.gm-full) #gm-expand svg { width: 17px; height: 17px; }
+  #grimerud-map:not(.gm-full) #gm-expand .tx { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
   #grimerud-map .hint { display: none; }
   /* touch screens pinch to zoom */
   #grimerud-map .tgrp[data-g="zoom"] { display: none; }
@@ -275,6 +285,9 @@
   #grimerud-map .tool.compass svg { width: 35px; height: 35px; }
   #grimerud-map .card { left: 10px; right: 64px; bottom: 10px; max-width: none; padding: 10px 12px; }
   #grimerud-map .card h2 { font-size: 16.5px; }
+  /* phones: the English name on its own line, so titles don't break mid-name */
+  #grimerud-map .card h2 .sl { display: none; }
+  #grimerud-map .card h2 i { display: block; font-size: 14px; margin-top: 1px; }
   #grimerud-map .item { padding: 7px 10px; }
 }
 
@@ -289,7 +302,7 @@ html.gm-lock, html.gm-lock body { overflow: hidden !important; overscroll-behavi
 @container gm (max-width: 760px) {
   /* the list becomes a sheet along the bottom: search showing, drag or tap the handle to pull it up */
   #grimerud-map.gm-full .app { display: block; position: relative; }
-  #grimerud-map.gm-full .panel { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; height: 72%; border: 0; border-top: 2px solid var(--ink); border-radius: 16px 16px 0 0; box-shadow: 0 -4px 18px rgba(38,34,29,.18); transform: translateY(calc(100% - var(--peek))); transition: transform .28s cubic-bezier(.2,.8,.2,1); }
+  #grimerud-map.gm-full .panel { position: absolute; left: 0; right: 0; bottom: var(--kb, 0px); z-index: 8; height: min(72%, calc(100% - var(--kb, 0px) - 56px)); border: 0; border-top: 2px solid var(--ink); border-radius: 16px 16px 0 0; box-shadow: 0 -4px 18px rgba(38,34,29,.18); transform: translateY(calc(100% - var(--peek))); transition: transform .28s cubic-bezier(.2,.8,.2,1); }
   #grimerud-map.gm-full .panel.open { transform: none; }
   #grimerud-map.gm-full .panel .head, #grimerud-map.gm-full .panel .foot { display: none; }
   #grimerud-map.gm-full .sheet-handle { display: grid; place-items: center; width: 100%; height: 22px; flex: none; cursor: grab; touch-action: none; }

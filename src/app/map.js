@@ -21,7 +21,7 @@ const stage = document.getElementById("gm-stage");
 const listEl = document.getElementById("gm-list");
 const pinsEl = document.getElementById("gm-pins");
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const nameHTML = it => it.no === it.en ? esc(it.no) : `${esc(it.no)} / <i>${esc(it.en)}</i>`;
+const nameHTML = it => it.no === it.en ? esc(it.no) : `${esc(it.no)}<span class="sl"> / </span><i>${esc(it.en)}</i>`;
 const subHTML = it => (it.sub_no ? `${esc(it.sub_no)}<i>${esc(it.sub_en)}</i>` : esc(it.sub_en || ""));
 
 // Legend list: a Grimerud tab (buildings, arrival, other buildings, each collapsible) and a Diskgolf tab
@@ -1332,9 +1332,12 @@ function flyTo(t, d, polar, az, ms = 900) {
 function focusOn(it) {
   const fc = it.fc || it.c;
   const t = new THREE.Vector3(fc[0], hAt(fc[0], fc[1]) + it.h * 0.4, fc[1]);
-  const d = Math.max(85, it.size * 3.2);
-  const polar = Math.min(Math.max(controls.getPolarAngle(), 0.6), 1.0);
-  flyTo(t, d, polar, controls.getAzimuthalAngle());
+  // on a tall phone screen stand further back, and aim a little short of the place so it sits in the upper part of
+  // the view, clear of the card along the bottom
+  const k = tall(), d = Math.max(85, it.size * 3.2) * (1 + 0.45 * k);
+  const polar = Math.min(Math.max(controls.getPolarAngle(), 0.6), 1.0), az = controls.getAzimuthalAngle();
+  const off = d * 0.16 * k; t.x += Math.sin(az) * off; t.z += Math.cos(az) * off;
+  flyTo(t, d, polar, az);
   setMode("3d", false);
 }
 function jumpHome() { const v = homeView(); camera.position.copy(posFrom(v.t, v.d, v.polar, v.az)); controls.target.copy(v.t); controls.update(); }
@@ -1668,7 +1671,7 @@ requestAnimationFrame(frame);
 (() => {
   const btn = document.getElementById("gm-expand"), lbl = btn.querySelector(".tx"), icon = btn.querySelector("path");
   const coarse = matchMedia("(pointer: coarse)");
-  const openLabel = () => coarse.matches ? "Utforsk" : "Fullskjerm";
+  const openLabel = () => coarse.matches ? "Utforsk kartet" : "Fullskjerm";
   lbl.textContent = openLabel();
   let full = false, ph = null;
   const passThrough = () => coarse.matches && !full;
@@ -1678,7 +1681,7 @@ requestAnimationFrame(frame);
     if (!t0 || e.touches.length !== 1) { t0 = null; return; }
     const dx = e.touches[0].clientX - t0[0], dy = e.touches[0].clientY - t0[1];
     if (Math.abs(dx) > 24 && Math.abs(dx) > 1.5 * Math.abs(dy)) {
-      t0 = null; two.classList.add("show"); clearTimeout(twoTimer); twoTimer = setTimeout(() => two.classList.remove("show"), 1600);
+      t0 = null; two.classList.add("show"); clearTimeout(twoTimer); twoTimer = setTimeout(() => two.classList.remove("show"), 3200);
     }
   }, { capture: true, passive: true });
   ["touchstart", "touchmove"].forEach(t => stage.addEventListener(t, e => {
@@ -1702,11 +1705,13 @@ requestAnimationFrame(frame);
     btn.setAttribute("aria-pressed", on);
     lbl.textContent = on ? "Lukk" : openLabel();
     btn.dataset.tip = on ? "Lukk fullskjerm\nClose full screen" : "Fullskjerm\nFull screen";
-    icon.setAttribute("d", on ? "M5 5l10 10M15 5L5 15" : "M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12");
+    icon.setAttribute("d", on ? "M8 3.5V8H3.5M12 3.5V8h4.5M16.5 12H12v4.5M3.5 12H8v4.5" : "M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12");   // leaving full screen: arrows pointing in, so it never reads as a second close (x) beside the card's
     btn.setAttribute("aria-label", on ? "Lukk fullskjerm · Close full screen" : "Utforsk kartet i fullskjerm · Explore the map full screen");
     resize();
   }
   btn.addEventListener("click", e => { e.stopPropagation(); setFull(!full); if (full) track("view/fullscreen", "Full screen"); });
+  // a one-finger swipe on the page shows a toast; tapping it opens the map full screen, where one finger moves it
+  two.addEventListener("click", e => { e.stopPropagation(); two.classList.remove("show"); setFull(true); track("view/fullscreen", "Full screen"); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && full) setFull(false); });
   document.addEventListener("fullscreenchange", () => { if (full && document.fullscreenElement !== root) setFull(false); });
 })();
@@ -1806,6 +1811,12 @@ requestAnimationFrame(frame);
   addEventListener("pointerup", e => { if (y0 === null) return; const dy = e.clientY - y0; y0 = null; if (Math.abs(dy) > 24) { swiped = true; open(dy < 0); } });
   handle.addEventListener("click", () => { if (swiped) { swiped = false; return; } open(!panel.classList.contains("open")); });
   input.addEventListener("focus", () => { if (sheet()) open(true); });
+  // the on-screen keyboard: --kb is how much of the screen it covers, so the sheet (and its results) sit above it
+  const vv = window.visualViewport;
+  if (vv) {
+    const kb = () => root.style.setProperty("--kb", Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop)) + "px");
+    vv.addEventListener("resize", kb); vv.addEventListener("scroll", kb); kb();
+  }
   new MutationObserver(() => { if (!root.classList.contains("gm-full")) open(false); }).observe(root, { attributes: true, attributeFilter: ["class"] });
 })();
 
