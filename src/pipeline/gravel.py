@@ -68,6 +68,10 @@ for pts,w,kind in data.ROADS:
     cv2.polylines(m,[np.round(p).astype(np.int32)],False,1,int(round(max(w,3.2)/0.29188))+1)
     for x,y in pts: cv2.circle(m,(int(round(x)),int(round(y))),int(max(w,3.2)/0.29188/2),1,-1)
 cx_,cy_,cr_=data.CIRCLE; cv2.circle(m,(cx_,cy_),cr_,1,int(3.2/0.29188)+1)
+# gravel that reaches a building runs on underneath it, so no outline is drawn along the wall
+nb,lb=cv2.connectedComponents(build); touch=np.unique(lb[(cv2.dilate(m,k(13))>0)&(build>0)])
+for i in touch:
+    if i: m[lb==i]=1
 m=cv2.morphologyEx(m,cv2.MORPH_CLOSE,k(15))
 n,lab,st,_=cv2.connectedComponentsWithStats(1-m)
 for i in range(1,n):
