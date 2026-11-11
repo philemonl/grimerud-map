@@ -32,8 +32,10 @@ ITEMS=[
                   tables=[AT(MAIN,.13,1.075),AT(MAIN,.36,1.075),AT(MAIN,.1,1.145),AT(MAIN,.33,1.145)]),
              dict(p=SUB(MAIN,-.14,.84,0,.98),h=3.3,wall='#efe9dc',stucco=True,trim=False,roof='#e9e6de',flat=True,railing=True),
              # lower wing along the east side, and a small white flat-roofed porch on it
-             dict(p=RT(824.7,1016.0,16.0,48.5),h=3.6,wall='#efe9dc',stucco=True,roof='#8a4a36',bay=4.7,rise=2.2,trim=False),
-             dict(p=RT(836.1,1003.7,8.3,17.1),h=2.6,wall='#efe9dc',stucco=True,roof='#e9e6de',flat=True,trim=False)]),
+             # lean-to along the east wall (drone photo DJI_0041): drawn as a low gable centred on the wall, so only its outer slope shows
+             dict(p=RT(817.3,1027.0,32.0,53.0),h=2.7,wall='#f4f2ec',roof='#7b3a2b',bay=4.7,rise=2.0,trim=False),
+             # white flat-roofed box at the lean-to's north end
+             dict(p=RT(840.0,1005.0,13.0,22.0),h=2.6,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True)]),
  dict(n='1a',g='b',no='The Bird & Baby Café',en='The Bird & Baby Café',sub_no='Serverer kaffe, espresso, te-drikker og mer.',sub_en='Serving coffee, espresso, tea drinks, and more.',pin=AT(MAIN,.5,.1),inside='1'),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
       parts=[dict(p=OFFICE,grade=(1.9,0.6,0.5),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#f1f0eb','stone'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5)],chimneyColor='#dcae4f',balconies=[dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True),
@@ -93,7 +95,7 @@ CONTEXT=[
  # the yellow house, unlabelled for now (was item Y: no='Det gule huset', en='Yellow house',
  # sub_en='Small yellow house between the garage and the main building.')
  dict(p=RT(895,876,36,42),h=4.5,wall='#e6bf4f',roof='#c0532f'),dict(p=RT(892,850,24,12),h=3.0,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False),dict(p=RT(873,870,9,28),h=2.6,wall='#e6bf4f',roof='#e9e6de',flat=True,trim=False),
- dict(p=RT(872.9,1027.9,12.8,12.8),h=2.6,wall='#f4f2ec',roof='#3e3a38',plain=True,trim=False,rise=1.4),
+ dict(p=RT(872.9,1027.9,14,20),h=2.5,wall='#f4f2ec',roof='#7b3a2b',plain=True,trim=False,rise=1.6),   # white shed with a tiled roof in the yard
  dict(p=[[1174.4,1395.0],[1199.0,1364.3],[1230.2,1397.4],[1207.4,1426.1]],h=5,wall=YELLOW,roof='#c97f4a'),
 ]
 FLAG=[742,941]
@@ -181,7 +183,7 @@ def _connect(roads,circle,polys=(),snap=30):
 # Gravel picked from the orthophotos is only trusted inside GRAVEL_ZONES; everywhere else gravel is the roads
 # above plus these yards, so worn grass and garden paths never turn into lanes.
 GRAVEL_AREAS=[[[560,640],[800,648],[815,690],[800,700],[578,692],[560,700]],     # storage yard north of the barn
-              [[812,952],[885,944],[888,1048],[852,1052],[815,1052]]]             # east side of the main building, up to its wall
+              [[774,950],[812,952],[885,944],[888,1048],[852,1052],[815,1052],[815,1000],[760,1004],[762,975]]]             # north end and east side of the main building, up to its walls
 GRAVEL_ZONES=[[[872,915],[1085,903],[1092,1064],[882,1066]],                       # the car park
               [[915,375],[1065,375],[1065,475],[915,475]]]                        # north barn yard
 ASPHALT=[
