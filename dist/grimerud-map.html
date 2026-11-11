@@ -32,7 +32,6 @@ html, body { margin: 0; background: #f1efe8; }
 #grimerud-map .welcome { font: italic 500 15px/1.25 var(--f); margin: 0; }
 #grimerud-map h1 { font: 700 34px/1.05 var(--f); font-size: 34px !important; line-height: 1.05 !important; letter-spacing: -.01em; margin: 2px 0 0; padding-bottom: 6px; border-bottom: 2px solid var(--ink); text-wrap: balance; }
 #grimerud-map .since { font: italic 400 12px/1 var(--f); margin: 6px 0 0; color: var(--muted); }
-#grimerud-map .lede { margin: 12px 0 0; color: var(--muted); font-size: 13.5px; max-width: 36ch; }
 #grimerud-map .list { flex: 1; overflow-y: auto; padding: 0 12px 16px; min-height: 0; }
 /* search */
 #grimerud-map .search { position: relative; margin: 2px 22px 10px; display: flex; align-items: center; }
@@ -209,13 +208,8 @@ html, body { margin: 0; background: #f1efe8; }
 
 /* Touch: the page scrolls past the map; "Utforsk" opens it full screen for turning and zooming */
 
-#grimerud-map .lede-m { display: none; }
-#grimerud-map .lede b { font-weight: 500; color: var(--ink); }
-#grimerud-map .lede .ico { width: 1.05em; height: 1.05em; vertical-align: -0.17em; color: var(--ink); }
 @media (pointer: coarse) {
   #grimerud-map .stage { touch-action: pan-y; }
-  #grimerud-map .lede-d { display: none; }
-  #grimerud-map .lede-m { display: inline; }
   #grimerud-map .hint { display: none; }
   /* touch screens pinch to zoom */
   #grimerud-map .tgrp[data-g="zoom"] { display: none; }
@@ -232,7 +226,6 @@ html, body { margin: 0; background: #f1efe8; }
   #grimerud-map h1 { font-size: 23px !important; padding-bottom: 5px; }
   #grimerud-map .welcome { font-size: 13px; }
   #grimerud-map .since { font-size: 11px; margin-top: 5px; }
-  #grimerud-map .lede { font-size: 12.5px; margin-top: 8px; }
   #grimerud-map .group { margin-top: 14px; font-size: 10.5px; }
   #grimerud-map .nm { font-size: 14.5px; }
   #grimerud-map .sub { font-size: 11.5px; }
@@ -244,8 +237,6 @@ html, body { margin: 0; background: #f1efe8; }
   #grimerud-map .stage { height: 64svh; min-height: 340px; }
   /* one map switch on phones: the one on the map; the list follows it */
   #grimerud-map .ltabs { display: none; }
-  #grimerud-map .lede-d { display: none; }
-  #grimerud-map .lede-m { display: inline; }
   #grimerud-map .search { margin: 0 16px 8px; }
   #grimerud-map .listtoggle { display: none; }
   #grimerud-map .ltabs button { padding: 8px 6px 7px; font-size: 13.5px; }
@@ -309,7 +300,6 @@ html.gm-lock, html.gm-lock body { overflow: hidden !important; overscroll-behavi
         <div class="titles"><p class="welcome">Velkommen til Ungdom i Oppdrag</p>
         <h1>Grimerud Gård</h1></div></div>
         <p class="since">Siden 1975</p>
-        <p class="lede"><span class="lede-d">Tap a place in the list or on the map. Drag to turn the map, scroll to zoom, or open it full screen with <svg class="ico" viewBox="0 0 20 20" aria-label="full screen button"><path d="M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>.</span><span class="lede-m">Tap a place in the list or on the map. Move and zoom the map with two fingers, or tap <svg class="ico" viewBox="0 0 20 20" aria-label="full screen button"><path d="M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> for full screen, where one finger turns it.</span></p>
       </div>
       <div class="search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12.3 12.3l4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="gm-search" type="search" placeholder="Søk · Search" aria-label="Søk etter et sted · Search for a place" autocomplete="off"><button id="gm-sclear" type="button" aria-label="Tøm søk · Clear search" hidden>×</button></div>
       <p class="noresult" id="gm-noresult" hidden>Ingen treff · No matches</p>
