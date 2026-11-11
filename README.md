@@ -80,7 +80,7 @@ along that gravel; they carry the public roads, everything outside the photos, a
 The hill ranges on the horizon are the real skyline seen from the farm. `python3 src/pipeline/horizon.py` fetches a
 coarse height model (70 km each way) from Geonorge and writes `src/content/horizon.json`: the ridge height in every
 direction for three bands of distance (to 14 km, 14 to 30 km, 30 to 68 km), allowing for the earth's curve. `map.js`
-draws one ring per band, slightly exaggerated. It only needs re-running if the rings or bands change.
+draws one ring per band at its true angular height. It only needs re-running if the rings or bands change.
 
 ## Squarespace
 

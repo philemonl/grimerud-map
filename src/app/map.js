@@ -115,14 +115,14 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
   const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex(FAR_IMG) })); scene.add(m);
   // Far hills on the horizon: the real skyline round Grimerud (src/pipeline/horizon.py) in three ranges, one per
   // band of distance. Each further one is paler and bluer (aerial perspective) and rises out of valley haze.
-  const HZ = DATA.horizon, HAZE = [0.90, 0.93, 0.92], pts = [], idx = [], cols = [], BOOST = 1.5;
+  const HZ = DATA.horizon, HAZE = [0.90, 0.93, 0.92], pts = [], idx = [], cols = [], BOOST = 1 / EX;   // true angular height from the farm: no exaggeration on top of the terrain's
   const base = (123 - TERRAIN.h0) * EX - 20, eye = HZ.eye - TERRAIN.h0, floor = 123 + 25 - TERRAIN.h0;
   const COLS = [[0.42, 0.56, 0.47], [0.47, 0.59, 0.64], [0.66, 0.75, 0.81]];
   HZ.rings.forEach((ring, ri) => {
     const col = COLS[ri], n = ring.h.length, o = pts.length / 3;
     for (let i = 0; i <= n; i++) {
       const a = i / n * Math.PI * 2, cx = HZ.centre[0] + Math.cos(a) * ring.r, cz = HZ.centre[1] + Math.sin(a) * ring.r;
-      // ridge height as seen from the farm, a little exaggerated so the skyline reads at map scale
+      // ridge height as seen from the farm
       const top = Math.max(floor, eye + ring.h[i % n] * BOOST) * EX;
       // three rows: haze at the foot, the range's colour from part of the way up
       pts.push(cx, base, cz, cx, base + (top - base) * 0.4, cz, cx, top, cz);
