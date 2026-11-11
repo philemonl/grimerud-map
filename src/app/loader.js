@@ -74,15 +74,20 @@
       document.head.appendChild(s);
     });
   }
-  // Terrain heights ship as delta-coded uint16, zlib-compressed and base64'd (see src/pipeline/build_data.py)
-  async function decodeTerrain(t) {
-    if (t.v) return t;
-    var bin = atob(t.data), u8 = new Uint8Array(bin.length);
+  // Height grids (terrain, near and wide landscape) ship packed by src/pipeline/build_data.py (grid_z): zlib'd planes
+  // of low and high bytes of zigzag-coded residuals from a left + up - up-left predictor. This rebuilds g.v (uint16).
+  async function unpackGrid(g) {
+    if (g.v) return g;
+    var bin = atob(g.data), u8 = new Uint8Array(bin.length);
     for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-    var buf = await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate"))).arrayBuffer();
-    var v = new Uint16Array(buf);
-    for (var k = 1; k < v.length; k++) v[k] = (v[k] + v[k - 1]) & 0xffff;
-    t.v = v; return t;
+    var b = new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate"))).arrayBuffer());
+    var n = g.grid, N = n * n, v = new Uint16Array(N);
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+      var k = y * n + x, z = b[k] | (b[N + k] << 8), r = (z >>> 1) ^ -(z & 1);
+      var p = y && x ? v[k - 1] + v[k - n] - v[k - n - 1] : x ? v[k - 1] : y ? v[k - n] : 0;
+      v[k] = (p + r) & 0xffff;
+    }
+    g.v = v; return g;
   }
   function fail(e) {
     console.error("[Grimerud map]", e);
@@ -93,7 +98,7 @@
     scriptP(THREE_URL, function () { return !!window.THREE; }, 0.03, 0.25, 6.0e5)
       .then(function () { return scriptP(ORBIT_URL, function () { return !!(window.THREE && THREE.OrbitControls); }, 0.25, 0.28, 2.6e4); })
       .then(function () { return scriptP(DATA_URL, function () { return !!window.GRIMERUD_MAP_DATA; }, 0.28, 0.85, DATA_BYTES); })
-      .then(function () { return decodeTerrain(window.GRIMERUD_MAP_DATA.TERRAIN); })
+      .then(function () { var D = window.GRIMERUD_MAP_DATA; return Promise.all([D.TERRAIN, D.FAR, D.OUTER].map(unpackGrid)); })
       .then(function () { progress(0.9); return new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 30); }); }); })  // let the bar paint before the heavy build
       .then(function () {
         init(window.GRIMERUD_MAP_DATA); progress(1); track("loaded", "Map loaded");

@@ -100,8 +100,7 @@ function terrainPlane(size, seg, cx, cz, dy, map) {
 const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX));
 // Distant landscape with Mjøsa: a coarse painted sheet (~11 km) laid under the detailed ground
 (() => {
-  const bin = atob(FAR.data), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-  const v = new Uint16Array(u8.buffer), n = FAR.n, seg = n - 1;
+  const v = FAR.v, n = FAR.n, seg = n - 1;
   const g = new THREE.PlaneGeometry(FAR.size, FAR.size, seg, seg); g.rotateX(-Math.PI / 2);
   g.translate(FAR.x0 + FAR.size / 2, 0, FAR.z0 + FAR.size / 2);
   const pos = g.attributes.position, half = CTX_S / 2 - 30;
@@ -123,8 +122,7 @@ const ctxGround = terrainPlane(CTX_S, 320, CTX_CX, CTX_CZ, -0.35, tex(GROUND_CTX
   // working on the squeezed distance, gives the far ridges their blue.
   const PULL = 9000, REACH = 12600, eyeY = (HZ_EYE - TERRAIN.h0) * EX;
   {
-    const bin = atob(OUTER.data), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-    const v = new Uint16Array(u8.buffer), n = OUTER.n, H = OUTER.half, K = (REACH - PULL) / (H * Math.SQRT2 - PULL);
+    const v = OUTER.v, n = OUTER.n, H = OUTER.half, K = (REACH - PULL) / (H * Math.SQRT2 - PULL);
     const g = new THREE.PlaneGeometry(H * 2, H * 2, n - 1, n - 1); g.rotateX(-Math.PI / 2);
     const pos = g.attributes.position, pad = 450;
     const tint = [];   // distance blue: the land cover is multiplied towards slate blue the further off it lies
