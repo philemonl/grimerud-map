@@ -92,9 +92,12 @@ ITEMS=[
       parts=[dict(p=[[982,258],[1036,261],[1031,415],[977,412]],h=7,wall=RED,gable=RED,roof='#55585c',plain=True,base=[1.6,CONCRETE]),dict(p=RT(845,328,30,36),h=3.5,wall=RED,roof='#55585c',plain=True)]),
  dict(n='14',g='o',no='Vaktmesterboligen',en='Caretaker’s house',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
       # from the drone photo (DJI_0033): an L of two tiled gables, cream walls, a low west wing and a raised wooden deck
-      parts=[dict(p=RT(1394,789,44,20,a=-8),h=4.2,wall='#d4a640',roof='#7a3328',bay=3.4,chimneys=[[1397,792]]),        # one roof over the whole north range
-             dict(p=RT(1402,803.5,30,9.5,a=-8),h=3.4,wall='#d4a640',roof='#7a3328',bay=3.4,rise=1.3,trim=False,porch=[1401.5,808.6,'s']),  # south range with the entrance
-             dict(p=RT(1380,803,11,9,a=-8),h=2.7,wall='#d4a640',roof='#7a3328',bay=3.4,rise=1.2,trim=False),
+      # traced from the user's marked-up drone photo: an L of two pale-tiled blocks, a dark-tiled block on the south side,
+      # and a small lower roof in the corner, each its own roof
+      parts=[dict(p=[[1414.9, 781.0], [1416.6, 793.2], [1385.3, 797.6], [1383.6, 785.4]],h=4.2,wall='#d4a640',roof='#8a4a3a',bay=3.4,chimneys=[[1396.8, 796.0]]),
+             dict(p=[[1397.1, 777.7], [1399.1, 791.7], [1373.1, 795.4], [1371.1, 781.3]],h=4.2,wall='#d4a640',roof='#8a4a3a',bay=3.4),
+             dict(p=[[1416.8, 793.1], [1418.7, 806.7], [1388.1, 811.0], [1386.2, 797.5]],h=4.0,wall='#d4a640',roof='#6a2a20',bay=3.4,porch=[1405.1, 808.6]+['s']),
+             dict(p=[[1384.5, 793.8], [1385.8, 803.2], [1376.4, 804.6], [1375.0, 795.1]],h=2.8,wall='#d4a640',roof='#7a3328',bay=3.4,rise=1.2,trim=False),
              dict(p=RT(1366,786,15.5,31,a=-8),h=0.9,wall='#8a6a48',roof='#a88a64',flat=True,plain=True,trim=False,railing=True,tables=[[1366,783],[1366,778]]),
              dict(p=RT(1364.5,770.5,9,4.5,a=-8),h=2.0,wall='#8a6a48',roof='#5b5148',flat=True,plain=True,trim=False)]),
  # cabins on the asphalt between the office and the barn (from the drone photos, Nov 2026)
