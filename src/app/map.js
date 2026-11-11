@@ -736,8 +736,9 @@ function building(part, item) {
   });
   // stoop: a gabled porch roof on white posts over a raised landing, with concrete steps and black railings
   // [x, z, side, landing height]
-  if (part.stoop) {
-    const [x, z] = P(part.stoop), side = part.stoop[2] || "s", LH = part.stoop[3] || 1.2;
+  // stoops: several entrances on one part, each like part.stoop
+  (part.stoops || (part.stoop ? [part.stoop] : [])).forEach(stp => {
+    const [x, z] = P(stp), side = stp[2] || "s", LH = stp[3] || 1.2;
     const ent = new THREE.Group(); ent.position.set(x, Math.max(0, hAt(x, z) - baseY - 0.1), z); ent.rotation.y = wallRot(pts, side); group.add(ent);
     const add = (geo, mat, px, py, pz, inkIt = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(px, py, pz); ent.add(m); if (inkIt) addInk(geo, m, 25, ink); return m; };
     const conc = toon({ color: "#a9a49b" }), white = toon({ color: "#f8f6f0" });
@@ -752,7 +753,7 @@ function building(part, item) {
     }) }));
     door.position.set(0.07, LH + DH / 2, 0); ent.add(door);
     // posts, roof and front gable (an 'open' stoop is just the landing, door and steps)
-    if (part.stoop[4] !== "open") {
+    if (stp[4] !== "open") {
     const PH = 2.5, RW = 3.3, RD = LD + 0.35;
     [[LD - 0.12, -SW / 2 + 0.15], [LD - 0.12, SW / 2 - 0.15]].forEach(([px, pz]) => add(new THREE.BoxGeometry(0.16, PH, 0.16), white, px, LH + PH / 2, pz));
     const pr = new THREE.Shape([new THREE.Vector2(-RW / 2, 0), new THREE.Vector2(RW / 2, 0), new THREE.Vector2(0, 1.25)]);
@@ -772,7 +773,7 @@ function building(part, item) {
       hr.position.set((LD - 0.1 + foot) / 2, (y1 + y2) / 2 + 0.04, zz); hr.rotation.z = -Math.atan2(y1 - y2, foot - LD + 0.1); ent.add(hr);
     });
     ent.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segs), new THREE.LineBasicMaterial({ color: "#1f1c1a" })));
-  }
+  });
   // ramp: a smooth concrete driveway from the ground up to a floor of the building, with low walls along both sides
   // [x0, z0 (low end), x1, z1 (top, at the wall), width m, rise m]
   if (part.ramp) {
