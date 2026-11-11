@@ -36,7 +36,7 @@ ITEMS=[
              dict(p=SUB(MAIN,-.14,.84,0,.98),h=3.3,wall='#f6f4ee',stucco=True,trim=False,roof='#e9e6de',flat=True,railing=True),
              # lower wing along the east side, and a small white flat-roofed porch on it
              # lean-to along the east wall (drone photo DJI_0041): drawn as a low gable centred on the wall, so only its outer slope shows
-             dict(p=RT(817.3,1027.0,32.0,53.0),h=2.7,wall='#f4f2ec',roof='#6a3226',bay=4.7,rise=2.0,trim=False,stoop=[833.9,1022.5,'e',1.0,'open']),   # back entrance: door on a raised landing with steps, just south of the white box
+             dict(p=RT(817.3,1027.0,32.0,53.0),h=2.7,wall='#f4f2ec',roof='#6a3226',bay=4.7,rise=2.0,trim=False,stoop=[833.9,1025,'e',0.6,'open']),   # back entrance: door on a raised landing with steps, just south of the white box
              # white flat-roofed box at the lean-to's north end
              dict(p=RT(840.0,1005.0,13.0,22.0),h=2.6,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True)]),
  dict(n='1a',g='b',no='The Bird & Baby Café',en='The Bird & Baby Café',sub_no='Serverer kaffe, espresso, te-drikker og mer.',sub_en='Serving coffee, espresso, tea drinks, and more.',pin=AT(MAIN,.5,.1),inside='1'),

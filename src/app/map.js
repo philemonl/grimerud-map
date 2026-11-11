@@ -677,11 +677,12 @@ function building(part, item) {
     add(new THREE.BoxGeometry(LD, LH, SW), conc, LD / 2, LH / 2, 0);
     for (let k = 0; k < n - 1; k++) { const d = (n - 1 - k) * tr; add(new THREE.BoxGeometry(d, r, SW - 0.3), conc, LD + d / 2, k * r + r / 2, 0); }
     // glazed double door
-    const door = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.3, 1.6), toon({ map: canvasTex("door2", 32, 48, (g, w, h) => {
+    const DH = Math.min(2.3, part.h - LH - 0.3);   // the door always fits under the eaves
+    const door = new THREE.Mesh(new THREE.BoxGeometry(0.12, DH, 1.6), toon({ map: canvasTex("door2", 32, 48, (g, w, h) => {
       g.fillStyle = "#fbf8f0"; g.fillRect(0, 0, w, h); g.fillStyle = "#3b4a52"; g.fillRect(3, 3, 12, 40); g.fillRect(17, 3, 12, 40);
       g.strokeStyle = "#26221d"; g.lineWidth = 2; g.strokeRect(1, 1, w - 2, h - 2);
     }) }));
-    door.position.set(0.07, LH + 1.15, 0); ent.add(door);
+    door.position.set(0.07, LH + DH / 2, 0); ent.add(door);
     // posts, roof and front gable (an 'open' stoop is just the landing, door and steps)
     if (part.stoop[4] !== "open") {
     const PH = 2.5, RW = 3.3, RD = LD + 0.35;
