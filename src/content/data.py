@@ -52,9 +52,7 @@ ITEMS=[
                     # the basement opens onto the north side at ground level (Barn_07): doors along the concrete base
                     AT(BARN,.33,0)+['n',2.6,2.5],AT(BARN,.46,0)+['n',2.6,2.5],AT(BARN,.64,0)+['n',2.6,2.5],AT(BARN,.70,0)+['n',1.2,2.2],AT(BARN,.76,0)+['n',2.4,2.4],AT(BARN,.87,0)+['n',1.2,2.2]],
                     # concrete ramp up the north side at the west end to the upper floor (Barn_07/08)
-                    ramp=[AT(BARN,.1,0)[0]-0.0588*50,AT(BARN,.1,0)[1]-0.998*50,AT(BARN,.1,0)[0]+0.0588*2,AT(BARN,.1,0)[1]+0.998*2,4.8,3.0],   # square to the wall and running into it
-                    # concrete retaining wall off the south-east corner, holding up the bank at the east end, red railing on top
-                    retain=AT(BARN,1,1)+[AT(BARN,1,1)[0]+30,AT(BARN,1,1)[1]+8,2.6,0.3]),
+                    ramp=[AT(BARN,.1,0)[0]-0.0588*50,AT(BARN,.1,0)[1]-0.998*50,AT(BARN,.1,0)[0]+0.0588*2,AT(BARN,.1,0)[1]+0.998*2,4.8,3.0]),   # square to the wall and running into it
              dict(p=BARNX,h=6.2,wall='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',cross=True,gables=dict(s='#a3282a'),rise=4.6,porch=AT(BARNX,.55,1)+['s','plain']),dict(p=RT(672.5,767.5,10,10),h=2.6,wall='#a3282a',roof='#46474b',plain=True,trim=False,rise=0.9),dict(p=SUB(BARN,-.045,.6,0,.95),h=2.4,wall='#a3282a',roof='#cfd6d8',flat=True,plain=True,trim=False),dict(p=RT(779,799,36,72),h=2.8,wall='#fbfaf5',roof='#f6f4ee',tent=True,trim=False)]),
  dict(n='4a',g='b',no='Bønnerommet',en='Prayer room',sub_no='Oppe i inngangsfløyen til låven',sub_en='Upstairs in the barn’s entrance wing',pin=[722,752],inside='4',pinH=11),
  dict(n='4b',g='b',no='Overflow-rommet',en='Overflow room',sub_no='Inne i låven, i vestenden',sub_en='Inside the barn, at the west end',pin=[606,688],inside='4'),
