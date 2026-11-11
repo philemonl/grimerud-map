@@ -110,7 +110,7 @@ html, body { margin: 0; background: #f1efe8; }
 #grimerud-map .foot .addr:hover { text-decoration: underline; }
 #grimerud-map .about summary { cursor: pointer; list-style: none; font-size: 11px; color: var(--muted); }
 #grimerud-map .about summary::-webkit-details-marker { display: none; }
-#grimerud-map .about summary::before { content: "▸"; display: inline-block; width: 1em; transition: transform .15s; }
+#grimerud-map .about summary::before { content: ""; display: inline-block; width: 0; height: 0; margin: 0 7px 1px 1px; border-style: solid; border-width: 4.5px 0 4.5px 7px; border-color: transparent transparent transparent currentColor; vertical-align: middle; transition: transform .15s; }
 #grimerud-map .about[open] summary::before { transform: rotate(90deg); }
 #grimerud-map .about > div { margin-top: 4px; font-size: 11px; line-height: 1.45; }
 /* the imagery credit the map tiles require, kept tiny in the map's corner */
