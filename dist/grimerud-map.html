@@ -1556,9 +1556,9 @@ FAR_IMG: "data:image/webp;base64,UklGRqRfAQBXRUJQVlA4IJhfAQBQZgadASoABAAEPnk6mUi
       });
     })();
 
-    // Kindergarten play-area fence: grey posts every ~2.4 m with three rails, following the ground
+    // Kindergarten play-area fence: chain link on round galvanised posts every ~2.4 m, with a top rail, following the ground
     (() => {
-      const posts = [], rails = [], H = 1.2, SP = 2.4;
+      const posts = [], spans = [], H = 1.2, SP = 2.4;
       (DATA.fences || []).forEach(line => {
         const pts = line.map(P), seq = [];
         for (let i = 0; i < pts.length - 1; i++) {
@@ -1568,22 +1568,29 @@ FAR_IMG: "data:image/webp;base64,UklGRqRfAQBXRUJQVlA4IJhfAQBQZgadASoABAAEPnk6mUi
         seq.push(pts[pts.length - 1]);
         const ys = seq.map(p => hAt(...p));
         seq.forEach((p, i) => posts.push([p[0], ys[i], p[1]]));
-        for (let i = 0; i < seq.length - 1; i++) rails.push([seq[i], ys[i], seq[i + 1], ys[i + 1]]);
+        for (let i = 0; i < seq.length - 1; i++) spans.push([seq[i], ys[i], seq[i + 1], ys[i + 1]]);
       });
       if (!posts.length) return;
-      const mat = toon({ color: "#8d8a82" }), o = new THREE.Object3D();
-      const pm = new THREE.InstancedMesh(new THREE.BoxGeometry(0.12, H, 0.12), mat, posts.length);
-      posts.forEach(([x, y, z], i) => { o.position.set(x, y + H / 2 - 0.05, z); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1); o.updateMatrix(); pm.setMatrixAt(i, o.matrix); });
-      const rm = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.07, 0.05), mat, rails.length * 3);
-      rails.forEach(([a, ya, b, yb], i) => {
-        const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz);
-        [0.25, 0.65, 1.1].forEach((h, j) => {
-          o.position.set((a[0] + b[0]) / 2, (ya + yb) / 2 + h, (a[1] + b[1]) / 2);
-          o.rotation.set(0, -Math.atan2(dz, dx), Math.atan2(yb - ya, L), "YXZ"); o.scale.set(Math.hypot(L, yb - ya), 1, 1);
-          o.updateMatrix(); rm.setMatrixAt(i * 3 + j, o.matrix);
-        });
+      const steel = toon({ color: "#9a9d9f" }), o = new THREE.Object3D();
+      // diamond wire mesh, mostly see-through
+      const wire = canvasTex("chainlink", 64, 64, (g, w, h) => {
+        g.clearRect(0, 0, w, h); g.strokeStyle = "rgba(150,154,156,.95)"; g.lineWidth = 2.2;
+        for (let k = -64; k <= 64; k += 16) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k + 64, 64); g.stroke(); g.beginPath(); g.moveTo(k + 64, 0); g.lineTo(k, 64); g.stroke(); }
       });
-      scene.add(pm, rm);
+      wire.wrapS = wire.wrapT = THREE.RepeatWrapping; wire.repeat.set(SP / 0.5, H / 0.5);
+      const meshMat = new THREE.MeshBasicMaterial({ map: wire, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide, depthWrite: false });
+      const pm = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.045, 0.045, H + 0.05, 6), steel, posts.length);
+      posts.forEach(([x, y, z], i) => { o.position.set(x, y + H / 2 - 0.05, z); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1); o.updateMatrix(); pm.setMatrixAt(i, o.matrix); });
+      const rail = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.05, 0.05), steel, spans.length);
+      const net = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, H - 0.08), meshMat, spans.length);
+      spans.forEach(([a, ya, b, yb], i) => {
+        const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), Ls = Math.hypot(L, yb - ya);
+        o.rotation.set(0, -Math.atan2(dz, dx), Math.atan2(yb - ya, L), "YXZ"); o.scale.set(Ls, 1, 1);
+        o.position.set((a[0] + b[0]) / 2, (ya + yb) / 2 + H - 0.05, (a[1] + b[1]) / 2); o.updateMatrix(); rail.setMatrixAt(i, o.matrix);
+        o.position.y = (ya + yb) / 2 + (H - 0.08) / 2 - 0.03; o.updateMatrix(); net.setMatrixAt(i, o.matrix);
+      });
+      net.material.userData.noSnow = true;
+      scene.add(pm, rail, net);
     })();
 
     // Flag pole by the circular drive
