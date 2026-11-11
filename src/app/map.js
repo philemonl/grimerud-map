@@ -164,6 +164,17 @@ const glowTex = canvasTex("glow", 64, 64, (g, w, h) => {
   g.fillStyle = grd; g.fillRect(25, 21, 14, 20);
   g.fillStyle = "#3a2a10"; g.fillRect(31, 21, 2, 20); g.fillRect(25, 30, 14, 2);
 });
+// Shed dormer front (drone photo): a pair of white-framed four-pane windows side by side
+const dormerTex = color => withGlow(canvasTex("dm" + color, 128, 64, (g, w, h) => {
+  g.fillStyle = color; g.fillRect(0, 0, w, h);
+  g.fillStyle = "rgba(0,0,0,.05)"; for (let i = 0; i < w; i += 4) g.fillRect(i, 0, 1, h);
+  [[14, 12], [68, 12]].forEach(([x, y]) => {
+    g.fillStyle = "#fffdf8"; g.fillRect(x, y, 46, 42);
+    g.fillStyle = "#3b4a52"; g.fillRect(x + 4, y + 4, 38, 34);
+    g.fillStyle = "#fffdf8"; g.fillRect(x + 21, y + 4, 4, 34); g.fillRect(x + 4, y + 19, 38, 3);
+    g.strokeStyle = "#26221d"; g.lineWidth = 1.5; g.strokeRect(x, y, 46, 42);
+  });
+}), [[18, 16, 38, 34], [72, 16, 38, 34]]);
 const boardTex = color => canvasTex("b" + color, 64, 64, (g, w, h) => {
   g.fillStyle = color; g.fillRect(0, 0, w, h);
   g.fillStyle = "rgba(0,0,0,.08)"; for (let i = 0; i < 64; i += 4) g.fillRect(i, 0, 1, h);
@@ -416,7 +427,8 @@ function addDormers(group, g, part, ink) {
   // until its own ridge meets the main roof, so nothing floats above the tiles.
   // window only on the dormer's front; its side cheeks and back are plain cladding
   const dWall = toon({ map: wallTex(part.wall) }), dPlain = toon({ map: boardTex(part.wall) }), dRoof = toon({ color: part.roof });
-  const dMats = [dPlain, dPlain, dPlain, dPlain, dWall, dPlain];
+  const dFront = part.dormerStyle === "shed" ? toon({ map: dormerTex(part.wall) }) : dWall;
+  const dMats = [dPlain, dPlain, dPlain, dPlain, dFront, dPlain];
   const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
   const shed = part.dormerStyle === "shed", k = part.dormerSize || 1, w = 1.6 * k * (shed ? 1.3 : 1), tf = part.dormerSize ? 0.22 : 0.3;
   g.slopes.forEach(([e0, e1, r0, r1]) => {
@@ -441,6 +453,11 @@ function addDormers(group, g, part, ink) {
       const box = new THREE.Mesh(new THREE.BoxGeometry(w, hgt + 0.15, D), dMats); box.position.set(0, (hgt + 0.15) / 2, -D / 2);
       const cap = new THREE.Mesh(prism, dRoof); cap.position.y = hgt + 0.15;
       d.add(box, cap); addInk(box.geometry, box, 25, ink); addInk(prism, cap, 25, ink);
+      // white barge boards down both sides of a shed dormer's lid
+      if (shed) [-1, 1].forEach(sg => {
+        const b = new THREE.Mesh(new THREE.BoxGeometry(0.1, capH + 0.06, D + 0.22), trimMat);
+        b.position.set(sg * (w / 2 + 0.22), hgt + 0.15 + (capH + 0.06) / 2 - 0.03, -D / 2 + 0.1); d.add(b);
+      });
       group.add(d);
     }
   });
@@ -1009,6 +1026,36 @@ ITEMS.forEach(it => { if (!it.inside) return;
       scene.add(m); addInk(m.geometry, m);
     }
   });
+})();
+
+// Kindergarten play-area fence: grey posts every ~2.4 m with three rails, following the ground
+(() => {
+  const posts = [], rails = [], H = 1.2, SP = 2.4;
+  (DATA.fences || []).forEach(line => {
+    const pts = line.map(P), seq = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [a, b] = [pts[i], pts[i + 1]], L = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.round(L / SP));
+      for (let k = 0; k < n; k++) seq.push([a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n]);
+    }
+    seq.push(pts[pts.length - 1]);
+    const ys = seq.map(p => hAt(...p));
+    seq.forEach((p, i) => posts.push([p[0], ys[i], p[1]]));
+    for (let i = 0; i < seq.length - 1; i++) rails.push([seq[i], ys[i], seq[i + 1], ys[i + 1]]);
+  });
+  if (!posts.length) return;
+  const mat = toon({ color: "#8d8a82" }), o = new THREE.Object3D();
+  const pm = new THREE.InstancedMesh(new THREE.BoxGeometry(0.12, H, 0.12), mat, posts.length);
+  posts.forEach(([x, y, z], i) => { o.position.set(x, y + H / 2 - 0.05, z); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1); o.updateMatrix(); pm.setMatrixAt(i, o.matrix); });
+  const rm = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.07, 0.05), mat, rails.length * 3);
+  rails.forEach(([a, ya, b, yb], i) => {
+    const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz);
+    [0.25, 0.65, 1.1].forEach((h, j) => {
+      o.position.set((a[0] + b[0]) / 2, (ya + yb) / 2 + h, (a[1] + b[1]) / 2);
+      o.rotation.set(0, -Math.atan2(dz, dx), Math.atan2(yb - ya, L), "YXZ"); o.scale.set(Math.hypot(L, yb - ya), 1, 1);
+      o.updateMatrix(); rm.setMatrixAt(i * 3 + j, o.matrix);
+    });
+  });
+  scene.add(pm, rm);
 })();
 
 // Flag pole by the circular drive

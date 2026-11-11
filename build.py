@@ -58,7 +58,7 @@ def places():
     walk = [[1020, 962], [1040, 925], [1090, 902], [1150, 888], [1210, 872], [1260, 860], [1300, 848], [1340, 838], [1385, 836],
             [1446, 838], [1440, 760], [1428, 588], [1400, 392], [1393, 0]] + data.WALK_FIELD
     return dict(items=items, disc=holes, walk=walk, context=data.CONTEXT, flag=data.FLAG, roads=data.ROADS,
-                circle=data.CIRCLE, islands=data.ISLANDS, island_trees=data.ISLAND_TREES, sports=data.SPORTS, hedges=data.HEDGES,
+                circle=data.CIRCLE, islands=data.ISLANDS, island_trees=data.ISLAND_TREES, sports=data.SPORTS, hedges=data.HEDGES, fences=data.FENCES,
                 gravel=json.load(open(paths.CONTENT / 'gravel.json'))['polys'])
 
 

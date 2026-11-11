@@ -14,6 +14,16 @@ xs=T['x0']+np.arange(N)*CTX_S/(N-1); zs=T['z0']+np.arange(N)*CTX_S/(N-1)
 Hm=np.frombuffer(base64.b64decode(T['data']),'<u2').reshape(N,N)/100+T['hmin']
 M=0.29188; step=CTX_S/(N-1)
 def wpx(p): return [((p[0]-896)*M-xs[0])/step,((p[1]-896)*M-zs[0])/step]
+# move terrain mounds: lift the mound off a plane fitted round its rim, then set it down again shifted
+import scipy.ndimage as nd
+GX0,GZ0=np.meshgrid(xs,zs)
+for m in getattr(data,'MOUNDS',[]):
+    cx,cz=(m['c'][0]-896)*M,(m['c'][1]-896)*M; rx,rz=m['r'][0]*M,m['r'][1]*M
+    e=np.hypot((GX0-cx)/rx,(GZ0-cz)/rz); rim=(e>0.95)&(e<1.15)
+    A=np.c_[GX0[rim],GZ0[rim],np.ones(rim.sum())]; co=np.linalg.lstsq(A,Hm[rim],rcond=None)[0]
+    plane=co[0]*GX0+co[1]*GZ0+co[2]; taper=np.clip((1.05-e)/0.25,0,1); taper=taper*taper*(3-2*taper)
+    mound=np.clip(Hm-plane,0,None)*taper
+    Hm=Hm-mound+nd.shift(mound,(m['d'][1]*M/step,m['d'][0]*M/step),order=1,mode='constant')
 bis=[q for it in data.ITEMS for q in it.get('parts',[])]+data.CONTEXT
 for q in bis:
     poly=np.array([wpx(p) for p in q['p']],np.float32)
