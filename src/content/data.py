@@ -38,7 +38,7 @@ ITEMS=[
              dict(p=RT(840.0,1005.0,13.0,22.0),h=2.6,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True)]),
  dict(n='1a',g='b',no='The Bird & Baby Café',en='The Bird & Baby Café',sub_no='Serverer kaffe, espresso, te-drikker og mer.',sub_en='Serving coffee, espresso, tea drinks, and more.',pin=AT(MAIN,.5,.1),inside='1'),
  dict(n='2',g='b',no='Kontorbygning',en='Office building',sub_no='Resepsjon · Kontorfløy · Studio',sub_en='Reception · Offices · Studio',
-      parts=[dict(p=OFFICE,grade=(1.9,0.6,0.5),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,solar='s',skylights=dict(n=4),base=[2.7,'#f1f0eb','stone'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5),AT(OFFICE,.55,.3)],chimneyColor='#dcae4f',balconies=[dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True),
+      parts=[dict(p=OFFICE,grade=(1.9,0.6,0.5),h=8.8,wall='#e2b350',roof=ROOF_TILE,stucco=True,office=True,solar='s',skylights=dict(n=4),base=[2.7,'#f1f0eb','small'],bay=3.1,rise=4.6,chimneys=[AT(OFFICE,.92,.5),AT(OFFICE,.55,.3)],chimneyColor='#dcae4f',balconies=[dict(edge=3,n=1,upper=True,y=5.7,w=11,color='#e4e8df',rail=True),
                  # south side (edge 2 runs east to west): long balcony over the basement doors, a small one up by the east corner
                  dict(edge=2,n=1,at=.56,upper=True,y=2.75,w=5.6,color='#7f8b74',rail=True),dict(edge=2,n=1,at=.06,upper=True,y=5.75,w=2.2,color='#7f8b74',rail=True)],
              garage=[AT(OFFICE,.44,1)+['s',2.8,2.3,'wood']],porch=AT(OFFICE,.965,1)+['s'])]),
