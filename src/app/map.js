@@ -381,11 +381,63 @@ function addDormers(group, g, part, ink) {
     }
   });
 }
+// Site cabin on a trailer (the trailer park, from a site photo): warm grey panels in white frames, a door with
+// a little aluminium stair on one long side, windows, its number on the end, white flat roof, twin wheels.
+// part.trailer = { door: "n"|"s"|"e"|"w", n: number }
+function trailer(part, item, group, pts, baseY, ink) {
+  const t = part.trailer, H = 2.5, lift = 0.55;
+  let a = 0, L = 0; pts.forEach((p, i) => { const q = pts[(i + 1) % pts.length], l = Math.hypot(q[0] - p[0], q[1] - p[1]); if (l > L) { L = l; a = Math.atan2(q[1] - p[1], q[0] - p[0]); } });
+  const c = centroid(pts), W = Math.min(...pts.map((p, i) => { const q = pts[(i + 1) % pts.length]; return Math.hypot(q[0] - p[0], q[1] - p[1]); }));
+  const g = new THREE.Group(); g.position.set(c[0], hAt(...c) - baseY, c[1]); g.rotation.y = -a; group.add(g);
+  // which long side carries the door: the one whose outward normal points most toward the asked compass side
+  const want = { e: [1, 0], w: [-1, 0], s: [0, 1], n: [0, -1] }[t.door || "s"];
+  const nz = [Math.sin(a), Math.cos(a)];          // local +z in world (x, z)
+  const doorSide = (nz[0] * want[0] + nz[1] * want[1]) >= 0 ? 1 : -1;
+  const GREY = "#9f9d97", WHITE = "#f4f3ef";
+  const side = (withDoor) => canvasTex("trailer-side" + (withDoor ? "d" : "") + (t.flip ? "f" : ""), 256, 64, (g2, w, h) => {
+    g2.fillStyle = GREY; g2.fillRect(0, 0, w, h);
+    g2.fillStyle = "rgba(0,0,0,.06)"; for (let x = 0; x < w; x += 16) g2.fillRect(x, 0, 1, h);
+    g2.fillStyle = WHITE; g2.fillRect(0, 0, w, 4); g2.fillRect(0, h - 3, w, 3); g2.fillRect(0, 0, 4, h); g2.fillRect(w - 4, 0, 4, h);
+    const win = (x, y, ww, hh) => { g2.fillStyle = WHITE; g2.fillRect(x, y, ww, hh); g2.fillStyle = "#3b4a52"; g2.fillRect(x + 3, y + 3, ww - 6, hh - 6); g2.fillStyle = "rgba(255,200,120,.35)"; g2.fillRect(x + 3, y + 3, ww - 6, (hh - 6) / 2); };
+    win(28, 18, 40, 24); win(132, 18, 22, 32);
+    if (withDoor) { g2.fillStyle = "#b7b5ae"; g2.fillRect(176, 10, 30, 52); g2.strokeStyle = WHITE; g2.lineWidth = 2; g2.strokeRect(176, 10, 30, 52); g2.fillStyle = "#e9e7e1"; g2.fillRect(182, 24, 12, 8); g2.fillStyle = "#444"; g2.fillRect(200, 36, 3, 4); }
+    else win(190, 18, 40, 24);
+  });
+  const end = (num) => canvasTex("trailer-end" + num, 64, 64, (g2, w, h) => {
+    g2.fillStyle = GREY; g2.fillRect(0, 0, w, h);
+    g2.fillStyle = WHITE; g2.fillRect(0, 0, w, 4); g2.fillRect(0, h - 3, w, 3); g2.fillRect(0, 0, 4, h); g2.fillRect(w - 4, 0, 4, h);
+    g2.fillStyle = "#1c1c1c"; g2.font = "bold 22px sans-serif"; g2.textAlign = "center"; g2.fillText(String(num), w / 2, 40);
+  });
+  const sideD = toon({ map: side(true) }), sideP = toon({ map: side(false) }), endM = toon({ map: end(t.n || "") }), roofM = toon({ color: WHITE });
+  // BoxGeometry material order: +x, -x, +y, -y, +z, -z
+  const box = new THREE.Mesh(new THREE.BoxGeometry(L - 0.2, H, W - 0.3), [endM, endM, roofM, roofM, doorSide > 0 ? sideD : sideP, doorSide > 0 ? sideP : sideD]);
+  box.position.y = lift + H / 2; g.add(box); addInk(box.geometry, box, 25, ink);
+  // the long-side texture reads left to right from outside, so mirror the far side
+  if (doorSide < 0) { const m = sideD.map.clone(); m.needsUpdate = true; m.repeat.x = -1; m.offset.x = 1; box.material[5] = toon({ map: m }); }
+  // chassis and twin wheels
+  const dark = toon({ color: "#2b2b2b" });
+  const ch = new THREE.Mesh(new THREE.BoxGeometry(L * 0.8, 0.18, W - 0.8), toon({ color: "#55534f" })); ch.position.y = lift - 0.1; g.add(ch);
+  [-0.45, 0.45].forEach(dx => [-1, 1].forEach(sz => {
+    const wh = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.22, 12), dark); wh.rotation.x = Math.PI / 2;
+    wh.position.set(dx, 0.33, sz * (W / 2 - 0.55)); g.add(wh);
+  }));
+  // little stair under the door
+  const sx = (L - 0.2) * (191 / 256 - 0.5), st = new THREE.Group(); st.position.set(sx, 0, doorSide * (W / 2 - 0.15)); g.add(st);
+  const al = toon({ color: "#c9c8c3" });
+  for (let k = 0; k < 3; k++) { const s1 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.06, 0.28), al); s1.position.set(0, 0.18 + k * 0.18, doorSide * (0.75 - k * 0.24)); st.add(s1); }
+  const top = lift + H + 0.05, roofTop = top;
+  if (item) group.traverse(o => { if (o.isMesh) { o.userData.item = item; pickables.push(o); } });
+  const c0 = centroid(pts);
+  const halo = pts.map(([x, z]) => { const dx = x - c0[0], dz = z - c0[1], l = Math.hypot(dx, dz) || 1; return [x + dx / l * 2.2, z + dz / l * 2.2]; });
+  const hl = drape(halo, { fill: "rgba(201,69,47,.45)", stroke: "#c9452f", strokeW: 0.5, dy: 0.45, order: 2 }); hl.visible = false;
+  return { pts, top, roofTop, ink, hl, baseY };
+}
 function building(part, item) {
   const group = new THREE.Group(); scene.add(group);
   const pts = part.p.map(P);
   const baseY = Math.min(...pts.map(([x, z]) => hAt(x, z))) - 0.05; group.position.y = baseY;
   const ink = item ? new THREE.LineBasicMaterial({ color: INK }) : inkMat;
+  if (part.trailer) return trailer(part, item, group, pts, baseY, ink);
   const wallMat = part.tent ? toon({ color: part.wall }) : toon({ map: part.plain ? boardTex(part.wall) : part.stucco ? stuccoTex(part.wall) : wallTex(part.wall) });
   const y0 = part.base ? part.base[0] : 0;
   const mats = [wallMat];
@@ -612,6 +664,22 @@ function building(part, item) {
       hr.position.set((LD - 0.1 + foot) / 2, (y1 + y2) / 2 + 0.04, zz); hr.rotation.z = -Math.atan2(y1 - y2, foot - LD + 0.1); ent.add(hr);
     });
     ent.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segs), new THREE.LineBasicMaterial({ color: "#1f1c1a" })));
+  }
+  // ramp: a smooth concrete driveway from the ground up to a floor of the building, with low walls along both sides
+  // [x0, z0 (low end), x1, z1 (top, at the wall), width m, rise m]
+  if (part.ramp) {
+    const [ax, az, bx, bz, W, R] = part.ramp, A = P([ax, az]), Bp = P([bx, bz]);
+    const L = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]), ya = hAt(...A) - baseY;
+    const rg = new THREE.Group(); rg.position.set(A[0], ya - 0.05, A[1]); rg.rotation.y = Math.atan2(-(Bp[1] - A[1]), Bp[0] - A[0]); group.add(rg);
+    const conc = toon({ color: "#bdb9af" }), wallC = toon({ color: "#a9a59b" });
+    const side = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(L, 0), new THREE.Vector2(L, R), new THREE.Vector2(0, 0.05)]);
+    const deck = new THREE.ExtrudeGeometry(side, { depth: W, bevelEnabled: false }); deck.translate(0, 0, -W / 2);
+    const dm = new THREE.Mesh(deck, conc); rg.add(dm); addInk(deck, dm, 25, ink);
+    [-1, 1].forEach(sg => {
+      const ws = new THREE.Shape([new THREE.Vector2(0, 0.05), new THREE.Vector2(L, R), new THREE.Vector2(L, R + 0.9), new THREE.Vector2(0, 0.95)]);
+      const wg = new THREE.ExtrudeGeometry(ws, { depth: 0.25, bevelEnabled: false }); wg.translate(0, 0, sg > 0 ? W / 2 - 0.25 : -W / 2);
+      const wm = new THREE.Mesh(wg, wallC); rg.add(wm); addInk(wg, wm, 25, ink);
+    });
   }
   // picnic tables on the ground near the building: [x, z] each, set square to the building
   if (part.tables) {

@@ -45,9 +45,11 @@ ITEMS=[
  dict(n='3',g='b',no='Gym-bygning',en='Gym building',sub_no='Gymsal · Lille bønnerommet',sub_en='Gym · Little prayer room',
       parts=[dict(p=GYM,h=6.5,wall='#f4f2ec',roof=ROOF_TILE,steeple=AT(GYM,.5,.83),gables=dict(s='#dcb35a'),skin=[dict(p=SUB(GYM,0,.6,1,1),wall='#dcb35a',stucco=True)],porch=AT(GYM,.85,1)+['s','gable'])]),
  dict(n='4',g='b',no='Låven',en='The Barn',sub_no='Møtesal · Prokla Media · Bønnerom',sub_en='Meeting hall · Prokla Media · Prayer room',
-      parts=[dict(p=BARN,grade=(2.8,0,0.8),h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',plain=True,rise=7.5,garage=[AT(BARN,.44,1)+['s',3.6,3.0],AT(BARN,1,.5)+['e',4.4,3.8]]),
-             # concrete barn ramp up to the north side at the west end (drone video), in two steps
-             dict(p=RT(590,681,16,24),h=2.0,wall='#bdb9af',roof='#c9c5bb',flat=True,plain=True,trim=False),dict(p=RT(588.6,657,16,24),h=1.0,wall='#bdb9af',roof='#c9c5bb',flat=True,plain=True,trim=False),
+      parts=[dict(p=BARN,grade=(2.8,0,0.8),h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',plain=True,rise=7.5,garage=[AT(BARN,.44,1)+['s',3.6,3.0],AT(BARN,1,.5)+['e',4.4,3.8],
+                    # the basement opens onto the north side at ground level (Barn_07): doors along the concrete base
+                    AT(BARN,.33,0)+['n',2.6,2.5],AT(BARN,.46,0)+['n',2.6,2.5],AT(BARN,.64,0)+['n',2.6,2.5],AT(BARN,.70,0)+['n',1.2,2.2],AT(BARN,.76,0)+['n',2.4,2.4],AT(BARN,.87,0)+['n',1.2,2.2]],
+                    # concrete ramp up the north side at the west end to the upper floor (Barn_07/08)
+                    ramp=[600,642,600,692,4.8,3.0]),
              dict(p=BARNX,h=6.2,wall='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',cross=True,gables=dict(s='#a3282a'),rise=4.6,porch=AT(BARNX,.55,1)+['s','plain']),dict(p=RT(672.5,767.5,10,10),h=2.6,wall='#a3282a',roof='#46474b',plain=True,trim=False,rise=0.9),dict(p=SUB(BARN,-.045,.6,0,.95),h=2.4,wall='#a3282a',roof='#cfd6d8',flat=True,plain=True,trim=False),dict(p=RT(779,799,36,72),h=2.8,wall='#fbfaf5',roof='#f6f4ee',tent=True,trim=False)]),
  dict(n='4a',g='b',no='Bønnerommet',en='Prayer room',sub_no='Oppe i inngangsfløyen til låven',sub_en='Upstairs in the barn’s entrance wing',pin=[722,752],inside='4',pinH=11),
  dict(n='4b',g='b',no='Overflow-rommet',en='Overflow room',sub_no='Inne i låven, i vestenden',sub_en='Inside the barn, at the west end',pin=[606,688],inside='4'),
@@ -89,7 +91,14 @@ ITEMS=[
       parts=[dict(p=RT(1382,793,44,34),h=4.5,wall=WHITE,roof=ROOF_RED)]),
  # cabins on the asphalt between the office and the barn (from the drone photos, Nov 2026)
  dict(n='15',g='o',no='Trailerparken',en='Trailer park',sub_no='Brakker og vogner mellom kontorbygget og låven.',sub_en='Cabins and trailers between the office building and the barn.',
-      pin=[588,838],parts=[dict(p=RT(568,789,24,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(568,799.5,24,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(569,832.5,24,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(569,843,24,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(574,875,26,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(574,885.5,26,9.5),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(609.5,816,9.5,26),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True),dict(p=RT(615,866,9.5,26),h=2.7,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True)]),
+      pin=[588,838],parts=[dict(p=RT(568,789,24,9.5),h=3.0,trailer=dict(door='n',n=8)),
+             dict(p=RT(568,799.5,24,9.5),h=3.0,trailer=dict(door='s',n=7)),
+             dict(p=RT(569,832.5,24,9.5),h=3.0,trailer=dict(door='n',n=6)),
+             dict(p=RT(569,843,24,9.5),h=3.0,trailer=dict(door='s',n=5)),
+             dict(p=RT(574,875,26,9.5),h=3.0,trailer=dict(door='n',n=4)),
+             dict(p=RT(574,885.5,26,9.5),h=3.0,trailer=dict(door='s',n=3)),
+             dict(p=RT(609.5,816,9.5,26),h=3.0,trailer=dict(door='w',n=1)),
+             dict(p=RT(615,866,9.5,26),h=3.0,trailer=dict(door='e',n=2))]),
 ]
 CONTEXT=[
  # the yellow house, unlabelled for now (was item Y: no='Det gule huset', en='Yellow house',
