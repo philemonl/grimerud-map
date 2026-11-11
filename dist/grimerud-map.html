@@ -98,7 +98,18 @@ html, body { margin: 0; background: #f1efe8; }
 #grimerud-map .sub { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.4; margin-top: 2px; }
 #grimerud-map .sub i { display: block; }
 #grimerud-map .foot { border-top: 1px solid var(--line); padding: 14px 22px 18px; font-size: 12px; color: var(--muted); display: grid; gap: 4px; }
-#grimerud-map .foot strong { color: var(--ink); font-weight: 500; font-size: 13px; }
+/* footer: the address (opens directions) and a closed "About" line holding coordinates and credits */
+#grimerud-map .foot { padding: 12px 22px 14px; gap: 6px; }
+#grimerud-map .foot .addr { color: var(--ink); font-weight: 500; font-size: 13px; text-decoration: none; }
+#grimerud-map .foot .addr span { margin-left: 4px; color: var(--muted); font-size: 11px; }
+#grimerud-map .foot .addr:hover { text-decoration: underline; }
+#grimerud-map .about summary { cursor: pointer; list-style: none; font-size: 11px; color: var(--muted); }
+#grimerud-map .about summary::-webkit-details-marker { display: none; }
+#grimerud-map .about summary::before { content: "▸"; display: inline-block; width: 1em; transition: transform .15s; }
+#grimerud-map .about[open] summary::before { transform: rotate(90deg); }
+#grimerud-map .about > div { margin-top: 4px; font-size: 11px; line-height: 1.45; }
+/* the imagery credit the map tiles require, kept tiny in the map's corner */
+#grimerud-map .attrib { position: absolute; left: 6px; bottom: 4px; z-index: 3; font-size: 9px; line-height: 1; color: rgba(38,34,29,.55); background: rgba(255,253,248,.55); padding: 2px 4px; border-radius: 3px; pointer-events: none; }
 #grimerud-map .coord { font-variant-numeric: tabular-nums; }
 #grimerud-map .stage { position: relative; min-width: 0; overflow: hidden; touch-action: none; background: linear-gradient(180deg, #cfe0e6 0%, #e9eee9 22%, var(--paper) 44%); }
 #grimerud-map canvas { display: block; width: 100%; height: 100%; cursor: grab; }
@@ -230,7 +241,7 @@ html, body { margin: 0; background: #f1efe8; }
   #grimerud-map .nm { font-size: 14.5px; }
   #grimerud-map .sub { font-size: 11.5px; }
   #grimerud-map .foot { font-size: 11px; }
-  #grimerud-map .foot strong { font-size: 12px; }
+  #grimerud-map .foot .addr { font-size: 12px; }
   #grimerud-map .list { overflow: visible; padding: 0 6px 12px; }
   #grimerud-map .foot { padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); }
   #grimerud-map .hint { display: none; }
@@ -309,12 +320,15 @@ html.gm-lock, html.gm-lock body { overflow: hidden !important; overscroll-behavi
       </div>
       <nav class="list" id="gm-list" aria-label="Places" role="tabpanel"></nav>
       <div class="foot">
-        <strong>Grimerudvegen 77, 2312 Ottestad</strong>
-        <div class="coord">60°44′23″N · 11°07′52″E</div>
-        <div>Site map by Jan Willem Middag · Disc golf after UDisc · Imagery © Esri, Maxar, Earthstar Geographics. Positions and heights approximate.</div>
+        <a class="addr" href="https://www.google.com/maps/search/?api=1&amp;query=60.73972,11.13111" target="_blank" rel="noopener">Grimerudvegen 77, 2312 Ottestad<span aria-hidden="true">↗</span></a>
+        <details class="about"><summary>Om kartet · About</summary>
+          <div class="coord">60°44′23″N · 11°07′52″E</div>
+          <div>Site map by Jan Willem Middag · Disc golf after UDisc · Imagery © Esri, Maxar, Earthstar Geographics, Kartverket. Positions and heights approximate.</div>
+        </details>
       </div>
     </aside>
     <main class="stage" id="gm-stage">
+      <div class="attrib" aria-hidden="true">© Esri, Maxar, Kartverket</div>
       <button class="listtoggle" id="gm-listtoggle" aria-expanded="true" aria-label="Skjul liste · Hide list" data-tip="Skjul liste&#10;Hide list"><svg viewBox="0 0 12 20" aria-hidden="true"><path d="M8 5l-4 5 4 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <div class="gm-load" id="gm-load">Laster kart · Loading map…</div>
       <canvas id="gm-c" aria-label="Illustrated 3D map of Grimerud Gård"></canvas>
