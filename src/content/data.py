@@ -82,7 +82,7 @@ ITEMS=[
  dict(n='11',g='o',no='Barracks',en='Barracks',sub_no='',sub_en='Long, low building along the farm road, opposite the car park.',
       parts=[dict(p=RT(1122.8,869,188,34.6,a=-12.3),h=6,wall=RED,roof='#dcdbd6',flat=True,stripes=2.9)]),
  dict(n='12',g='o',no='Spiseteltet',en='Dining tent',sub_no='',sub_en='Large white tent just south of the main building.',
-      parts=[dict(p=RT(806,1170,34,74,a=-22),h=2.6,wall='#fbfaf5',roof='#f6f4ee',tent=True)]),
+      parts=[dict(p=RT(807.4,1168.5,33.1,63.6),h=2.6,wall='#fbfaf5',roof='#f6f4ee',tent=True)]),
  dict(n='13',g='o',no='Nordlåven',en='North barn',sub_no='',sub_en='Older farm barn and work yard north of the garage, reached by the farm track.',
       parts=[dict(p=[[982,258],[1036,261],[1031,415],[977,412]],h=7,wall=RED,gable=RED,roof='#55585c',plain=True,base=[1.6,CONCRETE]),dict(p=RT(845,328,30,36),h=3.5,wall=RED,roof='#55585c',plain=True)]),
  dict(n='14',g='o',no='Vaktmesterboligen',en='Caretaker’s house',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
