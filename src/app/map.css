@@ -205,7 +205,20 @@
 #grimerud-map .app { height: var(--gm-h, min(82vh, 860px)); min-height: 560px; }
 
 /* Loading message, and the tip shown when someone scrolls the page over the map */
-#grimerud-map .gm-load { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; font: italic 13px/1.3 var(--f); color: #5a5248; pointer-events: none; }
+/* Loader: the Grimerud "g" fills with ink from the bottom as the map loads (--p from 0 to 1), with a thin
+   bar and a line of text under it; it bobs gently while waiting and fades away when the map is ready */
+#grimerud-map .gm-load { --p: 0; position: absolute; inset: 0; z-index: 20; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 24px; text-align: center; font: italic 13px/1.3 var(--f); color: #5a5248; background: #f1efe8; pointer-events: none; transition: opacity .45s ease; }
+#grimerud-map .gm-load.done { opacity: 0; }
+#grimerud-map .gm-g { position: relative; width: 44px; height: 75px; animation: gm-bob 1.6s ease-in-out infinite; }
+#grimerud-map .gm-g img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+#grimerud-map .gm-g .g0 { opacity: .14; }
+#grimerud-map .gm-g .g1 { clip-path: inset(calc((1 - var(--p)) * 100%) 0 0 0); transition: clip-path .3s ease-out; }
+#grimerud-map .gm-bar { width: 132px; height: 3px; border-radius: 2px; background: rgba(38,34,29,.14); overflow: hidden; }
+#grimerud-map .gm-bar i { display: block; height: 100%; width: calc(var(--p) * 100%); background: #26221d; border-radius: 2px; transition: width .3s ease-out; }
+#grimerud-map .gm-msg { margin: 0; }
+#grimerud-map .gm-load.err .gm-g, #grimerud-map .gm-load.err .gm-bar { display: none; }
+@keyframes gm-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-3deg); } }
+@media (prefers-reduced-motion: reduce) { #grimerud-map .gm-g { animation: none; } }
 #grimerud-map .gm-wheel { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; background: rgba(38,34,29,.38); color: #fffdf8; font: 500 15px/1.3 var(--f); opacity: 0; transition: opacity .25s; z-index: 6; }
 #grimerud-map .gm-wheel.on { opacity: 1; }
 

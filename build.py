@@ -62,12 +62,12 @@ def places():
                 gravel=json.load(open(paths.CONTENT / 'gravel.json'))['polys'])
 
 
-def script(data_url):
+def script(data_url, data_bytes=0):
     loader = (APP / "loader.js").read_text(encoding="utf-8")
     body = (APP / "map.js").read_text(encoding="utf-8")
     body = "\n".join(("    " + l) if l else l for l in body.split("\n"))
     places_json = json.dumps(places(), ensure_ascii=False, separators=(",", ":"))
-    for key, val in (("/*@DATA_URL*/\"\"", json.dumps(data_url)), ("/*@DATA*/null", places_json), ("    /*@MAP*/", body)):
+    for key, val in (("/*@DATA_URL*/\"\"", json.dumps(data_url)), ("/*@DATA_BYTES*/0", str(data_bytes)), ("/*@DATA*/null", places_json), ("    /*@MAP*/", body)):
         assert loader.count(key) == 1, key
         loader = loader.replace(key, val)
     return loader.replace("</script", "<\\/script")
@@ -96,7 +96,7 @@ def main():
   var st = document.createElement("style"); st.textContent = {json.dumps(css)}; document.head.appendChild(st);
   mount.outerHTML = {json.dumps(markup.replace('<div id="grimerud-map">', f'<div id="grimerud-map" data-src="{data_url}">', 1))};
 }})();
-{script(data_url)}
+{script(data_url, len(heavy.encode("utf-8")))}
 """
     # ASCII only (non-ASCII as \\u escapes), so Norwegian letters survive however the file is served
     def esc(c):

@@ -11,6 +11,37 @@
   var ORBIT_URL = "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js";
   var fill = root.hasAttribute("data-fill"); // standalone page: the map is the whole page
   var loadEl = document.getElementById("gm-load");
+  var DATA_BYTES = /*@DATA_BYTES*/0;   // size of the data file, so its download can show real progress
+
+  // Loader progress: 0..1, never backwards; the logo fills and the bar grows with it
+  var shown = 0;
+  function progress(p) {
+    p = Math.max(shown, Math.min(1, p)); shown = p;
+    if (!loadEl) return;
+    loadEl.style.setProperty("--p", p.toFixed(3)); loadEl.setAttribute("aria-valuenow", Math.round(p * 100));
+  }
+  // Fetch a script with byte progress mapped into [a, b] of the bar, then run it; any trouble falls back to a plain <script>
+  function scriptP(src, ready, a, b, expect) {
+    if (ready()) { progress(b); return Promise.resolve(); }
+    if (!window.fetch || !window.ReadableStream) return script(src, ready).then(function () { progress(b); });
+    return fetch(src).then(function (r) {
+      if (!r.ok || !r.body) throw new Error("http " + r.status);
+      var len = +r.headers.get("content-length") || 0, enc = r.headers.get("content-encoding");
+      var total = (!enc || enc === "identity") && len ? len : expect, got = 0, rd = r.body.getReader(), parts = [];
+      function pump() {
+        return rd.read().then(function (x) {
+          if (x.done) return;
+          parts.push(x.value); got += x.value.length;
+          progress(a + (b - a) * (total ? Math.min(1, got / total) : 1 - Math.exp(-got / 4e5)));
+          return pump();
+        });
+      }
+      return pump().then(function () {
+        var url = URL.createObjectURL(new Blob(parts, { type: "text/javascript" }));
+        return script(url, ready).then(function () { URL.revokeObjectURL(url); progress(b); });
+      });
+    }).catch(function () { return script(src, ready).then(function () { progress(b); }); });
+  }
 
   function script(src, ready) {
     return new Promise(function (res, rej) {
@@ -34,14 +65,19 @@
   }
   function fail(e) {
     console.error("[Grimerud map]", e);
-    if (loadEl) loadEl.textContent = "Kartet kunne ikke lastes. · The 3D map could not load. Reload the page to try again.";
+    if (loadEl) { loadEl.classList.add("err"); var m = loadEl.querySelector(".gm-msg"); (m || loadEl).textContent = "Kartet kunne ikke lastes. · The 3D map could not load. Reload the page to try again."; }
   }
   function start() {
-    script(THREE_URL, function () { return !!window.THREE; })
-      .then(function () { return script(ORBIT_URL, function () { return !!(window.THREE && THREE.OrbitControls); }); })
-      .then(function () { return script(DATA_URL, function () { return !!window.GRIMERUD_MAP_DATA; }); })
+    progress(0.03);
+    scriptP(THREE_URL, function () { return !!window.THREE; }, 0.03, 0.25, 6.0e5)
+      .then(function () { return scriptP(ORBIT_URL, function () { return !!(window.THREE && THREE.OrbitControls); }, 0.25, 0.28, 2.6e4); })
+      .then(function () { return scriptP(DATA_URL, function () { return !!window.GRIMERUD_MAP_DATA; }, 0.28, 0.85, DATA_BYTES); })
       .then(function () { return decodeTerrain(window.GRIMERUD_MAP_DATA.TERRAIN); })
-      .then(function () { init(window.GRIMERUD_MAP_DATA); if (loadEl) loadEl.remove(); })
+      .then(function () { progress(0.9); return new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 30); }); }); })  // let the bar paint before the heavy build
+      .then(function () {
+        init(window.GRIMERUD_MAP_DATA); progress(1);
+        if (loadEl) { setTimeout(function () { loadEl.classList.add("done"); setTimeout(function () { loadEl.remove(); }, 500); }, 250); }
+      })
       .catch(fail);
   }
 

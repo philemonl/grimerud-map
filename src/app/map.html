@@ -26,7 +26,11 @@
     <main class="stage" id="gm-stage">
       <div class="attrib" aria-hidden="true">© Esri, Maxar, Kartverket</div>
       <button class="listtoggle" id="gm-listtoggle" aria-expanded="true" aria-label="Skjul liste · Hide list" data-tip="Skjul liste&#10;Hide list"><svg viewBox="0 0 12 20" aria-hidden="true"><path d="M8 5l-4 5 4 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <div class="gm-load" id="gm-load">Laster kart · Loading map…</div>
+      <div class="gm-load" id="gm-load" role="progressbar" aria-label="Laster kart · Loading map" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="gm-g" aria-hidden="true"><img class="g0" src="logos/grimerud-ink.png" alt=""><img class="g1" src="logos/grimerud-ink.png" alt=""></div>
+        <div class="gm-bar" aria-hidden="true"><i></i></div>
+        <p class="gm-msg">Laster kart · Loading map</p>
+      </div>
       <canvas id="gm-c" aria-label="Illustrated 3D map of Grimerud Gård"></canvas>
       <div id="gm-pins"></div>
       <button class="dg-go" id="gm-dggo" hidden aria-label="Show the disc golf course"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M5 7h10l-1.5 4h-7z" fill="none" stroke="#26221d" stroke-width="1.6" stroke-linejoin="round"/><path d="M5.5 5h9" stroke="#26221d" stroke-width="2.2" stroke-linecap="round"/><path d="M7 17h6" stroke="#26221d" stroke-width="1.6" stroke-linecap="round"/></svg>Diskgolf</button>
