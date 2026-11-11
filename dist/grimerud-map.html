@@ -74,9 +74,11 @@ html, body { margin: 0; background: #f1efe8; }
 #grimerud-map .tgrp.look.lit #gm-layers[aria-expanded="false"]::before { content: ""; position: absolute; top: -1px; right: -1px; width: 11px; height: 11px; border-radius: 50%; background: #b23a2b; border: 2px solid #fffdf8; }
 #grimerud-map #gm-layers[aria-expanded="true"] { background: #26221d; color: #fffdf8; }
 @media (prefers-reduced-motion: reduce) { #grimerud-map .drawer .tool, #grimerud-map .listtoggle svg { transition: none; } }
-#grimerud-map .ltabs { display: flex; gap: 0; margin: 4px 22px 0; border-bottom: 1.6px solid var(--ink); }
-#grimerud-map .ltabs button { flex: 1; padding: 9px 8px 8px; font: 500 14px/1 var(--f); color: var(--muted); background: none; border: 1.6px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; margin-bottom: -1.6px; cursor: pointer; }
-#grimerud-map .ltabs button[aria-selected="true"] { color: var(--ink); background: var(--panel); border-color: var(--ink); }
+/* list switch: a segmented control in the search box's own frame (same height, radius, border and fill),
+   the chosen half filled in ink like the 3D/2D switch on the map */
+#grimerud-map .ltabs { display: flex; gap: 3px; margin: 0 22px 8px; padding: 3px; background: #fffdf8; border: 1.6px solid var(--line); border-radius: 9px; }
+#grimerud-map .ltabs button { flex: 1; padding: 7px 8px; font: 500 14px/1.2 var(--f); color: var(--muted); background: none; border: 0; border-radius: 6px; cursor: pointer; transition: background .15s, color .15s; }
+#grimerud-map .ltabs button[aria-selected="true"] { color: #fffdf8; background: var(--ink); }
 #grimerud-map .ltabs button:hover:not([aria-selected="true"]) { color: var(--ink); }
 #grimerud-map .group { display: flex; align-items: center; gap: 8px; width: calc(100% - 8px); text-align: left; background: none; border: 0; cursor: pointer; font: 500 11.5px/1.2 var(--f); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 14px 4px 4px; padding: 6px 6px; border-radius: 6px; }
 #grimerud-map .group:hover { background: var(--chip); color: var(--ink); }
@@ -250,7 +252,7 @@ html, body { margin: 0; background: #f1efe8; }
   #grimerud-map .ltabs { display: none; }
   #grimerud-map .search { margin: 0 16px 8px; }
   #grimerud-map .listtoggle { display: none; }
-  #grimerud-map .ltabs button { padding: 8px 6px 7px; font-size: 13.5px; }
+  #grimerud-map .ltabs button { padding: 6px 6px; font-size: 13.5px; }
   #grimerud-map .maptabs { top: 10px; left: 10px; }
   /* phones: view and zoom stay in the right-hand column; names, season and time sit in a row under the map switch */
   /* phones: compass (reset) and the drawer button only; 2D lives in the drawer, zoom is pinch */
