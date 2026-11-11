@@ -141,8 +141,10 @@
 #grimerud-map .tool-pair .tool:first-child { border-radius: 19px 19px 4px 4px; }
 #grimerud-map .tool-pair .tool:last-child { border-radius: 4px 4px 19px 19px; }
 #grimerud-map .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-#grimerud-map .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-#grimerud-map .brand img { height: 34px; width: auto; display: block; }
+/* logos sit on the welcome line, sized to its cap height plus a little, so the header loses a row */
+#grimerud-map .brand { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+#grimerud-map .brand img { height: 22px; width: auto; display: block; flex: none; }
+#grimerud-map .brand .welcome { margin-left: 4px; min-width: 0; }
 #grimerud-map .seg { display: flex; background: #26221d; color: #26221d; padding: 1.6px; gap: 1.6px; border-radius: 9px; box-shadow: 0 2px 0 rgba(38,34,29,.3); }
 #grimerud-map .seg button { border: 0; background: #fffdf8; color: #26221d; padding: 7px 12px; font: 500 13px/1 var(--f); cursor: pointer; border-radius: 0; }
 #grimerud-map .seg button:first-child { border-top-left-radius: 7.4px; border-bottom-left-radius: 7.4px; }
@@ -240,8 +242,8 @@
   #grimerud-map .tgrp[data-g="view"] .tool-pair, #grimerud-map .tgrp[data-g="zoom"] { display: none; }
   #grimerud-map .tool.vmode { display: grid; }
   #grimerud-map .tool.corner { right: 10px; bottom: 10px; }
-  #grimerud-map .brand img { height: 28px; }
-  #grimerud-map .brand { margin-bottom: 8px; }
+  #grimerud-map .brand img { height: 18px; }
+  #grimerud-map .brand { margin-bottom: 1px; gap: 6px; }
   #grimerud-map .seg button, #grimerud-map .maptabs button { padding: 9px 11px; font-size: 13px; }
   #grimerud-map .tool.compass { width: 42px; height: 42px; }
   #grimerud-map .tool.compass svg { width: 35px; height: 35px; }
