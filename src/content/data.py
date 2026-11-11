@@ -45,7 +45,7 @@ ITEMS=[
  dict(n='3',g='b',no='Gym-bygning',en='Gym building',sub_no='Gymsal · Lille bønnerommet',sub_en='Gym · Little prayer room',
       parts=[dict(p=GYM,h=6.5,wall='#f4f2ec',roof=ROOF_TILE,steeple=AT(GYM,.5,.83),gables=dict(s='#dcb35a'),skin=[dict(p=SUB(GYM,0,.6,1,1),wall='#dcb35a',stucco=True)],porch=AT(GYM,.85,1)+['s','gable'])]),
  dict(n='4',g='b',no='Låven',en='The Barn',sub_no='Møtesal · Prokla Media · Bønnerom',sub_en='Meeting hall · Prokla Media · Prayer room',
-      parts=[dict(p=BARN,h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',plain=True,rise=7.5,garage=[AT(BARN,.44,1)+['s',3.6,3.0]]),
+      parts=[dict(p=BARN,grade=(2.8,0,0.8),h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',plain=True,rise=7.5,garage=[AT(BARN,.44,1)+['s',3.6,3.0],AT(BARN,1,.5)+['e',4.4,3.8]]),
              # concrete barn ramp up to the north side at the west end (drone video), in two steps
              dict(p=RT(590,681,16,24),h=2.0,wall='#bdb9af',roof='#c9c5bb',flat=True,plain=True,trim=False),dict(p=RT(588.6,657,16,24),h=1.0,wall='#bdb9af',roof='#c9c5bb',flat=True,plain=True,trim=False),
              dict(p=BARNX,h=6.2,wall='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',cross=True,gables=dict(s='#a3282a'),rise=4.6,porch=AT(BARNX,.55,1)+['s','plain']),dict(p=RT(672.5,767.5,10,10),h=2.6,wall='#a3282a',roof='#46474b',plain=True,trim=False,rise=0.9),dict(p=SUB(BARN,-.045,.6,0,.95),h=2.4,wall='#a3282a',roof='#cfd6d8',flat=True,plain=True,trim=False),dict(p=RT(779,799,36,72),h=2.8,wall='#fbfaf5',roof='#f6f4ee',tent=True,trim=False)]),
@@ -189,7 +189,8 @@ def _connect(roads,circle,polys=(),snap=30):
 # Gravel picked from the orthophotos is only trusted inside GRAVEL_ZONES; everywhere else gravel is the roads
 # above plus these yards, so worn grass and garden paths never turn into lanes.
 GRAVEL_AREAS=[[[560,640],[800,648],[815,690],[800,700],[578,692],[560,700]],     # storage yard north of the barn
-              [[774,950],[812,952],[885,944],[888,1048],[852,1052],[815,1052],[815,1000],[760,1004],[762,975]]]             # north end and east side of the main building, up to its walls
+              [[774,950],[812,952],[885,944],[888,1048],[852,1052],[815,1052],[815,1000],[760,1004],[762,975]],
+              RT(801,1124,48,30)]                                                 # picnic tables between the main building's south end and the dining tent             # north end and east side of the main building, up to its walls
 GRAVEL_ZONES=[[[872,915],[1085,903],[1092,1064],[882,1066]],                       # the car park
               [[915,375],[1065,375],[1065,475],[915,475]]]                        # north barn yard
 ASPHALT=[
