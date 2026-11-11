@@ -120,7 +120,7 @@ ITEMS=[
              dict(p=RT(569,843,24,9.5),h=3.0,trailer=dict(door='s',n=5)),
              dict(p=RT(574,875,26,9.5),h=3.0,trailer=dict(door='n',n=4)),
              dict(p=RT(574,885.5,26,9.5),h=3.0,trailer=dict(door='s',n=3)),
-             dict(p=RT(609.5,816,9.5,26),h=3.0,trailer=dict(door='w',n=1)),
+             dict(p=RT(609.5,816,9.5,26),h=3.0,trailer=dict(door='e',n=1)),
              dict(p=RT(615,866,9.5,26),h=3.0,trailer=dict(door='e',n=2))]),
 ]
 CONTEXT=[
