@@ -742,7 +742,7 @@ function building(part, item) {
     const ent = new THREE.Group(); ent.position.set(x, Math.max(0, hAt(x, z) - baseY - 0.1), z); ent.rotation.y = wallRot(pts, side); group.add(ent);
     const add = (geo, mat, px, py, pz, inkIt = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(px, py, pz); ent.add(m); if (inkIt) addInk(geo, m, 25, ink); return m; };
     const conc = toon({ color: "#a9a49b" }), white = toon({ color: "#f8f6f0" });
-    const LD = 1.7, SW = 3.0, n = 6, r = LH / n, tr = 0.32;
+    const LD = 1.7, SW = 3.0, n = Math.max(2, Math.round(LH / 0.18)), r = LH / n, tr = 0.3;   // as many steps as the height needs
     add(new THREE.BoxGeometry(LD, LH, SW), conc, LD / 2, LH / 2, 0);
     for (let k = 0; k < n - 1; k++) { const d = (n - 1 - k) * tr; add(new THREE.BoxGeometry(d, r, SW - 0.3), conc, LD + d / 2, k * r + r / 2, 0); }
     // glazed double door
@@ -752,8 +752,9 @@ function building(part, item) {
       g.strokeStyle = "#26221d"; g.lineWidth = 2; g.strokeRect(1, 1, w - 2, h - 2);
     }) }));
     door.position.set(0.07, LH + DH / 2, 0); ent.add(door);
+    if (stp[4] === "steps") door.visible = false;   // just a flight of steps, e.g. down from a deck
     // posts, roof and front gable (an 'open' stoop is just the landing, door and steps)
-    if (stp[4] !== "open") {
+    if (stp[4] !== "open" && stp[4] !== "steps") {
     const PH = 2.5, RW = 3.3, RD = LD + 0.35;
     [[LD - 0.12, -SW / 2 + 0.15], [LD - 0.12, SW / 2 - 0.15]].forEach(([px, pz]) => add(new THREE.BoxGeometry(0.16, PH, 0.16), white, px, LH + PH / 2, pz));
     const pr = new THREE.Shape([new THREE.Vector2(-RW / 2, 0), new THREE.Vector2(RW / 2, 0), new THREE.Vector2(0, 1.25)]);
@@ -765,7 +766,7 @@ function building(part, item) {
     }
     // railings down both sides of the steps, black balusters under a white handrail
     const segs = [], foot = LD + (n - 1) * tr;
-    [-1, 1].forEach(sg => {
+    (LH >= 0.8 ? [-1, 1] : []).forEach(sg => {   // a low landing needs no railing
       const zz = sg * (SW / 2 - 0.2), y1 = LH + 0.9, y2 = 0.9;
       segs.push(new THREE.Vector3(LD - 0.1, y1, zz), new THREE.Vector3(foot, y2, zz));
       for (let t = 0; t <= 1.0001; t += 1 / 8) { const xx = LD - 0.1 + (foot - LD + 0.1) * t, yt = y1 + (y2 - y1) * t, yb = LH - (LH - r) * t - 0.02; segs.push(new THREE.Vector3(xx, Math.max(yb, r), zz), new THREE.Vector3(xx, yt, zz)); }
