@@ -502,7 +502,9 @@ function trailer(part, item, group, pts, baseY, ink) {
 function building(part, item) {
   const group = new THREE.Group(); scene.add(group);
   const pts = part.p.map(P);
-  const baseY = Math.min(...pts.map(([x, z]) => hAt(x, z))) - 0.05; group.position.y = baseY;
+  // item.level: every part of the building stands on one floor level, so roofs meant to line up do line up
+  const basePts = item && item.level ? item.parts.flatMap(q => q.p.map(P)) : pts;
+  const baseY = Math.min(...basePts.map(([x, z]) => hAt(x, z))) - 0.05; group.position.y = baseY;
   const ink = item ? new THREE.LineBasicMaterial({ color: INK }) : inkMat;
   if (part.trailer) return trailer(part, item, group, pts, baseY, ink);
   const wallMat = part.tent ? toon({ color: part.wall }) : toon({ map: part.barn ? barnUpperTex(part.wall) : part.office ? officeTex(part.wall) : part.plain ? boardTex(part.wall) : part.stucco ? stuccoTex(part.wall) : wallTex(part.wall) });
@@ -620,6 +622,7 @@ function building(part, item) {
       g.strokeStyle = "#26221d"; g.lineWidth = 2; g.strokeRect(1, 1, w - 2, h - 2);
     }) }));
     door.position.set(dir * 0.07, 1.25, 0); ent.add(door);
+    door.scale.z = 0.62;   // a single glazed door, narrower than the canopy
     if (part.porch[3] === "gable") {
       // porch box (built facing +x): white walls, door in the front, tiled gable roof running out from the wall
       const PW = 2.6, PD = 2.2, PH = 2.6, white = toon({ map: stuccoPlain("#f6f4ee") });
@@ -636,7 +639,7 @@ function building(part, item) {
     const canopy = new THREE.Mesh(new THREE.ConeGeometry(1.75, 0.8, 4, 1), toon({ color: "#23304a" }));
     canopy.visible = !plainDoor && part.porch[3] !== "gable";
     canopy.rotation.y = Math.PI / 4; canopy.scale.set(0.75, 1, 1.1);
-    canopy.position.set(dir * 0.75, 2.95, 0); ent.add(canopy); addInk(canopy.geometry, canopy, 25, ink);
+    canopy.position.set(dir * 0.75, 2.45 + 0.4 + 0.05, 0); ent.add(canopy);   // sits just above the 2.45 m door top addInk(canopy.geometry, canopy, 25, ink);
     const step = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.3, 3.2), toon({ color: "#d4cec2" }));
     step.position.set(dir * 0.7 + (part.porch[3] === "gable" ? 2.2 : 0), 0.15, 0); ent.add(step); addInk(step.geometry, step, 25, ink);
   }

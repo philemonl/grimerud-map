@@ -90,15 +90,16 @@ ITEMS=[
       parts=[dict(p=RT(807.4,1168.5,33.1,63.6),h=2.6,wall='#fbfaf5',roof='#f6f4ee',tent=True)]),
  dict(n='13',g='o',no='Nordlåven',en='North barn',sub_no='',sub_en='Older farm barn and work yard north of the garage, reached by the farm track.',
       parts=[dict(p=[[982,258],[1036,261],[1031,415],[977,412]],h=7,wall=RED,gable=RED,roof='#55585c',plain=True,base=[1.6,CONCRETE]),dict(p=RT(845,328,30,36),h=3.5,wall=RED,roof='#55585c',plain=True)]),
- dict(n='14',g='o',no='Vaktmesterboligen',en='Caretaker’s house',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
+ dict(n='14',g='o',level=True,no='Vaktmesterboligen',en='Caretaker’s house',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
       # from the drone photo (DJI_0033): an L of two tiled gables, cream walls, a low west wing and a raised wooden deck
       # traced from the user's marked-up drone photo: an L of two pale-tiled blocks, a dark-tiled block on the south side,
       # and a small lower roof in the corner, each its own roof
       # from the marked-up drone photo, each marked piece being one roof slope with ridges between them:
       # main block, ridge east-west where the frosty north slope meets the bare south slope;
-      # west wing, its own east-west ridge a little further north, running into the main roof
+      # west wing: its north slope is the main roof's north slope carried on down (same pitch, eaves 1.42 m lower
+      # where the wall steps 1.7 m further north), so the two read as one unbroken slope
       parts=[dict(p=[[1414.87, 781.04], [1418.48, 806.73], [1387.69, 811.05], [1384.08, 785.37]],h=4.2,wall='#d4a640',roof='#7a3328',bay=3.4,chimneys=[[1396.64, 795.01]],porch=[1403.79, 808.79]+['s']),
-             dict(p=[[1397.14, 777.67], [1400.44, 801.18], [1374.44, 804.84], [1371.13, 781.33]],h=3.6,wall='#d4a640',roof='#7a3328',bay=3.4),
+             dict(p=[[1397.14, 777.67], [1400.44, 801.18], [1374.44, 804.84], [1371.13, 781.33]],h=2.78,wall='#d4a640',roof='#7a3328',bay=3.4),
              dict(p=RT(1366,786,15.5,31,a=-8),h=0.9,wall='#8a6a48',roof='#a88a64',flat=True,plain=True,trim=False,railing=True,tables=[[1366,783],[1366,778]]),
              dict(p=RT(1364.5,770.5,9,4.5,a=-8),h=2.0,wall='#8a6a48',roof='#5b5148',flat=True,plain=True,trim=False)]),
  # cabins on the asphalt between the office and the barn (from the drone photos, Nov 2026)
