@@ -1,4 +1,4 @@
-# Writes grimerud-map-data.js (the heavy assets the Squarespace embed loads) from the current build
+# Writes grimerud-map-data.js (the heavy assets the embed loads) from the current build
 from paths import B
 import base64, cv2, json, sys
 def webp(path, size=None, q=82):

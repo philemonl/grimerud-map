@@ -1,6 +1,6 @@
 # Grimerud Gård map
 
-Illustrated 3D map of Grimerud Gård (YWAM Grimerud, Grimerudvegen 77, Ottestad), with an optional layer for the Grimerud disc golf course. It runs in the browser with three.js and can be embedded in a Squarespace code block.
+Illustrated 3D map of Grimerud Gård (YWAM Grimerud, Grimerudvegen 77, Ottestad), with an optional layer for the Grimerud disc golf course. It runs in the browser with three.js and can be embedded in any web page with a code block.
 
 **Live map:** https://philemonl.github.io/grimerud-map/dist/grimerud-map.html
 
@@ -23,8 +23,8 @@ src/
 dist/                            built files: never edit by hand
   grimerud-map.html              standalone page, everything inlined
   grimerud-map-data.js           imagery, terrain, trees, distant landscape
-  grimerud-map-embed.js          styles, markup and map code for the Squarespace embed
-  squarespace-codeblock.html     the code block on the Squarespace site (pasted once; loads the embed from Pages)
+  grimerud-map-embed.js          styles, markup and map code for the embed
+  codeblock.html                 the code block that embeds the map (pasted once; loads the embed from Pages)
 build/                           gitignored: tiles, terrain model, painted intermediates
 ```
 
@@ -32,7 +32,7 @@ Coordinates in `src/content` are pixels of the 1792 px zoom-18 satellite mosaic 
 
 ## How the live site updates
 
-GitHub Pages serves this repo from `main`. The code block on the Squarespace site is pasted once and only loads `dist/grimerud-map-embed.js` from `https://philemonl.github.io/grimerud-map/dist/`. That file loads the data file, whose URL carries a hash of its contents.
+GitHub Pages serves this repo from `main`. The code block on the host site is pasted once and only loads `dist/grimerud-map-embed.js` from `https://philemonl.github.io/grimerud-map/dist/`. That file loads the data file, whose URL carries a hash of its contents.
 
 **Whatever is in `dist/` on `main` is live.** A push shows up on the site within about 10 minutes, the time Pages caches files. No tags, releases or re-pasting.
 
@@ -94,9 +94,9 @@ once per 3 s: `map/loaded`, `map/place/<n>` and `map/hole/<n>` (a place or hole 
 `map/tab/discgolf`, `map/search`, and `map/view/2d|labels|night|winter|fullscreen` when those are switched on.
 In GoatCounter, events are listed with the pages; untick "Hide events" if they don't show.
 
-## Squarespace
+## Embedding
 
-The code block (Display Source off) holds the contents of `dist/squarespace-codeblock.html`. It only needs re-pasting if that file itself changes, which happens only if the Pages address moves.
+The host page's code block (an HTML embed) holds the contents of `dist/codeblock.html`. It only needs re-pasting if that file itself changes, which happens only if the Pages address moves.
 
 `src/tools/check.py` lists any road or path that runs under a building.
 

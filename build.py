@@ -7,8 +7,8 @@ Reads the map source (src/app), the places and outlines (src/content) and the he
 (dist/grimerud-map-data.js, written by src/pipeline/build_data.py), and writes:
 
   dist/grimerud-map.html            standalone page with everything inlined
-  dist/grimerud-map-embed.js        styles, markup and map code for the Squarespace embed
-  dist/squarespace-codeblock.html   the code block on the Squarespace site (paste once)
+  dist/grimerud-map-embed.js        styles, markup and map code for the embed
+  dist/codeblock.html               the code block that embeds the map in a web page (paste once)
 
 The code block only loads dist/grimerud-map-embed.js from GitHub Pages, so pushing a rebuilt
 dist/ to main updates the site within a few minutes (Pages caches files for about 10 minutes).
@@ -108,12 +108,12 @@ def main():
     embed = "".join(esc(c) for c in embed)
     (DIST / "grimerud-map-embed.js").write_text(embed, encoding="utf-8")
 
-    block = f"""<!-- Grimerud Gård 3D map: paste once into a Squarespace Code Block (Display Source off).
+    block = f"""<!-- Grimerud Gård 3D map: paste once into a code block (an HTML embed) on any page.
      It loads the map from GitHub Pages, so pushing to github.com/{REPO} updates it without re-pasting. -->
 <div id="grimerud-map-mount" style="min-height:560px"></div>
 <script src="{EMBED_URL}" charset="utf-8" defer></script>
 """
-    (DIST / "squarespace-codeblock.html").write_text(block, encoding="utf-8")
+    (DIST / "codeblock.html").write_text(block, encoding="utf-8")
 
     page = f"""<!doctype html>
 <html lang="no">
@@ -137,7 +137,7 @@ html, body {{ margin: 0; background: #f1efe8; }}
 </html>
 """
     (DIST / "grimerud-map.html").write_text(page, encoding="utf-8")
-    for f in ("squarespace-codeblock.html", "grimerud-map-embed.js", "grimerud-map.html", "grimerud-map-data.js"):
+    for f in ("codeblock.html", "grimerud-map-embed.js", "grimerud-map.html", "grimerud-map-data.js"):
         print(f"dist/{f}  {(DIST / f).stat().st_size / 1024:,.0f} KB")
 
 

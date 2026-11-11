@@ -1,4 +1,4 @@
-/* Grimerud Gård map. Every rule is scoped to #grimerud-map so it can sit inside another site (Squarespace). */
+/* Grimerud Gård map. Every rule is scoped to #grimerud-map so it can sit inside another site. */
 
 /* Guard against the host site's own heading/paragraph/button styles */
 #grimerud-map { container: gm / inline-size; display: block; width: 100%; position: relative; isolation: isolate; text-align: left; -webkit-text-size-adjust: 100%; }
