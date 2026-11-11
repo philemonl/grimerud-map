@@ -29,6 +29,22 @@ for q in bis:
         t=np.clip(((GX-min(wx))/(max(wx)-min(wx))-k)/(1-k),0,1); t=t*t*(3-2*t)
         level=level+q['grade'][0]*(t-0.5)-q['grade'][1]*(GZ-cz)/(max(wz)-min(wz))
     Hm=Hm*(1-w)+level*w
+# retaining walls: fill the ground on the building's side of the wall up to the wall top, falling back
+# to the natural ground over a few metres, so the wall holds up a bank instead of standing free
+GX,GZ=np.meshgrid(xs,zs)
+for q in bis:
+    if not q.get('retain'): continue
+    ax,az,bx,bz,h0,h1=q['retain']; A=np.array([(ax-896)*M,(az-896)*M]); Bw=np.array([(bx-896)*M,(bz-896)*M])
+    c=np.mean([[(p[0]-896)*M,(p[1]-896)*M] for p in q['p']],0)
+    u=(Bw-A)/np.linalg.norm(Bw-A); n=np.array([-u[1],u[0]])
+    if np.dot(c-A,n)<0: n=-n                              # n points into the bank (the building's side)
+    from scipy.interpolate import RegularGridInterpolator as RGI
+    base=RGI((zs,xs),Hm,bounds_error=False,fill_value=None)
+    ya=float(base([[A[1]-n[1],A[0]-n[0]]])[0]); yb=float(base([[Bw[1]-n[1],Bw[0]-n[0]]])[0])   # foot of the wall, outside
+    t=((GX-A[0])*u[0]+(GZ-A[1])*u[1])/np.linalg.norm(Bw-A); d=(GX-A[0])*n[0]+(GZ-A[1])*n[1]
+    top=ya+h0+(yb+h1-ya-h0)*np.clip(t,0,1)
+    fall=np.clip(1-(d-0.3)/6.0,0,1)*((t>-0.05)&(t<1.05)&(d>0.05))   # flat for the first bit, then easing down over ~6 m
+    Hm=np.where(fall>0,np.maximum(Hm,Hm*(1-fall)+top*fall),Hm)
 q=np.round((Hm-T['hmin'])*100).astype('<u2'); T['data']=base64.b64encode(q.tobytes()).decode()
 json.dump(T,open(B+'style/terrain.json','w'))
 # hill shading: reuse the function body from terrain.py

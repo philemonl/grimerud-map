@@ -725,7 +725,9 @@ function building(part, item) {
   // [x0, z0, x1, z1, h0 m, h1 m]
   if (part.retain) {
     const [ax, az, bx, bz, h0, h1] = part.retain, A = P([ax, az]), Bp = P([bx, bz]);
-    const L = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]), ya = hAt(...A) - baseY, yb = hAt(...Bp) - baseY;
+    const L = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]), ux = (Bp[0] - A[0]) / L, uz = (Bp[1] - A[1]) / L, cc = centroid(pts);
+    let nx = -uz, nz = ux; if ((cc[0] - A[0]) * nx + (cc[1] - A[1]) * nz > 0) { nx = -nx; nz = -nz; }   // n: the open side, away from the bank
+    const ya = hAt(A[0] + nx, A[1] + nz) - baseY, yb = hAt(Bp[0] + nx, Bp[1] + nz) - baseY;          // foot of the wall on the open side
     const rg = new THREE.Group(); rg.position.set(A[0], 0, A[1]); rg.rotation.y = Math.atan2(-(Bp[1] - A[1]), Bp[0] - A[0]); group.add(rg);
     const sh = new THREE.Shape([new THREE.Vector2(0, ya - 0.4), new THREE.Vector2(L, yb - 0.4), new THREE.Vector2(L, yb + h1), new THREE.Vector2(0, ya + h0)]);
     const wg = new THREE.ExtrudeGeometry(sh, { depth: 0.35, bevelEnabled: false }); wg.translate(0, 0, -0.175);
