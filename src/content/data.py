@@ -71,7 +71,7 @@ ITEMS=[
              dict(p=RT(651.8,1144.4,10.8,11.4),h=2.3,wall='#9a9a92',roof='#43474c',bay=3.4)]),
  dict(n='7',g='b',no='Hybelhuset',en='Boys’ House',sub_no='',sub_en='',
       parts=[dict(p=[[1100,1300],[1118,1276],[1158,1306],[1140,1332]],h=3.4,wall='#e6bf4f',roof='#c0532f',rise=4.8,chimneys=[[1124,1298]],bay=3.6),dict(p=[[1128, 1302], [1149, 1318], [1175, 1284], [1154, 1268]],h=3.0,wall='#e6bf4f',roof='#c0532f',rise=2.8,trim=False,bay=3.6)]),
- dict(n='8',g='b',no='Rekkehusene',en='Row houses',sub_no='',sub_en='',
+ dict(n='8',g='b',no='Rekkehusene',en='Row houses',sub_no='Boliger for familier.',sub_en='Housing for families.',
       # two homes a block, front doors on the road (north-east) side; the ground falls about 1.5 m to the gardens
       # behind, so the basement walks out on the garden (south-west) side (drone photo)
       parts=[dict(p=[[1025, 1300.5], [1062, 1326.5], [1040.6, 1355.7], [1003.6, 1328.7]],h=5.6,grade=(0.9,1.3,0),wall='#a12e28',roof='#6b5b53',bay=3.4,balconies=dict(edge=2,n=2),stoops=[[1035.3, 1307.1, 'n', 0.6, 'open'], [1051.2, 1318.3, 'n', 0.6, 'open']]),
