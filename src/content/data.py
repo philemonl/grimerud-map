@@ -61,15 +61,16 @@ ITEMS=[
  dict(n='6',level=True,g='b',no='Bispen',en='Bispen',sub_no='',sub_en='',
       # yellow house, ridge east-west with the gable to the west; steep red-brown roof; low wing on the north side,
       # dark deck with a white fence on the south side, small shed at the south-west corner
-      parts=[dict(p=RT(673.1,1123.0,33.1,30.5),h=5.6,wall='#e8c77e',roof='#7a3328',bay=3.4,endBays=2,solar='s'),
+      parts=[dict(p=RT(673.1,1123.0,33.1,30.5),h=5.6,wall='#e8c77e',roof='#7a3328',bay=3.4,endBays=2,solar='s',
+                  skin=[dict(p=RT(685.4,1106.99,6.6,0.5),wall='#e8c77e',plain=True)]),   # no windows on the wall inside the shelter
              # north lean-to under the main roof's north slope carried on down (catslide): same pitch, eaves 1.7 m lower;
-             dict(p=RT(669.78,1104.6,26.45,7.1),h=3.93,shed='s',wall='#e8c77e',roof='#7a3328',bay=3.4,trim=False,porch=[683.0,1104.4,'e','plain']),
+             dict(p=RT(669.78,1104.6,26.45,7.1),h=3.93,shed='s',wall='#e8c77e',roof='#7a3328',plain=True,trim=False,porch=[683.0,1104.4,'e','plain']),
              # its east end is open: the same roof on a white post, sheltering the door (photo)
              dict(p=RT(686.33,1104.0,6.65,7.1),h=3.93,shed='s',open=True,wall='#e8c77e',roof='#7a3328',trim=False),
              dict(p=RT(672.9,1144.5,30.2,12.3),h=0.6,wall='#4a4440',roof='#5b5148',flat=True,plain=True,trim=False,railing=True),
              dict(p=RT(651.8,1144.4,10.8,11.4),h=2.3,wall='#9a9a92',roof='#43474c',bay=3.4)]),
  dict(n='7',g='b',no='Hybelhuset',en='Boys’ House',sub_no='',sub_en='',
-      parts=[dict(p=[[1100,1300],[1118,1276],[1158,1306],[1140,1332]],h=3.4,wall='#e6bf4f',roof='#c0532f',rise=4.8,dormers=1,dormerSize=3,chimneys=[[1124,1298]],bay=3.6),dict(p=[[1128, 1302], [1149, 1318], [1175, 1284], [1154, 1268]],h=3.0,wall='#e6bf4f',roof='#c0532f',rise=2.8,trim=False,bay=3.6)]),
+      parts=[dict(p=[[1100,1300],[1118,1276],[1158,1306],[1140,1332]],h=3.4,wall='#e6bf4f',roof='#c0532f',rise=4.8,chimneys=[[1124,1298]],bay=3.6),dict(p=[[1128, 1302], [1149, 1318], [1175, 1284], [1154, 1268]],h=3.0,wall='#e6bf4f',roof='#c0532f',rise=2.8,trim=False,bay=3.6)]),
  dict(n='8',g='b',no='Rekkehusene',en='Row houses',sub_no='',sub_en='',
       # two homes a block, front doors up short flights of steps on the road side; the ground climbs about 1.5 m to the
       # gardens behind, so the basement walks out at the front (drone photo)
