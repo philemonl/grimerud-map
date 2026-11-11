@@ -142,7 +142,7 @@ SPORTS=dict(goals=[[548,1000,0],[548,1096,180]],court=[[562,1133],[637,1133],[63
 HEDGES=[[[1003.6, 1328.7], [975.8, 1365.3], [1012.8, 1391.3], [1040.6, 1354.7]], [[1022.1, 1341.7], [994.3, 1378.3]], [[1048.6, 1348.7], [1022.3, 1386.4], [1059.3, 1413.4], [1085.6, 1375.7]], [[1067.1, 1362.2], [1040.8, 1399.9]], [[1080.6, 1384.7], [1053.4, 1421.8], [1090.4, 1448.8], [1117.6, 1411.7]], [[1099.1, 1398.2], [1071.9, 1435.3]]]   # a garden per home behind each row house block (drone photo)
 # grass islands with trees between the drive and the car park, as on the hand-drawn map; gaps are the entries
 # fence round the kindergarten's play area, from the wing's south end round to the main block, just inside the roads, clear of the trees and well back from the dormitories (traced on a drone photo)
-FENCES=[[[884,1212],[882,1218],[889,1228],[934,1254],[988,1274],[1031,1278],[1058,1282],[1080,1267],[1104,1244],[1110,1215],[1104,1182],[1099,1160],[1095,1135],[1104,1106],[1081,1098],[1053,1080],[1044,1070],[1000,1070],[960,1070],[920,1071],[916,1080],[912,1088]]]
+FENCES=[[[884,1212],[882,1218],[889,1228],[934,1254],[988,1274],[1031,1278],[1058,1282],[1080,1267],[1104,1244],[1110,1215],[1104,1182],[1099,1160],[1095,1135],[1104,1106],[1081,1098],[1056,1082],[1000,1086],[960,1088.5],[910,1091.5]]]
 # terrain mounds to move: centre px, radii px, shift px (the play-area hill sits inside the fence, not at its north edge)
 MOUNDS=[dict(c=[1055,1105],r=[95,85],d=[-15,65])]
 ISLANDS=[[[918,941],[962,939],[963,952],[919,954]],[[982,938],[1020,936],[1021,949],[983,951]]]
@@ -227,8 +227,7 @@ def _connect(roads,circle,polys=(),snap=30):
 GRAVEL_AREAS=[[[560,640],[800,648],[815,690],[800,700],[578,692],[560,700]],     # storage yard north of the barn
               [[774,950],[812,952],[885,944],[888,1048],[852,1052],[815,1052],[815,1000],[760,1004],[762,975]],   # north end and east side of the main building, up to its walls
               RT(801,1124,48,30),                                                 # picnic tables between the main building's south end and the dining tent
-              [[872,915],[1085,903],[1092,1064],[882,1066]],                      # the whole car park, so its south edge runs straight
-              [[848,1060],[882,1066],[916,1066],[916,1094],[848,1094]]]           # forecourt between the car park and the kindergarten, up to its walls
+              [[872,915],[1085,903],[1092,1064],[1062,1077.4],[906.3,1086.6],[848,1090],[848,1060],[872,1060]]]   # the whole car park, its south edge running straight on from the kindergarten's north wall
 GRAVEL_ZONES=[[[872,915],[1085,903],[1092,1064],[882,1066]],                       # the car park
               [[915,375],[1065,375],[1065,475],[915,475]]]                        # north barn yard
 ASPHALT=[
