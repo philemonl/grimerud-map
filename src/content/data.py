@@ -91,7 +91,12 @@ ITEMS=[
  dict(n='13',g='o',no='Nordlåven',en='North barn',sub_no='',sub_en='Older farm barn and work yard north of the garage, reached by the farm track.',
       parts=[dict(p=[[982,258],[1036,261],[1031,415],[977,412]],h=7,wall=RED,gable=RED,roof='#55585c',plain=True,base=[1.6,CONCRETE]),dict(p=RT(845,328,30,36),h=3.5,wall=RED,roof='#55585c',plain=True)]),
  dict(n='14',g='o',no='Vaktmesterboligen',en='Caretaker’s house',sub_no='',sub_en='First house on the right as you turn in from Grimerudvegen.',
-      parts=[dict(p=RT(1382,793,44,34),h=4.5,wall=WHITE,roof=ROOF_RED)]),
+      # from the drone photo (DJI_0033): an L of two tiled gables, cream walls, a low west wing and a raised wooden deck
+      parts=[dict(p=RT(1386,785.5,27,15,a=-6),h=4.2,wall='#ece2c4',roof='#7a3328',bay=3.4),
+             dict(p=RT(1402.5,795,29,21,a=-10),h=4.2,wall='#ece2c4',roof='#7a3328',bay=3.4,chimneys=[[1397,794]]),
+             dict(p=RT(1380.5,798,10.5,11,a=-6),h=2.7,wall='#ece2c4',roof='#7a3328',bay=3.4,rise=1.4,trim=False),
+             dict(p=RT(1367,786,15.5,31,a=-4),h=0.9,wall='#8a6a48',roof='#a88a64',flat=True,plain=True,trim=False,railing=True,tables=[[1366,783],[1366,778]]),
+             dict(p=RT(1366.5,770.5,9,4.5,a=-4),h=2.0,wall='#8a6a48',roof='#5b5148',flat=True,plain=True,trim=False)]),
  # cabins on the asphalt between the office and the barn (from the drone photos, Nov 2026)
  dict(n='15',g='o',no='Trailerparken',en='Trailer park',sub_no='Vogner mellom kontorbygget og låven.',sub_en='Trailers between the office building and the barn.',
       pin=[588,838],parts=[dict(p=RT(568,789,24,9.5),h=3.0,trailer=dict(door='n',n=8)),
