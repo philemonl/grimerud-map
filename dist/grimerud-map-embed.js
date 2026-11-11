@@ -819,22 +819,6 @@
         const sh = new THREE.Shape([new THREE.Vector2(0, ya - 0.4), new THREE.Vector2(L, yb - 0.4), new THREE.Vector2(L, yb + h1), new THREE.Vector2(0, ya + h0)]);
         const wg = new THREE.ExtrudeGeometry(sh, { depth: 0.35, bevelEnabled: false }); wg.translate(0, 0, -0.175);
         const wm = new THREE.Mesh(wg, toon({ color: "#cfcbc1" })); rg.add(wm); addInk(wg, wm, 25, ink);
-        // the bank it holds up: a grass slope from the wall top back down to the ground, built here because the
-        // terrain grid (~2.7 m) is too coarse to carry a step this sharp
-        {
-          const K = 12, back = 6, pos = [];
-          const P3 = (t, d) => { const wx = A[0] + (Bp[0] - A[0]) * t - nx * d, wz = A[1] + (Bp[1] - A[1]) * t - nz * d;
-            const y = d < 0.01 ? ya + h0 + (yb + h1 - ya - h0) * t : Math.max(hAt(wx, wz) - baseY, ya + (h0 + (yb + h1 - ya - h0) * t) * 0 ) ;
-            return [wx - A[0], y, wz - A[1]]; };
-          for (let k = 0; k < K; k++) {
-            const t0 = k / K, t1 = (k + 1) / K;
-            const a0 = P3(t0, 0.15), a1 = P3(t1, 0.15), b0 = P3(t0, back), b1 = P3(t1, back);
-            a0[1] = ya + h0 + (yb + h1 - ya - h0) * t0; a1[1] = ya + h0 + (yb + h1 - ya - h0) * t1;
-            pos.push(...a0, ...b0, ...a1, ...a1, ...b0, ...b1);
-          }
-          const bg = new THREE.BufferGeometry(); bg.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); bg.computeVertexNormals();
-          const bank = new THREE.Mesh(bg, toon({ color: "#6f9a45", side: THREE.DoubleSide })); bank.position.set(A[0], 0, A[1]); group.add(bank);
-        }
         const red = toon({ color: "#9e2a26" }), n = Math.max(2, Math.round(L / 1.2)), segs = [];
         const hr = new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(L, (yb + h1) - (ya + h0)), 0.07, 0.07), red);
         hr.position.set(L / 2, (ya + h0 + yb + h1) / 2 + 1.0, 0); hr.rotation.z = Math.atan2((yb + h1) - (ya + h0), L); rg.add(hr);
