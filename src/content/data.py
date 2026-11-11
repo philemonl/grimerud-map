@@ -14,26 +14,26 @@ def AT(q,u,v):
     return [round((1-u)*(1-v)*a[i]+u*(1-v)*b[i]+u*v*c[i]+(1-u)*v*d[i],1) for i in (0,1)]
 def SUB(q,u1,v1,u2,v2): return [AT(q,u1,v1),AT(q,u2,v1),AT(q,u2,v2),AT(q,u1,v2)]
 MAIN=RT(798.3,1050.3,40.8,120.6); OFFICE=RT(604.8,947.1,100.3,50.7); GYM=RT(672.5,932.8,36.5,68.4)
-BARN=RT(690.2,705.5,227,46.9); LEAN=RT(692.3,741.6,227,25.5); BARNX=RT(717.3,756.2,77.5,29.7)
+BARN=RT(691,727.5,227,69); BARNX=RT(717.3,768,77.5,30)   # one roof over the whole barn (drone photos)
 WHITE='#f4f1ea'; YELLOW='#e6bd4e'; RED='#a8292a'; DARKRED='#8c2626'; CREAM='#f2ece0'; CONCRETE='#d9d5cc'
 ROOF_RED='#c4432d'; ROOF_TILE='#b84a30'; ROOF_DARK='#3d3a38'; ROOF_BROWN='#6e3a2a'; ROOF_GREY='#8b8f8c'
 ITEMS=[
  # numbered as on the drawn site map
  dict(n='1',g='b',no='Hovedbygning',en='Main building',sub_no='Matsal · Stuene · Café Alv · TV-rom',sub_en='Dining hall · Living rooms · Café Alv · TV room',
-      parts=[dict(p=MAIN,h=6.6,wall='#efe9dc',stucco=True,base=[0.9,'#8e8a84','stone'],gable='#f8f6f0',trim=False,roof='#7b3a2b',bay=4.7,endBays=3,dormers=6,rise=5.0,dormerSize=1.35,chimneys=[AT(MAIN,.5,.25),AT(MAIN,.5,.55)],porch=AT(MAIN,0,.5)+['w'],
+      parts=[dict(p=MAIN,h=6.6,wall='#f6f4ee',stucco=True,base=[0.9,'#8e8a84','stone'],gable='#f8f6f0',trim=False,roof='#6a3226',bay=4.7,endBays=3,dormers=6,dormerStyle='shed',rise=5.0,dormerSize=1.35,chimneys=[AT(MAIN,.5,.25),AT(MAIN,.5,.55)],porch=AT(MAIN,0,.5)+['w'],
                   # south end, from the site photo: rendered wall on a grey plinth, three windows a floor on the west side
                   # (French balconies upstairs), the gabled entrance porch up a flight of steps on the east side,
                   # and a board-clad gable with a row of three attic windows; picnic tables on the gravel in front
-                  facade=dict(side='s',wall='#efe9dc',base=[0.9,'#8e8a84'],
+                  facade=dict(side='s',wall='#f6f4ee',base=[0.9,'#8e8a84'],
                               win=[[x,.22,1.1,.48,'cellar'] for x in (.8,2.25,3.7)]+[[x,1.45,1.1,1.75] for x in (.8,2.25,3.7)]
                                   +[[x,4.0,1.1,1.85,'juliet'] for x in (.8,2.25,3.7)]+[[7.95,5.0,1.4,1.45]],
                               gable=dict(color='#f8f6f0',win=[[x,.75,1.2,1.3] for x in (4.0,5.35,6.7)])),
                   stoop=AT(MAIN,.73,1)+['s',1.2],
                   tables=[AT(MAIN,.13,1.075),AT(MAIN,.36,1.075),AT(MAIN,.1,1.145),AT(MAIN,.33,1.145)]),
-             dict(p=SUB(MAIN,-.14,.84,0,.98),h=3.3,wall='#efe9dc',stucco=True,trim=False,roof='#e9e6de',flat=True,railing=True),
+             dict(p=SUB(MAIN,-.14,.84,0,.98),h=3.3,wall='#f6f4ee',stucco=True,trim=False,roof='#e9e6de',flat=True,railing=True),
              # lower wing along the east side, and a small white flat-roofed porch on it
              # lean-to along the east wall (drone photo DJI_0041): drawn as a low gable centred on the wall, so only its outer slope shows
-             dict(p=RT(817.3,1027.0,32.0,53.0),h=2.7,wall='#f4f2ec',roof='#7b3a2b',bay=4.7,rise=2.0,trim=False),
+             dict(p=RT(817.3,1027.0,32.0,53.0),h=2.7,wall='#f4f2ec',roof='#6a3226',bay=4.7,rise=2.0,trim=False),
              # white flat-roofed box at the lean-to's north end
              dict(p=RT(840.0,1005.0,13.0,22.0),h=2.6,wall='#f4f2ec',roof='#e9e6de',flat=True,trim=False,plain=True)]),
  dict(n='1a',g='b',no='The Bird & Baby Café',en='The Bird & Baby Café',sub_no='Serverer kaffe, espresso, te-drikker og mer.',sub_en='Serving coffee, espresso, tea drinks, and more.',pin=AT(MAIN,.5,.1),inside='1'),
@@ -45,10 +45,10 @@ ITEMS=[
  dict(n='3',g='b',no='Gym-bygning',en='Gym building',sub_no='Gymsal · Lille bønnerommet',sub_en='Gym · Little prayer room',
       parts=[dict(p=GYM,h=6.5,wall='#f4f2ec',roof=ROOF_TILE,steeple=AT(GYM,.5,.83),gables=dict(s='#dcb35a'),skin=[dict(p=SUB(GYM,0,.6,1,1),wall='#dcb35a',stucco=True)],porch=AT(GYM,.85,1)+['s','gable'])]),
  dict(n='4',g='b',no='Låven',en='The Barn',sub_no='Møtesal · Prokla Media · Bønnerom',sub_en='Meeting hall · Prokla Media · Prayer room',
-      parts=[dict(p=BARN,h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#d8d5cc'],roof='#46474b',plain=True,rise=7.5),
-             # lower lean-to along the south side, where the roof turns lighter in the photo
-             dict(p=LEAN,h=4.2,wall='#a3282a',gable='#a3282a',base=[2.4,'#d8d5cc'],roof='#55575b',plain=True,rise=1.6,trim=False,garage=[AT(LEAN,.44,1)+['s',3.6,3.0]]),
-             dict(p=BARNX,h=6.2,wall='#a3282a',base=[3.0,'#d8d5cc'],roof='#46474b',cross=True,rise=4.6,porch=AT(BARNX,.55,1)+['s','plain']),dict(p=RT(672.5,758.5,10,10),h=2.6,wall='#a3282a',roof='#46474b',plain=True,trim=False,rise=0.9),dict(p=SUB(BARN,-.045,.6,0,.95),h=2.4,wall='#a3282a',roof='#cfd6d8',flat=True,plain=True,trim=False),dict(p=R(756,750,797,840),h=2.8,wall='#fbfaf5',roof='#f6f4ee',tent=True,trim=False)]),
+      parts=[dict(p=BARN,h=6.2,wall='#a3282a',gable='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',plain=True,rise=7.5,garage=[AT(BARN,.44,1)+['s',3.6,3.0]]),
+             # concrete barn ramp up to the north side at the west end (drone video), in two steps
+             dict(p=RT(590,681,16,24),h=2.0,wall='#bdb9af',roof='#c9c5bb',flat=True,plain=True,trim=False),dict(p=RT(588.6,657,16,24),h=1.0,wall='#bdb9af',roof='#c9c5bb',flat=True,plain=True,trim=False),
+             dict(p=BARNX,h=6.2,wall='#a3282a',base=[3.0,'#e4e1d8'],roof='#2f3135',cross=True,gables=dict(s='#a3282a'),rise=4.6,porch=AT(BARNX,.55,1)+['s','plain']),dict(p=RT(672.5,767.5,10,10),h=2.6,wall='#a3282a',roof='#46474b',plain=True,trim=False,rise=0.9),dict(p=SUB(BARN,-.045,.6,0,.95),h=2.4,wall='#a3282a',roof='#cfd6d8',flat=True,plain=True,trim=False),dict(p=R(756,750,797,840),h=2.8,wall='#fbfaf5',roof='#f6f4ee',tent=True,trim=False)]),
  dict(n='4a',g='b',no='Bønnerommet',en='Prayer room',sub_no='Oppe i inngangsfløyen til låven',sub_en='Upstairs in the barn’s entrance wing',pin=[722,752],inside='4',pinH=11),
  dict(n='4b',g='b',no='Overflow-rommet',en='Overflow room',sub_no='Inne i låven, i vestenden',sub_en='Inside the barn, at the west end',pin=[606,688],inside='4'),
  dict(n='5',g='b',no='Internatet',en='Dormitories',sub_no='',sub_en='',

@@ -354,17 +354,19 @@ function addDormers(group, g, part, ink) {
   // until its own ridge meets the main roof, so nothing floats above the tiles.
   const dWall = toon({ map: wallTex(part.wall) }), dRoof = toon({ color: part.roof });
   const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
-  const k = part.dormerSize || 1, w = 1.6 * k, tf = part.dormerSize ? 0.22 : 0.3;
+  const shed = part.dormerStyle === "shed", k = part.dormerSize || 1, w = 1.6 * k * (shed ? 1.3 : 1), tf = part.dormerSize ? 0.22 : 0.3;
   g.slopes.forEach(([e0, e1, r0, r1]) => {
     const S = Math.hypot(...[0, 1].map(i => (e0[i] + e1[i]) / 2 - (r0[i] + r1[i]) / 2));
     // keep each dormer in the lower part of the slope: its ridge meets the roof about 60% of the way up
     const want = 2.4 * k, room = (0.8 - tf) * g.rise, total = Math.min(want, room);
-    let hgt = total * 0.62, capH = total * 0.38;
+    let hgt = total * (shed ? 0.8 : 0.62), capH = total * (shed ? 0.2 : 0.38);
     const tb = tf + total / g.rise;
     const D = (tb - tf) * S + 0.3;
     const yb = g.h + g.rise * tf - 0.15;
     const prism = (() => {
-      const s = new THREE.Shape([new THREE.Vector2(-w / 2 - .15, 0), new THREE.Vector2(w / 2 + .15, 0), new THREE.Vector2(0, capH)]);
+      // shed dormer: a flat lid tilting back into the roof; otherwise a little gable
+      const s = new THREE.Shape(shed ? [new THREE.Vector2(-w / 2 - .2, 0), new THREE.Vector2(w / 2 + .2, 0), new THREE.Vector2(w / 2 + .2, capH), new THREE.Vector2(-w / 2 - .2, capH)]
+        : [new THREE.Vector2(-w / 2 - .15, 0), new THREE.Vector2(w / 2 + .15, 0), new THREE.Vector2(0, capH)]);
       const e = new THREE.ExtrudeGeometry(s, { depth: D + .2, bevelEnabled: false }); e.translate(0, 0, -D); return e;
     })();
     for (let i = 0; i < part.dormers; i++) {
